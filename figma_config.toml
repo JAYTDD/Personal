@@ -1,0 +1,10 @@
+# Figma MCP 配置参考
+# 请将以下内容添加到你的 ~/.codex/config.toml 文件中
+
+[mcp_servers.figma]
+type = "http"
+url = "https://mcp.figma.com/mcp"
+bearer_token_env_var = "FIGMA_OAUTH_TOKEN"
+
+[mcp_servers.figma.http_headers]
+"X-Figma-Region" = "us-east-1"

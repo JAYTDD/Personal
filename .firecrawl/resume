@@ -1,0 +1,113 @@
+[resin-blog](https://www.coderesin.xyz/)
+
+[首页](https://www.coderesin.xyz/) [归档](https://www.coderesin.xyz/archives) [简历](https://www.coderesin.xyz/resume) [链接](https://www.coderesin.xyz/links) [求索](https://www.coderesin.xyz/collect) [规划](https://www.coderesin.xyz/plan) [面经](https://www.coderesin.xyz/experience) [关于](https://www.coderesin.xyz/about)
+
+切换到暗色模式
+
+简历历史
+
+2024.09
+
+入学赣南医科大学
+
+物联网工程 · 本科
+
+2025.07
+
+江西四角龙科技有限公司
+
+前端实习 · 住宿系统优化
+
+2025.10
+
+购物 AI 智能客服系统
+
+LangChain + RAG 知识库
+
+2026.02
+
+Mini-Markdown 编辑器
+
+AST 解析器 + Monorepo
+
+2026.06
+
+截至目前
+
+求职中。。。
+
+# 曾维杰
+
+专攻前端，往Agent全栈转型
+
+2970768980@qq.com18079639035github.com/resinya
+
+* * *
+
+## 教育经历
+
+### 赣南医科大学
+
+物联网工程 · 本科
+
+2024 年 9 月 - 2028 年 6 月
+
+* * *
+
+## 实习经历
+
+### 江西四角龙科技有限公司
+
+在导师的带领下优化住宿系统：
+
+- **Webpack 打包优化：** 通过代码分割、Tree Shaking、分析依赖手段、将生产环境资源体积从 8.5MB 压缩到 1.2MB，首屏加载时间从 4.2s 降至 1.1s
+- **稳定性优化：** 针对 script 脚本加载失败问题，设计脚本重试机制，在异常环境下将资源加载成功率由约 85% 提升至 98% 以上，首屏白屏率明显下降
+- **列表数据优化：** 引入虚拟滚动库、分页加载、图片懒加载；对比并验证 Base64 与 URL 加载方案，采用 CDN + 缓存策略，封装智能图片加载器，实现缓存、去重、格式自适应与性能提升
+- **AI 提效实践：** 封装业务场景 Prompt Template，沉淀可复用 Skills 能力模块，并基于 Swagger 自定义 MCP 工具链，实现接口文档自动接入与 AI 调用，提升需求开发与接口联调效率
+
+* * *
+
+## 项目经历
+
+### 购物 AI 智能客服系统
+
+实现电商 AI 客服系统，包含基础对话、订单查询 Agent、知识库问答三个核心模块
+
+- 使用 Express + LangChain.js 搭建 AI 服务层，封装 DeepSeek API 调用，基于 LCEL 管道语法（prompt \| model \| parser）实现可复用对话 Chain，支持流式 SSE 输出
+- 实现 ReAct Agent，定义订单查询、物流跟踪、用户订单列表三个 Tool，使用 zod 规范参数 Schema，Agent 可根据用户意图自动选择工具并多轮调用，最终返回自然语言结果
+- 搭建 RAG 知识库问答系统：使用 RecursiveCharacterTextSplitter 切分商品手册和售后政策文档，通过智谱 AI Embedding API 向量化后存入 pgvector，实现语义检索问答
+
+### Mini-Markdown 编辑器
+
+采用 pnpm + Monorepo 架构，实现自定义 AST 解析器与可扩展编辑器两大核心功能，支持模块化扩展、动态工具栏配置、插件注册机制及事件钩子系统
+
+- 基于 CodeMirror，完成了模块化扩展架构，通过 Extension 接口实现功能解耦，支持 Markdown 语法、快捷键、事件处理等模块的独立开发与按需加载，提供灵活的功能组合方式
+- 基于 Rollup 构建工具，完成了高性能自定义 AST 解析器，支持增量解析和高效的 Markdown 到 HTML 转换，通过优化的分词算法提升大文档处理性能，为编辑器提供实时预览能力
+- 基于事件驱动机制，完成了动态工具栏系统，实现实时增删改查和排序功能，确保状态同步；提供插件注册 API，支持外部扩展自定义方法，实现功能增强和业务定制
+- 基于临时 URL 预览和回调更新机制，完成了资源上传管理系统，支持图片等资源的拖拽上传和粘贴上传，实现无缝的用户体验
+
+* * *
+
+## 专业技能
+
+- **JavaScript & 浏览器：** 熟练掌握 JavaScript (ES6+)，深入理解 Event Loop、原型链及闭包，熟练掌握 Promise 及异步编程方案，能优雅处理复杂的并发请求与状态同步，深刻理解浏览器渲染原理，具备性能优化与 HTTP 缓存策略的实战经验
+- **前端框架：** 熟悉掌握 React 框架，SSR 服务端渲染、熟悉 Redux、Zustand 状态管理方式
+- **工程化体系：** 熟练掌握 Webpack、Vite 构建工具的使用，能通过路由懒加载、代码分割、分包等策略优化构建体积
+- **后端扩展：** 熟悉 Node.js 后端开发，掌握 Express、Nest 后端框架，Docker 部署，CI/CD 流程
+- **Vibe Coding：** 熟练使用 Cursor、Trae、Claude Code，通过配置 rules、skills 化编码规范与 AI 驱动工作流，实现代码生成、重构与审查的自动化，显著提升开发效率
+
+* * *
+
+## 技术栈
+
+TypeScriptJavaScriptReactNext.jsVueuniapp微信小程序Node.jsExpressNestPrismaPostgreSQLDockerWebpackViteLangChainTailwind CSSGitCursorClaude Code
+
+[首页](https://www.coderesin.xyz/) [归档](https://www.coderesin.xyz/archives) [简历](https://www.coderesin.xyz/resume) [链接](https://www.coderesin.xyz/links) [关于](https://www.coderesin.xyz/about)
+
+codeResin2970768980 [github.com/resinya](https://github.com/resinya) 保密一手
+
+分享一下
+
+点击复制网址
+
+© 2026 Resin. All rights reserved.
