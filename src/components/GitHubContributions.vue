@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const WEEKS = 52
@@ -52,17 +52,49 @@ const monthPositions = computed(() => {
 
 const svgWidth = WEEKS * 14 + 36
 const svgHeight = DAYS * 14 + 24
+
+// Scroll reveal
+const sectionRef = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry?.isIntersecting) {
+        isVisible.value = true
+        observer.disconnect()
+      }
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+  )
+
+  if (sectionRef.value) {
+    observer.observe(sectionRef.value)
+  }
+})
 </script>
 
 <template>
-  <section class="pb-16 pt-8">
+  <section ref="sectionRef" class="pb-16 pt-8">
     <div class="mx-auto max-w-4xl px-4">
-      <h2 class="text-xl font-semibold tracking-wide text-zinc-700 dark:text-zinc-300 text-center mb-6">
+      <h2
+        class="text-xl font-semibold tracking-wide text-zinc-700 dark:text-zinc-300 text-center mb-6 transition-all duration-700 ease-out"
+        :class="{
+          'opacity-0 translate-y-4': !isVisible,
+          'opacity-100 translate-y-0': isVisible,
+        }"
+      >
         我的 GitHub 贡献
       </h2>
 
       <!-- Heatmap SVG -->
-      <div class="overflow-x-auto pb-2">
+      <div
+        class="overflow-x-auto pb-2 transition-all duration-700 ease-out delay-100"
+        :class="{
+          'opacity-0 translate-y-4': !isVisible,
+          'opacity-100 translate-y-0': isVisible,
+        }"
+      >
         <div class="flex justify-center min-w-[780px]">
           <svg :width="svgWidth" :height="svgHeight" class="shrink-0" style="font-family: 'Geist Mono', monospace;">
             <!-- Day labels (y-axis) -->
@@ -89,7 +121,7 @@ const svgHeight = DAYS * 14 + 24
               {{ pos.label }}
             </text>
 
-            <!-- Contribution cells -->
+            <!-- Contribution cells with staggered animation -->
             <rect
               v-for="(cell, idx) in cells"
               :key="'cell-' + idx"
@@ -101,13 +133,29 @@ const svgHeight = DAYS * 14 + 24
               :fill="COLOR_SCALE[cell.level] || COLOR_SCALE[0]"
               stroke="rgba(0,0,0,0.06)"
               stroke-width="1"
+              class="transition-all duration-300 ease-out"
+              :class="{
+                'opacity-0 scale-0': !isVisible,
+                'opacity-100 scale-100': isVisible,
+              }"
+              :style="{
+                transitionDelay: `${Math.min(idx * 2, 800)}ms`,
+                transformOrigin: `${cell.weekIndex * 14 + 34}px ${cell.dayIndex * 14 + 19}px`,
+              }"
             />
           </svg>
         </div>
       </div>
 
       <!-- Footer: total + legend -->
-      <div class="flex items-center justify-between mt-4 text-xs text-zinc-500 dark:text-zinc-400 max-w-[780px] mx-auto" style="font-family: 'Geist Mono', monospace;">
+      <div
+        class="flex items-center justify-between mt-4 text-xs text-zinc-500 dark:text-zinc-400 max-w-[780px] mx-auto transition-all duration-700 ease-out delay-300"
+        :class="{
+          'opacity-0 translate-y-4': !isVisible,
+          'opacity-100 translate-y-0': isVisible,
+        }"
+        style="font-family: 'Geist Mono', monospace;"
+      >
         <span>总共有 {{ totalContributions }} 贡献</span>
         <div class="flex items-center gap-1.5">
           <span>Less</span>
@@ -119,12 +167,18 @@ const svgHeight = DAYS * 14 + 24
       </div>
 
       <!-- GitHub link -->
-      <div class="text-center mt-4">
+      <div
+        class="text-center mt-4 transition-all duration-700 ease-out delay-400"
+        :class="{
+          'opacity-0 translate-y-4': !isVisible,
+          'opacity-100 translate-y-0': isVisible,
+        }"
+      >
         <a
           href="https://github.com/resinya"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+          class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors hover:scale-105 transform duration-200"
         >
           <Icon icon="simple-icons:github" class="w-5 h-5" />
           click 一下

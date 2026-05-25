@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const typeText = ref('')
-const fullText = '专攻前端，往 Agent 全栈转型'
+const fullText = '全栈工程师和前端开发'
 const showContent = ref(false)
 
 onMounted(() => {
@@ -49,26 +49,18 @@ const scrollTo = (id: string) => {
 }
 
 const techStack = [
-  'TypeScript',
+  'HTML',
+  'CSS',
   'JavaScript',
-  'React',
-  'Next.js',
+  'TypeScript',
   'Vue',
-  'uniapp',
-  '微信小程序',
+  'MySQL',
+  'Java',
+  'Spring Boot',
+  'UniApp',
+  'Flutter',
   'Node.js',
-  'Express',
-  'Nest',
-  'Prisma',
-  'PostgreSQL',
-  'Docker',
-  'Webpack',
-  'Vite',
-  'LangChain',
-  'Tailwind CSS',
-  'Git',
-  'Cursor',
-  'Claude Code',
+  'Ajax',
 ]
 </script>
 
@@ -79,23 +71,23 @@ const techStack = [
       <div class="sidebar-inner">
         <!-- Name -->
         <div class="name-section">
-          <h1 class="name">曾维杰</h1>
-          <p class="subtitle">Resin</p>
+          <h1 class="name">黄晓伟</h1>
+          <p class="subtitle">Lunesnow</p>
         </div>
 
         <!-- Contact -->
         <div class="contact-section">
-          <a href="mailto:2970768980@qq.com" class="contact-item">
+          <a href="mailto:363807870@qq.com" class="contact-item">
             <Icon icon="lucide:mail" width="16" height="16" />
-            <span>2970768980@qq.com</span>
+            <span>363807870@qq.com</span>
           </a>
           <div class="contact-item">
             <Icon icon="lucide:phone" width="16" height="16" />
-            <span>18079639035</span>
+            <span>13410972606</span>
           </div>
-          <a href="https://github.com/resinya" target="_blank" class="contact-item">
+          <a href="https://github.com/JAYTDD" target="_blank" class="contact-item">
             <Icon icon="simple-icons:github" width="16" height="16" />
-            <span>github.com/resinya</span>
+            <span>github.com/JAYTDD</span>
           </a>
         </div>
 
@@ -117,7 +109,7 @@ const techStack = [
             <Icon icon="lucide:download" width="16" height="16" />
             下载简历
           </button>
-          <a href="mailto:2970768980@qq.com" class="btn-secondary">
+          <a href="mailto:363807870@qq.com" class="btn-secondary">
             <Icon icon="lucide:send" width="16" height="16" />
             联系我
           </a>
@@ -144,10 +136,10 @@ const techStack = [
         <h2 class="section-title">教育经历</h2>
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">赣南医科大学</h3>
+            <h3 class="card-title">佛山大学</h3>
             <span class="card-badge">2024 - 2028</span>
           </div>
-          <p class="card-subtitle">物联网工程 · 本科</p>
+          <p class="card-subtitle">计算机科学与技术 · 本科</p>
         </div>
       </section>
 
@@ -156,41 +148,10 @@ const techStack = [
         <h2 class="section-title">实习经历</h2>
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">江西四角龙科技有限公司</h3>
-            <span class="card-badge">实习</span>
+            <h3 class="card-title">准备暑假实习中</h3>
+            <span class="card-badge">待开始</span>
           </div>
-          <p class="card-desc">在导师的带领下优化住宿系统，取得以下成果：</p>
-          <ul class="achievement-list">
-            <li class="achievement-item">
-              <span class="achievement-dot" />
-              <div>
-                <strong>Webpack 打包优化</strong>
-                <span class="achievement-metric">8.5MB → 1.2MB</span>
-                <span class="achievement-metric">4.2s → 1.1s</span>
-              </div>
-            </li>
-            <li class="achievement-item">
-              <span class="achievement-dot" />
-              <div>
-                <strong>稳定性优化</strong>
-                <span class="achievement-metric">加载成功率 85% → 98%</span>
-              </div>
-            </li>
-            <li class="achievement-item">
-              <span class="achievement-dot" />
-              <div>
-                <strong>列表数据优化</strong>
-                <span>虚拟滚动、分页加载、图片懒加载</span>
-              </div>
-            </li>
-            <li class="achievement-item">
-              <span class="achievement-dot" />
-              <div>
-                <strong>AI 提效实践</strong>
-                <span>封装 Prompt Template，沉淀 Skills 模块</span>
-              </div>
-            </li>
-          </ul>
+          <p class="card-desc">正在积极准备暑期实习，已系统学习前端和 Java 全栈技术，正在完成企业级项目实战。</p>
         </div>
       </section>
 
@@ -200,28 +161,29 @@ const techStack = [
         <div class="bento-grid">
           <div class="card bento-card">
             <div class="card-header">
-              <h3 class="card-title">购物 AI 智能客服系统</h3>
+              <h3 class="card-title">智能协同云图库</h3>
               <span class="card-badge">全栈</span>
             </div>
             <p class="card-desc">
-              电商 AI 客服系统，包含基础对话、订单查询 Agent、知识库问答三个核心模块
+              基于 Vue 3 + Spring Boot + COS + WebSocket 的企业级智能协同云图库平台，支持图片存管、内容检索、权限控制、实时协同等企业主流业务场景
             </p>
             <ul class="project-list">
-              <li>Express + LangChain.js 搭建 AI 服务层，支持流式 SSE 输出</li>
-              <li>实现 ReAct Agent，定义订单查询、物流跟踪等 Tool</li>
-              <li>RAG 知识库问答系统，通过 pgvector 实现语义检索</li>
+              <li>Vue 3 + Vite + Ant Design Vue 搭建前端，Pinia 状态管理</li>
+              <li>Spring Boot + MySQL + Redis + Caffeine 构建高性能后端</li>
+              <li>实现图片上传、审核、搜索、分享、批量管理等核心功能</li>
+              <li>支持私有空间、团队空间、实时协同编辑等企业级功能</li>
             </ul>
           </div>
           <div class="card bento-card">
             <div class="card-header">
-              <h3 class="card-title">Mini-Markdown 编辑器</h3>
-              <span class="card-badge">开源</span>
+              <h3 class="card-title">Vue3 小兔鲜电商项目</h3>
+              <span class="card-badge">前端</span>
             </div>
-            <p class="card-desc">pnpm + Monorepo 架构，自定义 AST 解析器与可扩展编辑器</p>
+            <p class="card-desc">基于 Vue3 开发的电商类型项目，实现商品展示、购物车、订单管理等核心功能</p>
             <ul class="project-list">
-              <li>基于 CodeMirror 完成模块化扩展架构</li>
-              <li>基于 Rollup 完成高性能自定义 AST 解析器</li>
-              <li>基于事件驱动机制完成动态工具栏系统</li>
+              <li>Vue 3 + Vite + ElementPlus 构建用户端界面</li>
+              <li>实现商品列表、商品详情、购物车、订单流程</li>
+              <li>封装通用组件，实现路由守卫和权限控制</li>
             </ul>
           </div>
         </div>
@@ -232,24 +194,24 @@ const techStack = [
         <h2 class="section-title">专业技能</h2>
         <div class="skills-grid">
           <div class="card skill-card">
-            <h4 class="skill-category">JavaScript & 浏览器</h4>
-            <p class="skill-detail">熟练掌握 ES6+，深入理解 Event Loop、原型链及闭包</p>
+            <h4 class="skill-category">前端基础</h4>
+            <p class="skill-detail">熟练掌握 HTML5、CSS3、JavaScript ES6+，深入理解 DOM、BOM、Event Loop</p>
           </div>
           <div class="card skill-card">
             <h4 class="skill-category">前端框架</h4>
-            <p class="skill-detail">熟悉 React、SSR 服务端渲染、Redux、Zustand 状态管理</p>
+            <p class="skill-detail">熟悉 Vue 3 组合式 API、Pinia 状态管理、Vue Router、组件化开发</p>
           </div>
           <div class="card skill-card">
-            <h4 class="skill-category">工程化体系</h4>
-            <p class="skill-detail">熟练掌握 Webpack、Vite，路由懒加载、代码分割</p>
+            <h4 class="skill-category">Java 后端</h4>
+            <p class="skill-detail">熟悉 Java SE、Spring Boot、MyBatis-Plus、MySQL 数据库设计与优化</p>
           </div>
           <div class="card skill-card">
-            <h4 class="skill-category">后端扩展</h4>
-            <p class="skill-detail">熟悉 Node.js、Express、Nest、Docker 部署、CI/CD</p>
+            <h4 class="skill-category">跨端开发</h4>
+            <p class="skill-detail">熟悉 UniApp 跨平台开发、Flutter 移动端开发，实现一套代码多端运行</p>
           </div>
           <div class="card skill-card">
-            <h4 class="skill-category">Vibe Coding</h4>
-            <p class="skill-detail">熟练使用 Cursor、Trae、Claude Code，AI 驱动工作流</p>
+            <h4 class="skill-category">工程化工具</h4>
+            <p class="skill-detail">熟悉 Vite 构建工具、Git 版本控制、Ajax 数据交互、Node.js 基础</p>
           </div>
         </div>
       </section>

@@ -58,21 +58,35 @@ onMounted(() => {
   background: #71717a;
 }
 
+/* Enhanced page transitions */
 .page-fade-enter-active {
-  transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .page-fade-leave-active {
-  transition: opacity 0.2s ease-in, transform 0.2s ease-in;
+  transition: opacity 0.25s ease-in, transform 0.25s ease-in;
 }
 
 .page-fade-enter-from {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(30px) scale(0.98);
 }
 
 .page-fade-leave-to {
   opacity: 0;
-  transform: translateY(-16px);
+  transform: translateY(-20px) scale(0.98);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition: opacity 0.1s ease-out;
+  }
+
+  .page-fade-enter-from,
+  .page-fade-leave-to {
+    transform: none;
+  }
 }
 </style>

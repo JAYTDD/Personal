@@ -170,44 +170,45 @@ const copyToClipboard = (text: string, label: string, e: MouseEvent) => {
 }
 
 const copyEmail = (e: MouseEvent) => {
-  copyToClipboard('2970768980@qq.com', '邮箱', e)
+  copyToClipboard('363807870@qq.com', '邮箱', e)
 }
 
 // ========== Data ==========
 const techStack = [
-  { name: 'React', icon: 'simple-icons:react', color: '#61DAFB' },
-  { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D' },
+  { name: 'HTML', icon: 'simple-icons:html5', color: '#E34F26' },
+  { name: 'CSS', icon: 'simple-icons:css3', color: '#1572B6' },
+  { name: 'JavaScript', icon: 'simple-icons:javascript', color: '#F7DF1E' },
   { name: 'TypeScript', icon: 'simple-icons:typescript', color: '#3178C6' },
-  { name: 'Next.js', icon: 'simple-icons:nextdotjs', color: '#000000' },
-  { name: 'Nest.js', icon: 'simple-icons:nestjs', color: '#E0234E' },
-  { name: 'Node.js', icon: 'simple-icons:nodedotjs', color: '#339933' },
-  { name: 'Prisma', icon: 'simple-icons:prisma', color: '#2D3748' },
-  { name: 'PostgreSQL', icon: 'simple-icons:postgresql', color: '#4169E1' },
-  { name: 'Tailwind CSS', icon: 'simple-icons:tailwindcss', color: '#06B6D4' },
-  { name: 'Docker', icon: 'simple-icons:docker', color: '#2496ED' },
-  { name: 'CI/CD', icon: 'lucide:refresh-cw', color: '#F97316' },
+  { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D' },
+  { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1' },
+  { name: 'Java', icon: 'simple-icons:java', color: '#007396' },
+  { name: 'Spring Boot', icon: 'simple-icons:springboot', color: '#6DB33F' },
   { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939' },
+  { name: 'Flutter', icon: 'simple-icons:flutter', color: '#02569B' },
+  { name: 'Node.js', icon: 'simple-icons:nodedotjs', color: '#339933' },
+  { name: 'Ajax', icon: 'lucide:loader-2', color: '#F97316' },
 ]
 
 const hobbies = [
-  { name: '打篮球', icon: 'lucide:basketball' },
-  { name: '玩王者', icon: 'lucide:gamepad-2' },
-  { name: '吃烧烤', icon: 'lucide:utensils-crossed' },
-  { name: '思考', icon: 'lucide:brain' },
+  { name: '无畏契约', icon: 'lucide:target' },
+  { name: '三角洲', icon: 'lucide:crosshair' },
+  { name: '听音乐', icon: 'lucide:music' },
+  { name: 'JayChou', icon: 'lucide:mic' },
+  { name: '羽毛球', icon: 'lucide:volleyball' },
+  { name: '画画', icon: 'lucide:palette' },
+  { name: '追剧', icon: 'lucide:tv' },
 ]
 
 const contacts = [
-  { label: '微信', value: 'codeResin', icon: 'lucide:message-circle', color: '#07C160' },
-  { label: 'QQ', value: '2970768980', icon: 'lucide:at-sign', color: '#12B7F5' },
-  { label: '电话', value: '19067049304', icon: 'lucide:phone', color: '#F97316' },
-  { label: '邮箱', value: '2970768980@qq.com', icon: 'lucide:mail', color: '#EA4335' },
+  { label: '微信', value: '13410972606', icon: 'lucide:message-circle', color: '#07C160' },
+  { label: 'QQ', value: '363807870', icon: 'lucide:at-sign', color: '#12B7F5' },
+  { label: '电话', value: '13410972606', icon: 'lucide:phone', color: '#F97316' },
+  { label: '邮箱', value: '363807870@qq.com', icon: 'lucide:mail', color: '#EA4335' },
 ]
 
 const socials = [
-  { name: 'GitHub', url: 'https://github.com/resinya', icon: 'simple-icons:github', color: '#181717' },
-  { name: '掘金', url: '#', icon: 'simple-icons:juejin', color: '#1E80FF' },
-  { name: '知乎', url: '#', icon: 'simple-icons:zhihu', color: '#0084FF' },
-  { name: 'Twitter', url: '#', icon: 'simple-icons:twitter', color: '#1DA1F2' },
+  { name: 'GitHub', url: 'https://github.com/JAYTDD', icon: 'simple-icons:github', color: '#181717' },
+  { name: '掘金', url: 'https://juejin.cn/user/2385290407448745', icon: 'simple-icons:juejin', color: '#1E80FF' },
 ]
 
 // ========== Lifecycle ==========
@@ -281,8 +282,8 @@ onUnmounted(() => {
                 :style="avatarStyle"
               >
             </div>
-            <h1 class="name">Resin</h1>
-            <p class="title">前端开发者</p>
+            <h1 class="name">Lunesnow</h1>
+            <p class="title">全栈工程师</p>
 
             <!-- Signature -->
             <div class="signature">
@@ -329,7 +330,7 @@ onUnmounted(() => {
                 <Icon icon="lucide:external-link" width="12" height="12" />
                 <span>访问博客</span>
               </a>
-              <a href="https://github.com/resinya" target="_blank" class="action-btn">
+              <a href="https://github.com/JAYTDD" target="_blank" class="action-btn">
                 <Icon icon="simple-icons:github" width="12" height="12" />
                 <span>GitHub</span>
               </a>
@@ -342,7 +343,7 @@ onUnmounted(() => {
       <section class="section reveal" data-delay="100">
         <h2 class="section-title">关于</h2>
         <p class="about-text">
-          resin-blog，一个基于 Next.js 16 + Prisma + TypeScript 构建的个人技术博客。记录前端开发、工具链、以及日常学习中的思考与总结。
+          Lunesnow 的个人技术博客，基于 Vue + Vite + TypeScript 构建。记录全栈开发、工具链、以及日常学习中的思考与总结。
         </p>
       </section>
 
