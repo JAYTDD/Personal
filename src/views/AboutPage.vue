@@ -98,7 +98,7 @@ const getLocationAndWeather = async () => {
     const weatherData = await weatherRes.json()
     location.value = '广东 · 深圳'
     weather.value = {
-      temp: Math.round(weatherData.current.temperature_2m),
+      temp: String(Math.round(weatherData.current.temperature_2m)),
       desc: getWeatherDesc(weatherData.current.weather_code),
       icon: getWeatherIcon(weatherData.current.weather_code),
     }
@@ -230,8 +230,8 @@ onMounted(() => {
       }, delay)
     })
   }
-  typeLine(signatureLines[0], signatureLine1, 0).then(() => {
-    typeLine(signatureLines[1], signatureLine2, 400)
+  typeLine(signatureLines[0]!, signatureLine1, 0).then(() => {
+    typeLine(signatureLines[1]!, signatureLine2, 400)
   })
 
   // Weather
@@ -293,8 +293,8 @@ onUnmounted(() => {
               </div>
               <div class="signature-line">
                 <span class="signature-text">{{ signatureLine2 }}</span>
-                <span v-if="signatureLine2 && signatureLine2.length < signatureLines[1].length" class="cursor" />
-                <span v-if="signatureLine2 && signatureLine2.length === signatureLines[1].length" class="cursor blink" />
+                <span v-if="signatureLine2 && signatureLine2.length < (signatureLines[1]?.length ?? 0)" class="cursor" />
+                <span v-if="signatureLine2 && signatureLine2.length === (signatureLines[1]?.length ?? 0)" class="cursor blink" />
               </div>
             </div>
 
@@ -431,25 +431,25 @@ onUnmounted(() => {
 .about-layout {
   --bg-canvas: #FAFAF8;
   --bg-card: #FFFFFF;
-  --text-primary: #1C1917;
-  --text-secondary: #78716C;
-  --text-muted: #A8A29E;
-  --border-light: rgba(28, 25, 23, 0.06);
-  --border-hover: rgba(28, 25, 23, 0.12);
-  --accent: #57534E;
-  --shadow-soft: rgba(28, 25, 23, 0.04);
-  --shadow-hover: rgba(28, 25, 23, 0.08);
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #A1A1AA;
+  --border-light: rgba(24, 24, 27, 0.06);
+  --border-hover: rgba(24, 24, 27, 0.12);
+  --accent: #EC4899;
+  --shadow-soft: rgba(24, 24, 27, 0.04);
+  --shadow-hover: rgba(24, 24, 27, 0.08);
 }
 
 html.dark .about-layout {
-  --bg-canvas: #0C0A09;
-  --bg-card: #1C1917;
-  --text-primary: #FAFAF8;
-  --text-secondary: #A8A29E;
-  --text-muted: #78716C;
+  --bg-canvas: #0F0F10;
+  --bg-card: #18181B;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
   --border-light: rgba(250, 250, 248, 0.06);
   --border-hover: rgba(250, 250, 248, 0.12);
-  --accent: #D6D3D1;
+  --accent: #F472B6;
   --shadow-soft: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
 }
@@ -475,11 +475,11 @@ html.dark .about-layout {
 
 /* Double-Bezel Hero Card */
 .hero-card-outer {
-  background: rgba(28, 25, 23, 0.02);
+  background: rgba(24, 24, 27, 0.02);
   border: 1px solid var(--border-light);
   border-radius: 24px;
   padding: 2px;
-  box-shadow: 0 24px 64px rgba(28, 25, 23, 0.06);
+  box-shadow: 0 24px 64px rgba(24, 24, 27, 0.06);
 }
 
 html.dark .hero-card-outer {
@@ -687,8 +687,8 @@ html.dark .hero-card-inner {
 }
 
 .action-btn:hover {
-  border-color: var(--border-hover);
-  color: var(--text-primary);
+  border-color: var(--accent);
+  color: var(--accent);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px var(--shadow-soft);
 }
@@ -763,8 +763,8 @@ html.dark .action-btn {
 }
 
 .skill-tag:hover {
-  border-color: var(--tag-color, var(--border-hover));
-  color: var(--tag-color, var(--text-primary));
+  border-color: var(--tag-color, var(--accent));
+  color: var(--tag-color, var(--accent));
   box-shadow: 0 2px 12px var(--shadow-soft);
 }
 
@@ -797,8 +797,8 @@ html.dark .action-btn {
 }
 
 .hobby-tag:hover {
-  border-color: var(--border-hover);
-  color: var(--text-secondary);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Spotlight Effect */
@@ -808,7 +808,7 @@ html.dark .action-btn {
   inset: 0;
   background: radial-gradient(
     200px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
-    rgba(87, 83, 78, 0.08),
+    rgba(236, 72, 153, 0.08),
     transparent 40%
   );
   opacity: 0;
@@ -823,7 +823,7 @@ html.dark .action-btn {
 html.dark .spotlight-tag::before {
   background: radial-gradient(
     200px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
-    rgba(214, 211, 209, 0.08),
+    rgba(244, 114, 182, 0.08),
     transparent 40%
   );
 }
@@ -851,7 +851,7 @@ html.dark .spotlight-tag::before {
 }
 
 .contact-card:hover {
-  border-color: var(--border-hover);
+  border-color: var(--accent);
   box-shadow: 0 4px 16px var(--shadow-soft);
 }
 

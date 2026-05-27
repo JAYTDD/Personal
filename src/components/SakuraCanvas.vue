@@ -4,6 +4,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animationId = 0
 let petals: Petal[] = []
+let reducedMotion = false
 
 interface Petal {
   x: number
@@ -42,7 +43,6 @@ function drawPetal(ctx: CanvasRenderingContext2D, petal: Petal) {
 
   ctx.fillStyle = `rgba(255, 182, 193, ${opacity})`
 
-  // Draw petal shape using bezier curves
   ctx.beginPath()
   ctx.moveTo(0, 0)
   ctx.bezierCurveTo(size * 0.5, -size * 0.3, size * 0.8, -size * 0.1, size, size * 0.3)
@@ -53,6 +53,8 @@ function drawPetal(ctx: CanvasRenderingContext2D, petal: Petal) {
 }
 
 function animate() {
+  if (reducedMotion) return
+
   const canvas = canvasRef.value
   if (!canvas) return
 
@@ -67,7 +69,6 @@ function animate() {
     petal.swayOffset += petal.swaySpeed
     petal.rotation += petal.rotationSpeed
 
-    // Reset petal if it falls below viewport
     if (petal.y > canvas.height + 20) {
       const newPetal = createPetal(canvas.width, canvas.height)
       petal.x = newPetal.x
@@ -86,7 +87,6 @@ function animate() {
 function resize() {
   const canvas = canvasRef.value
   if (!canvas) return
-
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
 }
@@ -94,18 +94,20 @@ function resize() {
 function handleVisibilityChange() {
   if (document.hidden) {
     cancelAnimationFrame(animationId)
-  } else {
+  } else if (!reducedMotion) {
     animate()
   }
 }
 
 onMounted(() => {
+  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   const canvas = canvasRef.value
   if (!canvas) return
 
   resize()
   petals = Array.from({ length: 35 }, () => createPetal(canvas.width, canvas.height))
-  animate()
+  if (!reducedMotion) animate()
 
   window.addEventListener('resize', resize)
   document.addEventListener('visibilitychange', handleVisibilityChange)
@@ -121,6 +123,8 @@ onUnmounted(() => {
 <template>
   <canvas
     ref="canvasRef"
-    style="position: fixed; left: 0; top: 0; pointer-events: none; z-index: 0"
+    aria-hidden="true"
+    class="fixed left-0 top-0 pointer-events-none"
+    style="z-index: 0"
   />
 </template>

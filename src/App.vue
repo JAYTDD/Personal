@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
-import Footer from '@/components/Footer.vue'
+import AppFooter from '@/components/Footer.vue'
 import SakuraCanvas from '@/components/SakuraCanvas.vue'
 import { useThemeStore } from '@/stores/theme'
 
@@ -24,7 +24,7 @@ onMounted(() => {
         </Transition>
       </RouterView>
     </main>
-    <Footer />
+    <AppFooter />
   </div>
 </template>
 

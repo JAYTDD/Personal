@@ -232,29 +232,31 @@ const techStack = [
 <style>
 /* ===== CSS Variables for Theme ===== */
 .resume-page {
-  --bg-primary: #fafafa;
-  --bg-card: #ffffff;
-  --text-primary: #1a1a1a;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --border-light: #f0f0f0;
-  --border-medium: #e5e5e5;
-  --bg-hover: #f5f5f5;
+  --bg-primary: #FAFAF8;
+  --bg-card: #FFFFFF;
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #A1A1AA;
+  --border-light: #E4E4E7;
+  --border-medium: #D4D4D8;
+  --bg-hover: #F4F4F5;
   --shadow-color: rgba(0, 0, 0, 0.04);
-  --metric-bg: #f5f5f5;
+  --metric-bg: #F4F4F5;
+  --accent: #EC4899;
 }
 
 html.dark .resume-page {
-  --bg-primary: #0a0a0a;
-  --bg-card: #141414;
-  --text-primary: #f5f5f5;
-  --text-secondary: #b0b0b5;
-  --text-muted: #8e8e93;
-  --border-light: #2c2c2e;
-  --border-medium: #3a3a3c;
-  --bg-hover: #1f1f1f;
+  --bg-primary: #0F0F10;
+  --bg-card: #18181B;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --border-light: #27272A;
+  --border-medium: #3F3F46;
+  --bg-hover: #27272A;
   --shadow-color: rgba(255, 255, 255, 0.06);
-  --metric-bg: #1f1f1f;
+  --metric-bg: #27272A;
+  --accent: #F472B6;
 }
 
 /* ===== Page Layout ===== */
@@ -297,10 +299,6 @@ html.dark .resume-page {
   transition: color 0.3s ease;
 }
 
-html.dark .name {
-  color: #ffffff;
-}
-
 .subtitle {
   font-size: 14px;
   color: var(--text-muted);
@@ -327,15 +325,7 @@ html.dark .name {
 }
 
 .contact-item:hover {
-  color: var(--text-primary);
-}
-
-html.dark .contact-item {
-  color: #b0b0b5;
-}
-
-html.dark .contact-item:hover {
-  color: #ffffff;
+  color: var(--accent);
 }
 
 /* Nav */
@@ -363,15 +353,6 @@ html.dark .contact-item:hover {
   background: var(--bg-hover);
 }
 
-html.dark .nav-link {
-  color: #b0b0b5;
-}
-
-html.dark .nav-link:hover {
-  color: #ffffff;
-  background: #2c2c2e;
-}
-
 /* CTA */
 .cta-section {
   display: flex;
@@ -395,8 +376,8 @@ html.dark .nav-link:hover {
 }
 
 .btn-primary {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--accent);
+  color: #FFFFFF;
   border: none;
 }
 
@@ -412,26 +393,8 @@ html.dark .nav-link:hover {
 }
 
 .btn-secondary:hover {
-  border-color: var(--text-primary);
-}
-
-html.dark .btn-primary {
-  background: #f5f5f5;
-  color: #0a0a0a;
-}
-
-html.dark .btn-primary:hover {
-  background: #ffffff;
-  opacity: 1;
-}
-
-html.dark .btn-secondary {
-  color: #f5f5f5;
-  border-color: #3a3a3c;
-}
-
-html.dark .btn-secondary:hover {
-  border-color: #f5f5f5;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ===== Main Content ===== */
@@ -456,10 +419,6 @@ html.dark .btn-secondary:hover {
   transition: color 0.3s ease;
 }
 
-html.dark .section-title {
-  color: #a0a0a5;
-}
-
 /* Typewriter */
 .typewriter {
   font-size: 28px;
@@ -470,15 +429,11 @@ html.dark .section-title {
   transition: color 0.3s ease;
 }
 
-html.dark .typewriter {
-  color: #ffffff;
-}
-
 .cursor {
   display: inline-block;
   width: 2px;
   height: 28px;
-  background: var(--text-primary);
+  background: var(--accent);
   margin-left: 2px;
   animation: blink 1s step-end infinite;
   vertical-align: text-bottom;
@@ -502,10 +457,6 @@ html.dark .typewriter {
   opacity: 0;
   transform: translateY(12px);
   transition: all 0.6s ease;
-}
-
-html.dark .intro-desc {
-  color: #c0c0c5;
 }
 
 .intro-desc.show {
@@ -545,16 +496,6 @@ html.dark .intro-desc {
   transform: translateY(-2px);
 }
 
-html.dark .card {
-  background: #1a1a1c;
-  border-color: #2a2a2c;
-}
-
-html.dark .card:hover {
-  border-color: #4a4a4c;
-  box-shadow: 0 4px 24px rgba(255, 255, 255, 0.08);
-}
-
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -569,10 +510,6 @@ html.dark .card:hover {
   transition: color 0.3s ease;
 }
 
-html.dark .card-title {
-  color: #ffffff;
-}
-
 .card-badge {
   font-size: 11px;
   font-weight: 600;
@@ -585,20 +522,11 @@ html.dark .card-title {
   transition: all 0.3s ease;
 }
 
-html.dark .card-badge {
-  color: #a0a0a5;
-  background: #2a2a2c;
-}
-
 .card-subtitle {
   font-size: 14px;
   color: var(--text-secondary);
   margin-top: 4px;
   transition: color 0.3s ease;
-}
-
-html.dark .card-subtitle {
-  color: #c0c0c5;
 }
 
 .card-desc {
@@ -607,10 +535,6 @@ html.dark .card-subtitle {
   line-height: 1.6;
   margin-top: 12px;
   transition: color 0.3s ease;
-}
-
-html.dark .card-desc {
-  color: #c0c0c5;
 }
 
 /* Achievement List */
@@ -630,15 +554,11 @@ html.dark .card-desc {
   transition: color 0.3s ease;
 }
 
-html.dark .achievement-item {
-  color: #c0c0c5;
-}
-
 .achievement-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--text-primary);
+  background: var(--accent);
   margin-top: 8px;
   flex-shrink: 0;
   transition: background 0.3s ease;
@@ -654,11 +574,6 @@ html.dark .achievement-item {
   border-radius: 4px;
   margin-left: 8px;
   transition: all 0.3s ease;
-}
-
-html.dark .achievement-metric {
-  background: #323234;
-  color: #e5e5ea;
 }
 
 /* Bento Grid */
@@ -684,10 +599,6 @@ html.dark .achievement-metric {
   transition: color 0.3s ease;
 }
 
-html.dark .project-list li {
-  color: #c0c0c5;
-}
-
 .project-list li::before {
   content: '';
   position: absolute;
@@ -696,12 +607,8 @@ html.dark .project-list li {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--text-muted);
+  background: var(--accent);
   transition: background 0.3s ease;
-}
-
-html.dark .project-list li::before {
-  background: #8e8e93;
 }
 
 /* Skills Grid */
@@ -723,19 +630,11 @@ html.dark .project-list li::before {
   transition: color 0.3s ease;
 }
 
-html.dark .skill-category {
-  color: #ffffff;
-}
-
 .skill-detail {
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
   transition: color 0.3s ease;
-}
-
-html.dark .skill-detail {
-  color: #c0c0c5;
 }
 
 /* Tech Tags */
@@ -757,21 +656,9 @@ html.dark .skill-detail {
 }
 
 .tech-tag:hover {
-  color: var(--text-primary);
-  border-color: var(--border-medium);
+  color: var(--accent);
+  border-color: var(--accent);
   background: var(--bg-card);
-}
-
-html.dark .tech-tag {
-  background: #2c2c2e;
-  border-color: #3a3a3c;
-  color: #b0b0b5;
-}
-
-html.dark .tech-tag:hover {
-  color: #f5f5f5;
-  border-color: #4a4a4c;
-  background: #323234;
 }
 
 /* ===== Print Styles ===== */

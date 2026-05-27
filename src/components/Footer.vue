@@ -38,7 +38,7 @@ async function copyUrl() {
 </script>
 
 <template>
-  <footer class="bg-white dark:bg-zinc-950">
+  <footer class="bg-bg-primary dark:bg-bg-dark-primary border-t border-border-default dark:border-border-dark">
     <div class="mx-auto max-w-4xl px-4 py-10">
       <!-- Top: Nav + Social -->
       <div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-between sm:items-center">
@@ -48,10 +48,10 @@ async function copyUrl() {
             v-for="link in navLinks"
             :key="link.path"
             :to="link.path"
-            class="relative text-sm text-gray-500 transition-all duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 group"
+            class="relative text-sm text-text-secondary transition-all duration-200 hover:text-text-primary dark:text-text-dark-secondary dark:hover:text-text-dark-primary group"
           >
             {{ link.name }}
-            <span class="absolute -bottom-1 left-0 w-0 h-px bg-gray-900 dark:bg-gray-100 transition-all duration-200 group-hover:w-full" />
+            <span class="absolute -bottom-1 left-0 w-0 h-px bg-brand-pink dark:bg-brand-pink-light transition-all duration-200 group-hover:w-full" />
           </RouterLink>
         </nav>
 
@@ -63,7 +63,7 @@ async function copyUrl() {
               :href="link.href"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-400 transition-all duration-200 hover:text-gray-700 hover:scale-110 dark:text-gray-500 dark:hover:text-gray-200"
+              class="text-text-tertiary transition-all duration-200 hover:text-brand-pink hover:scale-110 dark:text-text-dark-tertiary dark:hover:text-brand-pink-light"
               :title="link.title"
             >
               <Icon :icon="link.icon" class="h-5 w-5" />
@@ -71,7 +71,7 @@ async function copyUrl() {
             <button
               v-else
               type="button"
-              class="text-gray-400 transition-all duration-200 hover:text-gray-700 hover:scale-110 dark:text-gray-500 dark:hover:text-gray-200"
+              class="text-text-tertiary transition-all duration-200 hover:text-brand-pink hover:scale-110 dark:text-text-dark-tertiary dark:hover:text-brand-pink-light"
               :title="link.title"
             >
               <Icon :icon="link.icon" class="h-5 w-5" />
@@ -81,11 +81,11 @@ async function copyUrl() {
           <!-- FAB Share Button -->
           <button
             type="button"
-            class="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-[#E6FA72] to-[#F6FDC1] shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg hover:rotate-3 active:scale-95 dark:from-lime-500/60 dark:to-lime-300/60"
+            class="relative flex h-12 w-12 items-center justify-center rounded-full gradient-pink shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg hover:rotate-3 active:scale-95"
             title="分享链接"
             @click="copyUrl"
           >
-            <Icon icon="lucide:arrow-up-right" class="h-5 w-5 text-gray-700 dark:text-gray-800 transition-transform duration-200" :class="{ 'rotate-45': copied }" />
+            <Icon icon="lucide:arrow-up-right" class="h-5 w-5 text-white transition-transform duration-200" :class="{ 'rotate-45': copied }" />
             <!-- Copied toast -->
             <Transition
               enter-active-class="transition-all duration-200 ease-out"
@@ -97,7 +97,7 @@ async function copyUrl() {
             >
               <span
                 v-if="copied"
-                class="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1 text-xs text-white dark:bg-gray-200 dark:text-gray-800"
+                class="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-bg-inverse dark:bg-bg-primary px-2.5 py-1 text-xs text-text-inverse dark:text-text-primary"
               >
                 已复制!
               </span>
@@ -107,10 +107,10 @@ async function copyUrl() {
       </div>
 
       <!-- Divider -->
-      <div class="my-6 border-t border-gray-100 dark:border-gray-800" />
+      <div class="my-6 border-t border-border-default dark:border-border-dark" />
 
       <!-- Bottom: Copyright -->
-      <p class="text-center text-sm text-gray-400 dark:text-gray-500">
+      <p class="text-center text-sm text-text-tertiary dark:text-text-dark-tertiary">
         &copy; {{ currentYear }} Resin. All rights reserved.
       </p>
     </div>

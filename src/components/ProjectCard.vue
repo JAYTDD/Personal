@@ -13,7 +13,7 @@ interface Project {
   github: string
 }
 
-const props = defineProps<{
+defineProps<{
   project: Project
   index: number
 }>()

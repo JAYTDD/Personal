@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SakuraCanvas from '@/components/SakuraCanvas.vue'
 import HeroSection from '@/components/HeroSection.vue'
 import GitHubContributions from '@/components/GitHubContributions.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
@@ -53,9 +52,6 @@ onMounted(() => {
 
 <template>
   <div class="relative">
-    <!-- Sakura Canvas -->
-    <SakuraCanvas />
-
     <!-- Hero Section -->
     <HeroSection />
 
@@ -72,10 +68,10 @@ onMounted(() => {
             'opacity-100 translate-y-0': projectsVisible,
           }"
         >
-          <h2 class="text-xl font-semibold tracking-wide text-zinc-700 dark:text-zinc-300 text-center mb-2">
+          <h2 class="text-xl font-semibold tracking-wide text-text-primary dark:text-text-dark-primary text-center mb-2">
             项目展示
           </h2>
-          <p class="text-sm text-zinc-400 dark:text-zinc-500 text-center mb-8">
+          <p class="text-sm text-text-secondary dark:text-text-dark-secondary text-center mb-8">
             一些正在维护的开源项目
           </p>
         </div>
@@ -88,14 +84,14 @@ onMounted(() => {
           <div
             v-for="i in 4"
             :key="'skeleton-' + i"
-            class="aspect-[6/4] rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 animate-pulse"
+            class="aspect-[6/4] rounded-xl overflow-hidden bg-bg-secondary dark:bg-bg-dark-secondary animate-pulse"
           >
             <div class="h-full w-full flex flex-col justify-end p-5">
-              <div class="h-5 w-2/3 bg-zinc-300 dark:bg-zinc-700 rounded mb-2" />
-              <div class="h-3 w-full bg-zinc-300 dark:bg-zinc-700 rounded mb-3" />
+              <div class="h-5 w-2/3 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded mb-2" />
+              <div class="h-3 w-full bg-bg-tertiary dark:bg-bg-dark-tertiary rounded mb-3" />
               <div class="flex gap-2">
-                <div class="h-5 w-14 bg-zinc-300 dark:bg-zinc-700 rounded-full" />
-                <div class="h-5 w-14 bg-zinc-300 dark:bg-zinc-700 rounded-full" />
+                <div class="h-5 w-14 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded-full" />
+                <div class="h-5 w-14 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded-full" />
               </div>
             </div>
           </div>
@@ -106,10 +102,10 @@ onMounted(() => {
           v-else-if="error"
           class="text-center py-16"
         >
-          <Icon icon="lucide:alert-circle" class="w-10 h-10 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" />
-          <p class="text-sm text-zinc-400 dark:text-zinc-500 mb-4">{{ error }}</p>
+          <Icon icon="lucide:alert-circle" class="w-10 h-10 mx-auto mb-3 text-text-tertiary dark:text-text-dark-tertiary" />
+          <p class="text-sm text-text-secondary dark:text-text-dark-secondary mb-4">{{ error }}</p>
           <button
-            class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-800 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors cursor-pointer"
+            class="px-4 py-2 rounded-lg text-sm font-medium text-text-inverse bg-bg-inverse dark:bg-bg-primary dark:text-text-primary hover:opacity-90 transition-opacity cursor-pointer"
             @click="fetchRepos"
           >
             重新加载

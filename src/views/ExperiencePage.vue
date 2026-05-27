@@ -147,10 +147,10 @@ const experiences: ExperienceItem[] = [
 ]
 
 const typeColors: Record<string, string> = {
-  '前端': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800/30',
-  'Java': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-800/30',
-  '学习': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800/30',
-  '项目': 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-800/30',
+  '前端': 'tag-pink',
+  'Java': 'tag-coral',
+  '学习': 'tag-violet',
+  '项目': 'tag-pink',
 }
 
 const scrollTo = (index: number) => {
@@ -279,23 +279,23 @@ onMounted(() => {
 .experience-page {
   --canvas-bg: transparent;
   --pure-surface: #FFFFFF;
-  --charcoal-ink: #1A1A1A;
-  --warm-gray: #6B6B6B;
-  --muted-sage: #9CA3AF;
+  --charcoal-ink: #18181B;
+  --warm-gray: #52525B;
+  --muted-sage: #A1A1AA;
   --hairline: rgba(0, 0, 0, 0.08);
-  --accent-espresso: #4A3728;
+  --accent: #EC4899;
   --shadow-soft: rgba(0, 0, 0, 0.04);
   --shadow-hover: rgba(0, 0, 0, 0.08);
 }
 
 html.dark .experience-page {
   --canvas-bg: transparent;
-  --pure-surface: #1C1C1E;
-  --charcoal-ink: #FFFFFF;
+  --pure-surface: #18181B;
+  --charcoal-ink: #FAFAFA;
   --warm-gray: #A1A1AA;
   --muted-sage: #71717A;
   --hairline: rgba(255, 255, 255, 0.1);
-  --accent-espresso: #C4A882;
+  --accent: #F472B6;
   --shadow-soft: rgba(0, 0, 0, 0.4);
   --shadow-hover: rgba(0, 0, 0, 0.5);
 }
@@ -386,7 +386,7 @@ html.dark .toc-item.active {
   transform: translateY(-50%) scaleY(0);
   width: 3px;
   height: 20px;
-  background: var(--accent-espresso);
+  background: var(--accent);
   border-radius: 0 2px 2px 0;
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -510,18 +510,18 @@ html.dark .toc-item.active {
 }
 
 html.dark .timeline-dot {
-  background: #0A0A0A;
+  background: #0F0F10;
 }
 
 .timeline-dot.active {
-  border-color: var(--accent-espresso);
-  background: var(--accent-espresso);
+  border-color: var(--accent);
+  background: var(--accent);
   transform: scale(1.3);
-  box-shadow: 0 0 0 4px rgba(74, 55, 40, 0.1);
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
 }
 
 html.dark .timeline-dot.active {
-  box-shadow: 0 0 0 4px rgba(196, 168, 130, 0.2);
+  box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.2);
 }
 
 .timeline-line {
@@ -664,12 +664,9 @@ html.dark .detail-tag {
 }
 
 .detail-tag:hover {
-  border-color: var(--muted-sage);
+  border-color: var(--accent);
+  color: var(--accent);
   transform: translateY(-1px);
-}
-
-html.dark .detail-tag:hover {
-  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Metrics */

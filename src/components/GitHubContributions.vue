@@ -12,7 +12,8 @@ const MONTH_LABELS = [
 
 const DAY_LABELS = ['', '周一', '', '周三', '', '周五', '']
 
-const COLOR_SCALE = ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']
+// Updated color scale with brand teal
+const COLOR_SCALE = ['#E4E4E7', '#F9A8D4', '#F472B6', '#EC4899', '#DB2777']
 
 interface Cell {
   weekIndex: number
@@ -78,7 +79,7 @@ onMounted(() => {
   <section ref="sectionRef" class="pb-16 pt-8">
     <div class="mx-auto max-w-4xl px-4">
       <h2
-        class="text-xl font-semibold tracking-wide text-zinc-700 dark:text-zinc-300 text-center mb-6 transition-all duration-700 ease-out"
+        class="text-xl font-semibold tracking-wide text-text-primary dark:text-text-dark-primary text-center mb-6 transition-all duration-700 ease-out"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
           'opacity-100 translate-y-0': isVisible,
@@ -104,7 +105,7 @@ onMounted(() => {
               :x="0"
               :y="i * 14 + 22"
               class="text-[9px]"
-              fill="#a1a1aa"
+              fill="#A1A1AA"
             >
               {{ label }}
             </text>
@@ -116,7 +117,7 @@ onMounted(() => {
               :x="pos.index * 14 + 28"
               :y="10"
               class="text-[9px]"
-              fill="#a1a1aa"
+              fill="#A1A1AA"
             >
               {{ pos.label }}
             </text>
@@ -149,7 +150,7 @@ onMounted(() => {
 
       <!-- Footer: total + legend -->
       <div
-        class="flex items-center justify-between mt-4 text-xs text-zinc-500 dark:text-zinc-400 max-w-[780px] mx-auto transition-all duration-700 ease-out delay-300"
+        class="flex items-center justify-between mt-4 text-xs text-text-secondary dark:text-text-dark-secondary max-w-[780px] mx-auto transition-all duration-700 ease-out delay-300"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
           'opacity-100 translate-y-0': isVisible,
@@ -178,7 +179,7 @@ onMounted(() => {
           href="https://github.com/resinya"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors hover:scale-105 transform duration-200"
+          class="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-brand-pink dark:text-text-dark-tertiary dark:hover:text-brand-pink-light transition-colors hover:scale-105 transform duration-200"
         >
           <Icon icon="simple-icons:github" class="w-5 h-5" />
           click 一下
