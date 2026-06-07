@@ -3,15 +3,15 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 // ========== Typewriter Signature ==========
-const signatureLines = [
-  '青春属于表白 阳光属于窗台',
-  '而我想我属于一个拥有你的未来'
-]
+const signatureLines = ['青春属于表白 阳光属于窗台', '而我想我属于一个拥有你的未来']
 const signatureLine1 = ref('')
 const signatureLine2 = ref('')
 
 // ========== 3D Avatar Tilt ==========
-const avatarStyle = ref({ transform: 'rotateX(0deg) rotateY(0deg)', transition: 'transform 0.1s ease-out' })
+const avatarStyle = ref({
+  transform: 'rotateX(0deg) rotateY(0deg)',
+  transition: 'transform 0.1s ease-out',
+})
 
 const handleAvatarMove = (e: MouseEvent) => {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -21,11 +21,17 @@ const handleAvatarMove = (e: MouseEvent) => {
   const cy = rect.height / 2
   const rx = ((y - cy) / cy) * -15
   const ry = ((x - cx) / cx) * 15
-  avatarStyle.value = { transform: `rotateX(${rx}deg) rotateY(${ry}deg)`, transition: 'transform 0.1s ease-out' }
+  avatarStyle.value = {
+    transform: `rotateX(${rx}deg) rotateY(${ry}deg)`,
+    transition: 'transform 0.1s ease-out',
+  }
 }
 
 const handleAvatarLeave = () => {
-  avatarStyle.value = { transform: 'rotateX(0deg) rotateY(0deg)', transition: 'transform 0.5s ease' }
+  avatarStyle.value = {
+    transform: 'rotateX(0deg) rotateY(0deg)',
+    transition: 'transform 0.5s ease',
+  }
 }
 
 // ========== Spotlight Tag ==========
@@ -39,20 +45,31 @@ const handleTagMouseMove = (e: MouseEvent) => {
 }
 
 // ========== Magnetic Contact ==========
-const magneticRefs = ref<HTMLElement[]>([])
-const magneticStyles = ref<{ transform: string; transition?: string }[]>([])
-
-const handleMagneticMove = (index: number) => (e: MouseEvent) => {
-  const el = magneticRefs.value[index]
-  if (!el) return
+const handleMagneticMove = (e: MouseEvent) => {
+  const el = e.currentTarget as HTMLElement
   const rect = el.getBoundingClientRect()
   const x = e.clientX - rect.left - rect.width / 2
   const y = e.clientY - rect.top - rect.height / 2
-  magneticStyles.value[index] = { transform: `translate(${x * 0.2}px, ${y * 0.2}px)` }
+  el.style.transition = 'none'
+  el.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`
 }
 
-const handleMagneticLeave = (index: number) => () => {
-  magneticStyles.value[index] = { transform: 'translate(0px, 0px)', transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)' }
+const handleMagneticLeave = (e: MouseEvent) => {
+  const el = e.currentTarget as HTMLElement
+  el.style.transition = 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
+  requestAnimationFrame(() => {
+    el.style.transform = 'translate(0px, 0px)'
+  })
+}
+
+// ========== Contact Glow ==========
+const handleContactGlow = (e: MouseEvent) => {
+  const el = e.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const x = e.clientX - rect.left
+  const y = e.clientY - rect.top
+  el.style.setProperty('--glow-x', `${x}px`)
+  el.style.setProperty('--glow-y', `${y}px`)
 }
 
 // ========== Particle Burst ==========
@@ -93,7 +110,7 @@ const SHENZHEN_LON = 114.0579
 const getLocationAndWeather = async () => {
   try {
     const weatherRes = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${SHENZHEN_LAT}&longitude=${SHENZHEN_LON}&current=temperature_2m,weather_code&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${SHENZHEN_LAT}&longitude=${SHENZHEN_LON}&current=temperature_2m,weather_code&timezone=auto`,
     )
     const weatherData = await weatherRes.json()
     location.value = '广东 · 深圳'
@@ -118,9 +135,12 @@ const formatTime = (date: Date): string => {
 
 const startWeatherRefresh = () => {
   getLocationAndWeather()
-  weatherTimer = setInterval(() => {
-    getLocationAndWeather()
-  }, 10 * 60 * 1000)
+  weatherTimer = setInterval(
+    () => {
+      getLocationAndWeather()
+    },
+    10 * 60 * 1000,
+  )
 }
 
 const stopWeatherRefresh = () => {
@@ -132,12 +152,24 @@ const stopWeatherRefresh = () => {
 
 const getWeatherDesc = (code: number): string => {
   const codes: Record<number, string> = {
-    0: '晴朗', 1: '多云', 2: '多云', 3: '阴天',
-    45: '雾', 48: '雾凇',
-    51: '毛毛雨', 53: '小雨', 55: '中雨',
-    61: '小雨', 63: '中雨', 65: '大雨',
-    71: '小雪', 73: '中雪', 75: '大雪',
-    95: '雷雨', 96: '雷雨', 99: '雷雨',
+    0: '晴朗',
+    1: '多云',
+    2: '多云',
+    3: '阴天',
+    45: '雾',
+    48: '雾凇',
+    51: '毛毛雨',
+    53: '小雨',
+    55: '中雨',
+    61: '小雨',
+    63: '中雨',
+    65: '大雨',
+    71: '小雪',
+    73: '中雪',
+    75: '大雪',
+    95: '雷雨',
+    96: '雷雨',
+    99: '雷雨',
   }
   return codes[code] || '多云'
 }
@@ -165,7 +197,9 @@ const copyToClipboard = (text: string, label: string, e: MouseEvent) => {
   navigator.clipboard.writeText(text).then(() => {
     copied.value = label
     showParticles(e)
-    setTimeout(() => { copied.value = '' }, 2000)
+    setTimeout(() => {
+      copied.value = ''
+    }, 2000)
   })
 }
 
@@ -175,18 +209,18 @@ const copyEmail = (e: MouseEvent) => {
 
 // ========== Data ==========
 const techStack = [
-  { name: 'HTML', icon: 'simple-icons:html5', color: '#E34F26' },
-  { name: 'CSS', icon: 'simple-icons:css3', color: '#1572B6' },
-  { name: 'JavaScript', icon: 'simple-icons:javascript', color: '#F7DF1E' },
-  { name: 'TypeScript', icon: 'simple-icons:typescript', color: '#3178C6' },
-  { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D' },
-  { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1' },
-  { name: 'Java', icon: 'simple-icons:java', color: '#007396' },
-  { name: 'Spring Boot', icon: 'simple-icons:springboot', color: '#6DB33F' },
-  { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939' },
-  { name: 'Flutter', icon: 'simple-icons:flutter', color: '#02569B' },
-  { name: 'Node.js', icon: 'simple-icons:nodedotjs', color: '#339933' },
-  { name: 'Ajax', icon: 'lucide:loader-2', color: '#F97316' },
+  { name: 'HTML', icon: 'simple-icons:html5', color: '#E34F26', level: 90 },
+  { name: 'CSS', icon: 'simple-icons:css3', color: '#1572B6', level: 85 },
+  { name: 'JavaScript', icon: 'simple-icons:javascript', color: '#F7DF1E', level: 85 },
+  { name: 'TypeScript', icon: 'simple-icons:typescript', color: '#3178C6', level: 75 },
+  { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D', level: 88 },
+  { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1', level: 70 },
+  { name: 'Java', icon: 'devicon-plain:java', color: '#007396', level: 65 },
+  { name: 'Spring Boot', icon: 'simple-icons:springboot', color: '#6DB33F', level: 60 },
+  { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939', level: 72 },
+  { name: 'Flutter', icon: 'simple-icons:flutter', color: '#02569B', level: 55 },
+  { name: 'Node.js', icon: 'simple-icons:nodedotjs', color: '#339933', level: 68 },
+  { name: 'Ajax', icon: 'lucide:loader-2', color: '#F97316', level: 80 },
 ]
 
 const hobbies = [
@@ -199,6 +233,79 @@ const hobbies = [
   { name: '追剧', icon: 'lucide:tv' },
 ]
 
+const timeline = [
+  {
+    year: '2025',
+    title: '前端三件套',
+    desc: '系统学习 HTML / CSS / JavaScript，搭建第一个静态个人博客',
+    icon: 'lucide:code-2',
+    color: '#EC4899',
+  },
+  {
+    year: '2026',
+    title: 'Vue3 框架',
+    desc: '深入学习 Vue3 组合式 API，掌握响应式原理与组件化开发',
+    icon: 'simple-icons:vuedotjs',
+    color: '#EC4899',
+  },
+  {
+    year: '2026',
+    title: 'Java 基础',
+    desc: '系统学习 Java 基础语法，掌握面向对象编程与集合框架',
+    icon: 'devicon-plain:java',
+    color: '#F97316',
+  },
+  {
+    year: '2026',
+    title: '小兔鲜项目',
+    desc: '基于 Vue3 的电商实战项目，实现商品展示、购物车等核心功能',
+    icon: 'lucide:shopping-cart',
+    color: '#EC4899',
+  },
+  {
+    year: '2026',
+    title: 'MySQL',
+    desc: '学习关系型数据库，掌握 SQL 语句、索引优化与事务管理',
+    icon: 'simple-icons:mysql',
+    color: '#F97316',
+  },
+  {
+    year: '2026',
+    title: 'Java Web',
+    desc: '学习 Servlet / JSP / JDBC，理解 Web 开发基础与 MVC 模式',
+    icon: 'lucide:globe',
+    color: '#F97316',
+  },
+  {
+    year: '2026',
+    title: 'ElementPlus',
+    desc: '学习并实践 ElementPlus 组件库，快速搭建后台管理系统',
+    icon: 'lucide:layout',
+    color: '#EC4899',
+  },
+  {
+    year: '2026',
+    title: '苍穹外卖',
+    desc: '完成外卖平台项目，实现用户端、商家端与骑手端完整功能',
+    icon: 'lucide:utensils',
+    color: '#F97316',
+  },
+  {
+    year: '2026',
+    title: 'uniapp',
+    desc: '学习跨平台开发框架，实现一套代码多端运行',
+    icon: 'lucide:smartphone',
+    color: '#EC4899',
+  },
+  {
+    year: '2026',
+    title: '智能协同云图库',
+    desc: '企业级项目实战，实现图片管理、团队协作等核心功能',
+    icon: 'lucide:cloud',
+    color: '#EC4899',
+  },
+]
+
 const contacts = [
   { label: '微信', value: '13410972606', icon: 'lucide:message-circle', color: '#07C160' },
   { label: 'QQ', value: '363807870', icon: 'lucide:at-sign', color: '#12B7F5' },
@@ -207,8 +314,18 @@ const contacts = [
 ]
 
 const socials = [
-  { name: 'GitHub', url: 'https://github.com/JAYTDD', icon: 'simple-icons:github', color: '#181717' },
-  { name: '掘金', url: 'https://juejin.cn/user/2385290407448745', icon: 'simple-icons:juejin', color: '#1E80FF' },
+  {
+    name: 'GitHub',
+    url: 'https://github.com/JAYTDD',
+    icon: 'simple-icons:github',
+    color: '#181717',
+  },
+  {
+    name: '掘金',
+    url: 'https://juejin.cn/user/2385290407448745',
+    icon: 'simple-icons:juejin',
+    color: '#1E80FF',
+  },
 ]
 
 // ========== Lifecycle ==========
@@ -237,24 +354,71 @@ onMounted(() => {
   // Weather
   startWeatherRefresh()
 
-  // Scroll reveal with stagger
+  // Scroll reveal — immediately reveal visible, then observe for scroll
+  const revealElements = document.querySelectorAll('.reveal')
+
+  revealElements.forEach((el) => {
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight) {
+      ;(el as HTMLElement).classList.add('revealed')
+    }
+  })
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const el = entry.target as HTMLElement
-          const delay = el.dataset.delay || '0'
-          el.style.transitionDelay = `${delay}ms`
-          el.classList.add('revealed')
+          entry.target.classList.add('revealed')
         }
       })
     },
-    { threshold: 0.1 }
+    { threshold: 0.1 },
   )
-  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+  revealElements.forEach((el) => {
+    if (!(el as HTMLElement).classList.contains('revealed')) {
+      observer.observe(el)
+    }
+  })
 
-  // Init magnetic styles
-  magneticStyles.value = contacts.map(() => ({ transform: 'translate(0px, 0px)' }))
+  // Text generate effect
+  const textElements = document.querySelectorAll('.text-generate')
+  textElements.forEach((el) => {
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight) {
+      el.classList.add('revealed-text')
+    }
+  })
+  const textObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed-text')
+        }
+      })
+    },
+    { threshold: 0.3 },
+  )
+  textElements.forEach((el) => {
+    if (!(el as HTMLElement).classList.contains('revealed-text')) {
+      textObserver.observe(el)
+    }
+  })
+
+  // Section title lamp effect
+  const lampElements = document.querySelectorAll('.section-title')
+  const lampObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('lamp-on')
+        } else {
+          entry.target.classList.remove('lamp-on')
+        }
+      })
+    },
+    { threshold: 0.5 },
+  )
+  lampElements.forEach((el) => lampObserver.observe(el))
 })
 
 onUnmounted(() => {
@@ -264,9 +428,9 @@ onUnmounted(() => {
 
 <template>
   <div ref="particleContainer" class="about-layout">
-    <main class="main-content">
+    <main class="about-main-content">
       <!-- Hero Section with Double-Bezel Card -->
-      <section class="hero-section reveal" data-delay="0">
+      <section class="hero-section reveal">
         <div class="hero-card-outer">
           <div class="hero-card-inner">
             <!-- 3D Tilt Avatar -->
@@ -276,11 +440,11 @@ onUnmounted(() => {
               @mouseleave="handleAvatarLeave"
             >
               <img
-                src="https://www.coderesin.xyz/favicon.ico"
+                src="../../public/Lunesnow.ico"
                 alt="avatar"
                 class="avatar"
                 :style="avatarStyle"
-              >
+              />
             </div>
             <h1 class="name">Lunesnow</h1>
             <p class="title">全栈工程师</p>
@@ -293,8 +457,16 @@ onUnmounted(() => {
               </div>
               <div class="signature-line">
                 <span class="signature-text">{{ signatureLine2 }}</span>
-                <span v-if="signatureLine2 && signatureLine2.length < (signatureLines[1]?.length ?? 0)" class="cursor" />
-                <span v-if="signatureLine2 && signatureLine2.length === (signatureLines[1]?.length ?? 0)" class="cursor blink" />
+                <span
+                  v-if="signatureLine2 && signatureLine2.length < (signatureLines[1]?.length ?? 0)"
+                  class="cursor"
+                />
+                <span
+                  v-if="
+                    signatureLine2 && signatureLine2.length === (signatureLines[1]?.length ?? 0)
+                  "
+                  class="cursor blink"
+                />
               </div>
             </div>
 
@@ -310,7 +482,9 @@ onUnmounted(() => {
                   <Icon :icon="weather.icon" width="12" height="12" />
                 </span>
                 <span>{{ weather.temp }}°C {{ weather.desc }}</span>
-                <span v-if="weatherUpdatedAt" class="update-time">· {{ weatherUpdatedAt }}更新</span>
+                <span v-if="weatherUpdatedAt" class="update-time"
+                  >· {{ weatherUpdatedAt }}更新</span
+                >
               </div>
               <div class="status-item">
                 <span class="music-icon-wrap">
@@ -340,53 +514,79 @@ onUnmounted(() => {
       </section>
 
       <!-- About Blog -->
-      <section class="section reveal" data-delay="100">
+      <section class="section reveal">
         <h2 class="section-title">关于</h2>
-        <p class="about-text">
-          Lunesnow 的个人技术博客，基于 Vue + Vite + TypeScript 构建。记录全栈开发、工具链、以及日常学习中的思考与总结。
+        <p class="about-text text-generate">
+          Lunesnow 的个人技术博客，基于 Vue + Vite + TypeScript
+          构建。记录全栈开发、工具链、以及日常学习中的思考与总结。
         </p>
       </section>
 
       <!-- Skills & Interests -->
-      <section class="section reveal" data-delay="200">
+      <section class="section reveal">
         <h2 class="section-title">技能与兴趣</h2>
         <div class="skills-grid">
           <span
             v-for="(tech, i) in techStack"
             :key="tech.name"
             class="skill-tag spotlight-tag"
-            :style="{ transitionDelay: `${i * 40}ms`, '--tag-color': tech.color }"
+            :style="{
+              '--tag-color': tech.color,
+              '--tag-level': tech.level + '%',
+            }"
             @mousemove="handleTagMouseMove"
           >
             <Icon :icon="tech.icon" width="14" height="14" />
             <span>{{ tech.name }}</span>
+            <span class="skill-level-bar" />
           </span>
         </div>
         <div class="hobbies-row">
           <span
-            v-for="(hobby, i) in hobbies"
+            v-for="hobby in hobbies"
             :key="hobby.name"
             class="hobby-tag"
-            :style="{ transitionDelay: `${(techStack.length + i) * 40}ms` }"
           >
-            <Icon :icon="hobby.icon" width="12" height="12" />
+            <span class="hobby-icon-bg">
+              <Icon :icon="hobby.icon" width="12" height="12" />
+            </span>
             <span>{{ hobby.name }}</span>
           </span>
         </div>
       </section>
 
+      <!-- Learning Timeline -->
+      <section class="section reveal">
+        <h2 class="section-title">成长时间线</h2>
+        <div class="about-timeline">
+          <div
+            v-for="item in timeline"
+            :key="item.title"
+            class="about-timeline-card"
+            :style="{ '--tl-color': item.color }"
+          >
+            <div class="about-timeline-card-icon">
+              <Icon :icon="item.icon" width="14" height="14" />
+            </div>
+            <div class="about-timeline-card-info">
+              <span class="about-timeline-card-year">{{ item.year }}</span>
+              <span class="about-timeline-card-title">{{ item.title }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Contact Grid -->
-      <section class="section reveal" data-delay="300">
+      <section class="section reveal">
         <h2 class="section-title">找到我</h2>
         <div class="contact-grid">
           <div
-            v-for="(contact, index) in contacts"
+            v-for="contact in contacts"
             :key="contact.label"
-            ref="magneticRefs"
             class="contact-card magnetic-contact"
-            :style="[magneticStyles[index], { '--contact-color': contact.color }]"
-            @mousemove="handleMagneticMove(index)"
-            @mouseleave="handleMagneticLeave(index)"
+            :style="{ '--contact-color': contact.color }"
+            @mousemove="(e) => { handleMagneticMove(e); handleContactGlow(e) }"
+            @mouseleave="handleMagneticLeave"
             @click="(e) => copyToClipboard(contact.value, contact.label, e)"
           >
             <div class="contact-card-icon" :style="{ color: contact.color }">
@@ -404,7 +604,7 @@ onUnmounted(() => {
       </section>
 
       <!-- Social Links -->
-      <section class="section reveal" data-delay="400">
+      <section class="section reveal">
         <h2 class="section-title">社交</h2>
         <p class="social-subtitle">在以下平台找到我</p>
         <div class="social-row">
@@ -417,7 +617,9 @@ onUnmounted(() => {
             :style="{ '--social-color': social.color }"
             :title="social.name"
           >
-            <Icon :icon="social.icon" width="18" height="18" :style="{ color: social.color }" />
+            <span class="social-icon-inner">
+              <Icon :icon="social.icon" width="18" height="18" :style="{ color: social.color }" />
+            </span>
           </a>
         </div>
         <p class="social-footer">2025 &mdash; resin-blog</p>
@@ -429,48 +631,48 @@ onUnmounted(() => {
 <style>
 /* ===== CSS Variables ===== */
 .about-layout {
-  --bg-canvas: #FAFAF8;
-  --bg-card: #FFFFFF;
-  --text-primary: #18181B;
-  --text-secondary: #52525B;
-  --text-muted: #A1A1AA;
+  --bg-canvas: var(--color-bg-primary);
+  --bg-card: var(--color-text-inverse);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-tertiary);
   --border-light: rgba(24, 24, 27, 0.06);
   --border-hover: rgba(24, 24, 27, 0.12);
-  --accent: #EC4899;
+  --accent: var(--color-brand-pink);
   --shadow-soft: rgba(24, 24, 27, 0.04);
   --shadow-hover: rgba(24, 24, 27, 0.08);
 }
 
 html.dark .about-layout {
-  --bg-canvas: #0F0F10;
-  --bg-card: #18181B;
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted: #71717A;
+  --bg-canvas: var(--color-bg-dark-primary);
+  --bg-card: var(--color-bg-dark-secondary);
+  --text-primary: var(--color-text-dark-primary);
+  --text-secondary: var(--color-text-dark-secondary);
+  --text-muted: var(--color-text-dark-tertiary);
   --border-light: rgba(250, 250, 248, 0.06);
   --border-hover: rgba(250, 250, 248, 0.12);
-  --accent: #F472B6;
+  --accent: var(--color-brand-pink-light);
   --shadow-soft: rgba(0, 0, 0, 0.3);
   --shadow-hover: rgba(0, 0, 0, 0.4);
 }
 
 /* ===== Layout ===== */
 .about-layout {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 16px 24px 24px;
   min-height: 100vh;
   position: relative;
 }
 
 /* ===== Main Content ===== */
-.main-content {
+.about-main-content {
   width: 100%;
 }
 
 /* ===== Hero Section ===== */
 .hero-section {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 /* Double-Bezel Hero Card */
@@ -480,17 +682,59 @@ html.dark .about-layout {
   border-radius: 24px;
   padding: 2px;
   box-shadow: 0 24px 64px rgba(24, 24, 27, 0.06);
+  position: relative;
 }
 
+/* Rotating glow border (dark mode only) */
 html.dark .hero-card-outer {
   background: rgba(250, 250, 248, 0.03);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
 }
 
+html.dark .hero-card-outer::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 25px;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--hero-glow-angle, 0deg),
+    transparent 0%,
+    rgba(236, 72, 153, 0.3) 10%,
+    transparent 20%,
+    rgba(139, 92, 246, 0.2) 35%,
+    transparent 50%,
+    rgba(249, 115, 22, 0.2) 65%,
+    transparent 80%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: hero-glow-spin 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes hero-glow-spin {
+  to {
+    --hero-glow-angle: 360deg;
+  }
+}
+
+@property --hero-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 .hero-card-inner {
   background: var(--bg-card);
   border-radius: 22px;
-  padding: 32px 28px;
+  padding: 24px 20px;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5);
   text-align: center;
 }
@@ -542,7 +786,7 @@ html.dark .hero-card-inner {
 .signature {
   font-size: 16px;
   color: var(--text-secondary);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   min-height: 48px;
   line-height: 1.5;
 }
@@ -569,8 +813,13 @@ html.dark .hero-card-inner {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Status Bar */
@@ -580,7 +829,7 @@ html.dark .hero-card-inner {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 8px 20px;
+  padding: 6px 16px;
   background: var(--bg-canvas);
   border-radius: 100px;
   font-size: 13px;
@@ -598,7 +847,7 @@ html.dark .hero-card-inner {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #22c55e;
+  background: var(--color-status-success);
   position: relative;
   flex-shrink: 0;
 }
@@ -608,14 +857,21 @@ html.dark .hero-card-inner {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  background: #22c55e;
+  background: var(--color-status-success);
   opacity: 0.4;
   animation: breathe 2s ease-in-out infinite;
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(2); opacity: 0; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 /* Weather Icon Animation */
@@ -625,8 +881,13 @@ html.dark .hero-card-inner {
 }
 
 @keyframes weather-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
 }
 
 /* Music Icon Wave Animation */
@@ -651,8 +912,14 @@ html.dark .hero-card-inner {
 }
 
 @keyframes music-wave {
-  0% { transform: scale(0.8); opacity: 0.6; }
-  100% { transform: scale(1.8); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 .update-time {
@@ -666,7 +933,7 @@ html.dark .hero-card-inner {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 
@@ -699,7 +966,7 @@ html.dark .action-btn {
 
 /* ===== Sections ===== */
 .section {
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
 
 .section::before {
@@ -707,7 +974,7 @@ html.dark .action-btn {
   display: block;
   height: 1px;
   background: var(--border-light);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .section:first-child::before {
@@ -720,7 +987,7 @@ html.dark .action-btn {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 /* About Text */
@@ -731,10 +998,48 @@ html.dark .action-btn {
   max-width: 65ch;
 }
 
+/* Text Generate Effect (Aceternity style) */
+.text-generate {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(8px);
+  transition: all 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.text-generate.revealed-text {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+/* Section Title Lamp Effect */
+.section-title {
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 40px;
+  background: radial-gradient(ellipse at center, var(--accent), transparent 70%);
+  opacity: 0;
+  filter: blur(16px);
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+
+.section-title.lamp-on::after {
+  opacity: 0.15;
+}
+
 /* Skills Grid */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 
@@ -752,20 +1057,45 @@ html.dark .action-btn {
   overflow: hidden;
   position: relative;
   cursor: default;
-  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-  opacity: 0;
-  transform: translateY(8px);
+  transition:
+    transform 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    color 0.08s linear;
+  opacity: 1;
+  transform: translateY(0) rotate(0deg);
 }
 
 .revealed .skill-tag {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) rotate(0deg);
 }
 
 .skill-tag:hover {
   border-color: var(--tag-color, var(--accent));
   color: var(--tag-color, var(--accent));
-  box-shadow: 0 2px 12px var(--shadow-soft);
+  box-shadow:
+    0 2px 10px var(--shadow-soft),
+    0 0 12px -3px var(--tag-color, var(--accent));
+  transform: scale(1.05) translateY(-2px);
+}
+
+/* Uiverse-style bottom progress bar */
+.skill-level-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: var(--tag-level, 0%);
+  background: var(--tag-color, var(--accent));
+  border-radius: 0 0 8px 8px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.skill-tag:hover .skill-level-bar {
+  transform: scaleX(1);
 }
 
 /* Hobbies Row */
@@ -786,19 +1116,45 @@ html.dark .action-btn {
   border: 1px solid var(--border-light);
   background: var(--bg-card);
   color: var(--text-muted);
-  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  transition:
+    transform 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    color 0.08s linear;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(8px) rotate(1deg);
 }
 
 .revealed .hobby-tag {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) rotate(0deg);
 }
 
 .hobby-tag:hover {
   border-color: var(--accent);
   color: var(--accent);
+  transform: scale(1.08) translateY(-1px);
+  box-shadow: 0 2px 8px var(--shadow-soft);
+}
+
+.hobby-tag:hover .hobby-icon-bg {
+  background: var(--accent);
+  color: var(--bg-card);
+  transform: scale(1.1);
+}
+
+/* Hobby Icon Background */
+.hobby-icon-bg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--bg-canvas);
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
 }
 
 /* Spotlight Effect */
@@ -846,12 +1202,44 @@ html.dark .spotlight-tag::before {
   border-radius: 12px;
   cursor: pointer;
   will-change: transform;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   position: relative;
+  overflow: hidden;
+}
+
+/* Aceternity-style glow border */
+.contact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: radial-gradient(
+    120px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    var(--contact-color, var(--accent)),
+    transparent 60%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.contact-card:hover::before {
+  opacity: 0.7;
 }
 
 .contact-card:hover {
-  border-color: var(--accent);
+  border-color: transparent;
   box-shadow: 0 4px 16px var(--shadow-soft);
 }
 
@@ -933,6 +1321,80 @@ html.dark .spotlight-tag::before {
   }
 }
 
+/* ===== Timeline ===== */
+.about-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.about-timeline-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    transform 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.16s cubic-bezier(0.32, 0.72, 0, 1),
+    color 0.08s linear;
+}
+
+.revealed .about-timeline-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about-timeline-card:hover {
+  border-color: var(--tl-color, var(--accent));
+  box-shadow: 0 2px 8px var(--shadow-soft), 0 0 14px -5px var(--tl-color, var(--accent));
+  transform: translateY(-2px) scale(1.03);
+}
+
+.about-timeline-card-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-canvas);
+  color: var(--tl-color, var(--accent));
+  transition: all 0.25s ease;
+}
+
+.about-timeline-card:hover .about-timeline-card-icon {
+  background: var(--tl-color, var(--accent));
+  color: #fff;
+}
+
+.about-timeline-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.about-timeline-card-year {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--tl-color, var(--accent));
+  letter-spacing: 0.02em;
+}
+
+.about-timeline-card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 /* Social Row */
 .social-row {
   display: flex;
@@ -942,8 +1404,7 @@ html.dark .spotlight-tag::before {
 .social-subtitle {
   font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 12px;
-  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .social-footer {
@@ -969,6 +1430,13 @@ html.dark .spotlight-tag::before {
   overflow: hidden;
 }
 
+.social-icon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 .social-circle::before {
   content: '';
   position: absolute;
@@ -976,8 +1444,12 @@ html.dark .spotlight-tag::before {
   border-radius: 50%;
   padding: 1px;
   background: linear-gradient(90deg, transparent, var(--social-color, var(--accent)), transparent);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
@@ -990,17 +1462,44 @@ html.dark .spotlight-tag::before {
 }
 
 .social-circle:hover {
-  box-shadow: 0 2px 14px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px) scale(1.08);
+}
+
+.social-circle:hover .social-icon-inner {
+  animation: social-bounce 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes social-bounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1.1);
+  }
 }
 
 html.dark .social-circle:hover {
-  box-shadow: 0 2px 14px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .social-circle {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 @keyframes glow-rotate {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
 }
 
 /* ===== Scroll Reveal with Stagger ===== */
@@ -1030,6 +1529,32 @@ html.dark .social-circle:hover {
     transition: none;
   }
 
+  .skill-level-bar {
+    transform: scaleX(1);
+    transition: none;
+  }
+
+  .about-timeline-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .text-generate {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+
+  .section-title::after {
+    display: none;
+  }
+
+  html.dark .hero-card-outer::before {
+    animation: none;
+  }
+
   .cursor {
     animation: none;
   }
@@ -1046,16 +1571,20 @@ html.dark .social-circle:hover {
   .music-icon-wrap::after {
     animation: none;
   }
+
+  .social-circle:hover .social-icon-inner {
+    animation: none;
+  }
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 640px) {
   .about-layout {
-    padding: 24px 16px 40px;
+    padding: 14px 16px 20px;
   }
 
   .hero-card-inner {
-    padding: 24px 20px;
+    padding: 20px 16px;
   }
 
   .avatar {
@@ -1069,15 +1598,15 @@ html.dark .social-circle:hover {
 
   .status-bar {
     gap: 10px;
-    padding: 6px 14px;
+    padding: 5px 12px;
   }
 
   .skills-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .contact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .social-row {
@@ -1087,11 +1616,11 @@ html.dark .social-circle:hover {
 
 @media (max-width: 480px) {
   .about-layout {
-    padding: 20px 14px 36px;
+    padding: 12px 14px 18px;
   }
 
   .hero-card-inner {
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
 
   .avatar {
@@ -1114,15 +1643,19 @@ html.dark .social-circle:hover {
 
   .signature {
     font-size: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .section {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
   }
 
   .skills-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
   }
 
   .status-bar {

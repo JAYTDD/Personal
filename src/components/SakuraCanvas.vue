@@ -5,6 +5,8 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 let animationId = 0
 let petals: Petal[] = []
 let reducedMotion = false
+let isDarkMode = false
+let themeObserver: MutationObserver | null = null
 
 interface Petal {
   x: number
@@ -17,31 +19,37 @@ interface Petal {
   swaySpeed: number
   swayAmount: number
   opacity: number
+  hue: number
 }
 
 function createPetal(canvasWidth: number, canvasHeight: number): Petal {
+  const sizeBase = 10 + Math.random() * 18
   return {
     x: Math.random() * canvasWidth,
     y: -20 - Math.random() * canvasHeight,
-    size: 8 + Math.random() * 12,
+    size: sizeBase,
     rotation: Math.random() * Math.PI * 2,
-    rotationSpeed: (Math.random() - 0.5) * 0.02,
-    fallSpeed: 0.3 + Math.random() * 0.7,
+    rotationSpeed: (Math.random() - 0.5) * 0.015,
+    fallSpeed: 0.08 + Math.random() * 0.28,
     swayOffset: Math.random() * Math.PI * 2,
-    swaySpeed: 0.01 + Math.random() * 0.02,
-    swayAmount: 0.5 + Math.random() * 2,
-    opacity: 0.4 + Math.random() * 0.4,
+    swaySpeed: 0.004 + Math.random() * 0.01,
+    swayAmount: 0.4 + Math.random() * 1.4,
+    opacity: isDarkMode ? 0.2 + Math.random() * 0.3 : 0.38 + Math.random() * 0.42,
+    hue: Math.random() * 20 - 10,
   }
 }
 
 function drawPetal(ctx: CanvasRenderingContext2D, petal: Petal) {
-  const { x, y, size, rotation, opacity } = petal
+  const { x, y, size, rotation, opacity, hue } = petal
 
   ctx.save()
   ctx.translate(x, y)
   ctx.rotate(rotation)
 
-  ctx.fillStyle = `rgba(255, 182, 193, ${opacity})`
+  const r = Math.min(255, 255)
+  const g = Math.min(255, Math.max(0, 182 + hue))
+  const b = Math.min(255, Math.max(0, 193 + hue * 0.5))
+  ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`
 
   ctx.beginPath()
   ctx.moveTo(0, 0)
@@ -76,6 +84,7 @@ function animate() {
       petal.size = newPetal.size
       petal.fallSpeed = newPetal.fallSpeed
       petal.opacity = newPetal.opacity
+      petal.hue = newPetal.hue
     }
 
     drawPetal(ctx, petal)
@@ -87,8 +96,19 @@ function animate() {
 function resize() {
   const canvas = canvasRef.value
   if (!canvas) return
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
+  const dpr = window.devicePixelRatio || 1
+  const w = window.innerWidth
+  const h = window.innerHeight
+  canvas.width = w * dpr
+  canvas.height = h * dpr
+  canvas.style.width = w + 'px'
+  canvas.style.height = h + 'px'
+  const ctx = canvas.getContext('2d')
+  if (ctx) ctx.scale(dpr, dpr)
+}
+
+function checkDarkMode() {
+  isDarkMode = document.documentElement.classList.contains('dark')
 }
 
 function handleVisibilityChange() {
@@ -99,24 +119,53 @@ function handleVisibilityChange() {
   }
 }
 
+function handleThemeChange() {
+  checkDarkMode()
+  petals.forEach((p) => {
+    p.opacity = isDarkMode ? 0.15 + Math.random() * 0.25 : 0.3 + Math.random() * 0.4
+  })
+}
+
 onMounted(() => {
   reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  const canvas = canvasRef.value
-  if (!canvas) return
+  // Lazy init: delay canvas setup until after first paint
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const canvas = canvasRef.value
+      if (!canvas) return
 
-  resize()
-  petals = Array.from({ length: 35 }, () => createPetal(canvas.width, canvas.height))
-  if (!reducedMotion) animate()
+      checkDarkMode()
+      resize()
 
-  window.addEventListener('resize', resize)
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+      const count = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
+      petals = Array.from({ length: count }, () =>
+        createPetal(window.innerWidth, window.innerHeight),
+      )
+
+      if (!reducedMotion) animate()
+
+      window.addEventListener('resize', resize)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      // Watch for theme changes via MutationObserver
+      themeObserver = new MutationObserver(() => {
+        handleThemeChange()
+      })
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      })
+    })
+  })
 })
 
 onUnmounted(() => {
   cancelAnimationFrame(animationId)
+  themeObserver?.disconnect()
   window.removeEventListener('resize', resize)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  document.removeEventListener('classchange', handleThemeChange)
 })
 </script>
 
@@ -124,7 +173,6 @@ onUnmounted(() => {
   <canvas
     ref="canvasRef"
     aria-hidden="true"
-    class="fixed left-0 top-0 pointer-events-none"
-    style="z-index: 0"
+    class="fixed left-0 top-0 pointer-events-none z-[100]"
   />
 </template>

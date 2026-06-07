@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { nextTick, ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const activeIndex = ref(0)
@@ -54,7 +54,7 @@ const experiences: ExperienceItem[] = [
     metrics: [
       { label: '学习时长', value: '8天' },
     ],
-    icon: 'simple-icons:java',
+    icon: 'devicon-plain:java',
   },
   {
     date: '2026.02',
@@ -163,20 +163,46 @@ const scrollTo = (index: number) => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
+
+  // Keep the active item in sync with direct navigation or refresh
+  const current = document.querySelector('.timeline-item.revealed') as HTMLElement | null
+  if (!current) {
+    const firstItem = document.querySelector('.timeline-item') as HTMLElement | null
+    if (firstItem) {
+      firstItem.classList.add('revealed')
+      activeIndex.value = Number(firstItem.dataset.index || 0)
+    }
+  }
+
+  // Immediately reveal visible items, then observe for scroll
+  const items = document.querySelectorAll('.timeline-item')
+  items.forEach((el) => {
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight) {
+      el.classList.add('revealed')
+    }
+  })
+
+  // Observe remaining items for scroll-reveal
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const index = parseInt(entry.target.getAttribute('data-index') || '0')
           activeIndex.value = index
+          entry.target.classList.add('revealed')
         }
       })
     },
-    { threshold: 0, rootMargin: '-120px 0px -60% 0px' }
+    { threshold: 0.1, rootMargin: '-80px 0px -40% 0px' },
   )
-
-  document.querySelectorAll('.timeline-item').forEach((el) => observer.observe(el))
+  items.forEach((el) => {
+    if (!el.classList.contains('revealed')) {
+      observer.observe(el)
+    }
+  })
 })
 </script>
 
@@ -218,7 +244,6 @@ onMounted(() => {
           :key="exp.date + exp.title"
           :data-index="index"
           class="timeline-item"
-          :style="{ animationDelay: `${index * 0.12}s` }"
         >
           <!-- Left: Date -->
           <div class="timeline-left">
@@ -278,26 +303,28 @@ onMounted(() => {
 /* ===== CSS Variables ===== */
 .experience-page {
   --canvas-bg: transparent;
-  --pure-surface: #FFFFFF;
-  --charcoal-ink: #18181B;
-  --warm-gray: #52525B;
-  --muted-sage: #A1A1AA;
+  --pure-surface: var(--color-text-inverse);
+  --charcoal-ink: var(--color-text-primary);
+  --warm-gray: var(--color-text-secondary);
+  --muted-sage: var(--color-text-tertiary);
   --hairline: rgba(0, 0, 0, 0.08);
-  --accent: #EC4899;
+  --accent: var(--color-brand-pink);
   --shadow-soft: rgba(0, 0, 0, 0.04);
   --shadow-hover: rgba(0, 0, 0, 0.08);
+  --bg-hover: var(--color-bg-secondary);
 }
 
 html.dark .experience-page {
   --canvas-bg: transparent;
-  --pure-surface: #18181B;
-  --charcoal-ink: #FAFAFA;
-  --warm-gray: #A1A1AA;
-  --muted-sage: #71717A;
+  --pure-surface: var(--color-bg-dark-secondary);
+  --charcoal-ink: var(--color-text-dark-primary);
+  --warm-gray: var(--color-text-dark-secondary);
+  --muted-sage: var(--color-text-dark-tertiary);
   --hairline: rgba(255, 255, 255, 0.1);
-  --accent: #F472B6;
+  --accent: var(--color-brand-pink-light);
   --shadow-soft: rgba(0, 0, 0, 0.4);
   --shadow-hover: rgba(0, 0, 0, 0.5);
+  --bg-hover: var(--color-bg-dark-tertiary);
 }
 
 /* ===== Page Layout ===== */
@@ -432,7 +459,7 @@ html.dark .toc-item.active {
   letter-spacing: -0.03em;
   line-height: 1.1;
   margin-bottom: 4px;
-  font-family: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
+  font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
 }
 
 .page-subtitle {
@@ -453,14 +480,12 @@ html.dark .toc-item.active {
   gap: 28px;
   opacity: 0;
   transform: translateY(30px);
-  animation: fadeInUp 0.8s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  transition: opacity 0.6s cubic-bezier(0.32, 0.72, 0, 1), transform 0.6s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.timeline-item.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Left: Date & Node */
@@ -598,7 +623,7 @@ html.dark .timeline-dot.active {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: var(--bg-hover, #F5F5F5);
+  background: var(--bg-hover);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -652,7 +677,7 @@ html.dark .card-icon {
 .detail-tag {
   font-size: 12px;
   color: var(--warm-gray);
-  background: var(--bg-hover, #F5F5F5);
+  background: var(--bg-hover);
   padding: 5px 12px;
   border-radius: 8px;
   border: 1px solid var(--hairline);
@@ -769,6 +794,15 @@ html.dark .detail-tag {
 
   .metric-value {
     font-size: 20px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .timeline-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 </style>

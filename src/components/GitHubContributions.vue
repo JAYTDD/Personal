@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const WEEKS = 52
@@ -12,8 +12,8 @@ const MONTH_LABELS = [
 
 const DAY_LABELS = ['', '周一', '', '周三', '', '周五', '']
 
-// Updated color scale with brand teal
 const COLOR_SCALE = ['#E4E4E7', '#F9A8D4', '#F472B6', '#EC4899', '#DB2777']
+const COLOR_SCALE_DARK = ['#27272A', '#F9A8D4', '#F472B6', '#EC4899', '#DB2777']
 
 interface Cell {
   weekIndex: number
@@ -21,25 +21,24 @@ interface Cell {
   level: number
 }
 
-const cells = computed<Cell[]>(() => {
+const cells = ref<Cell[]>([])
+const totalContributions = ref(0)
+
+function generateData() {
   const result: Cell[] = []
+  let total = 0
   for (let w = 0; w < WEEKS; w++) {
     for (let d = 0; d < DAYS; d++) {
-      result.push({
-        weekIndex: w,
-        dayIndex: d,
-        level: Math.floor(Math.random() * 5),
-      })
+      const level = Math.floor(Math.random() * 5)
+      result.push({ weekIndex: w, dayIndex: d, level })
+      total += level
     }
   }
-  return result
-})
+  cells.value = result
+  totalContributions.value = total
+}
 
-const totalContributions = computed(() => {
-  return cells.value.reduce((sum, c) => sum + c.level, 0)
-})
-
-const monthPositions = computed(() => {
+const monthPositions = (() => {
   const positions: { index: number; label: string }[] = []
   const weeksPerMonth = WEEKS / MONTH_LABELS.length
   for (let i = 0; i < MONTH_LABELS.length; i++) {
@@ -49,16 +48,19 @@ const monthPositions = computed(() => {
     })
   }
   return positions
-})
+})()
 
 const svgWidth = WEEKS * 14 + 36
 const svgHeight = DAYS * 14 + 24
 
-// Scroll reveal
 const sectionRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
+const isDark = ref(false)
 
 onMounted(() => {
+  generateData()
+  isDark.value = document.documentElement.classList.contains('dark')
+
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry?.isIntersecting) {
@@ -105,7 +107,7 @@ onMounted(() => {
               :x="0"
               :y="i * 14 + 22"
               class="text-[9px]"
-              fill="#A1A1AA"
+              :fill="isDark ? '#71717A' : '#A1A1AA'"
             >
               {{ label }}
             </text>
@@ -117,7 +119,7 @@ onMounted(() => {
               :x="pos.index * 14 + 28"
               :y="10"
               class="text-[9px]"
-              fill="#A1A1AA"
+              :fill="isDark ? '#71717A' : '#A1A1AA'"
             >
               {{ pos.label }}
             </text>
@@ -131,8 +133,8 @@ onMounted(() => {
               width="12"
               height="12"
               rx="2"
-              :fill="COLOR_SCALE[cell.level] || COLOR_SCALE[0]"
-              stroke="rgba(0,0,0,0.06)"
+              :fill="isDark ? COLOR_SCALE_DARK[cell.level] : COLOR_SCALE[cell.level]"
+              :stroke="isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'"
               stroke-width="1"
               class="transition-all duration-300 ease-out"
               :class="{
@@ -140,7 +142,6 @@ onMounted(() => {
                 'opacity-100 scale-100': isVisible,
               }"
               :style="{
-                transitionDelay: `${Math.min(idx * 2, 800)}ms`,
                 transformOrigin: `${cell.weekIndex * 14 + 34}px ${cell.dayIndex * 14 + 19}px`,
               }"
             />
@@ -161,7 +162,7 @@ onMounted(() => {
         <div class="flex items-center gap-1.5">
           <span>Less</span>
           <svg width="60" height="12" class="inline-block">
-            <rect v-for="i in 5" :key="'l-' + i" :x="(i - 1) * 12" y="0" width="10" height="10" rx="2" :fill="COLOR_SCALE[i - 1] || COLOR_SCALE[0]" />
+            <rect v-for="i in 5" :key="'l-' + i" :x="(i - 1) * 12" y="0" width="10" height="10" rx="2" :fill="isDark ? COLOR_SCALE_DARK[i - 1] : COLOR_SCALE[i - 1]" />
           </svg>
           <span>More</span>
         </div>
@@ -176,13 +177,13 @@ onMounted(() => {
         }"
       >
         <a
-          href="https://github.com/resinya"
+          href="https://github.com/JAYTDD"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-brand-pink dark:text-text-dark-tertiary dark:hover:text-brand-pink-light transition-colors hover:scale-105 transform duration-200"
         >
           <Icon icon="simple-icons:github" class="w-5 h-5" />
-          click 一下
+          在 GitHub 上查看
         </a>
       </div>
     </div>

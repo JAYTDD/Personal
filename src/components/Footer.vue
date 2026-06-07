@@ -9,14 +9,13 @@ const copied = ref(false)
 const navLinks = [
   { name: '首页', path: '/' },
   { name: '简历', path: '/resume' },
+  { name: '经历', path: '/experience' },
   { name: '关于', path: '/about' },
 ]
 
 const socialLinks = [
-  { icon: 'simple-icons:wechat', title: '微信', href: '#' },
-  { icon: 'lucide:bell', title: '通知', href: '#' },
-  { icon: 'simple-icons:github', title: 'GitHub', href: 'https://github.com/resinya', external: true },
-  { icon: 'simple-icons:tiktok', title: '抖音', href: '#' },
+  { icon: 'simple-icons:github', title: 'GitHub', href: 'https://github.com/JAYTDD', external: true },
+  { icon: 'simple-icons:juejin', title: '掘金', href: 'https://juejin.cn/user/2385290407448745', external: true },
 ]
 
 async function copyUrl() {
@@ -43,7 +42,7 @@ async function copyUrl() {
       <!-- Top: Nav + Social -->
       <div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-between sm:items-center">
         <!-- Left: Nav links -->
-        <nav class="flex items-center gap-8">
+        <nav aria-label="页脚导航" class="flex items-center gap-8">
           <RouterLink
             v-for="link in navLinks"
             :key="link.path"
@@ -57,32 +56,25 @@ async function copyUrl() {
 
         <!-- Right: Social icons + FAB -->
         <div class="flex items-center gap-4">
-          <template v-for="link in socialLinks" :key="link.icon">
-            <a
-              v-if="link.external"
-              :href="link.href"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-text-tertiary transition-all duration-200 hover:text-brand-pink hover:scale-110 dark:text-text-dark-tertiary dark:hover:text-brand-pink-light"
-              :title="link.title"
-            >
-              <Icon :icon="link.icon" class="h-5 w-5" />
-            </a>
-            <button
-              v-else
-              type="button"
-              class="text-text-tertiary transition-all duration-200 hover:text-brand-pink hover:scale-110 dark:text-text-dark-tertiary dark:hover:text-brand-pink-light"
-              :title="link.title"
-            >
-              <Icon :icon="link.icon" class="h-5 w-5" />
-            </button>
-          </template>
+          <a
+            v-for="link in socialLinks"
+            :key="link.icon"
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-text-tertiary transition-all duration-200 hover:text-brand-pink hover:scale-110 dark:text-text-dark-tertiary dark:hover:text-brand-pink-light"
+            :title="link.title"
+            :aria-label="link.title"
+          >
+            <Icon :icon="link.icon" class="h-5 w-5" />
+          </a>
 
           <!-- FAB Share Button -->
           <button
             type="button"
             class="relative flex h-12 w-12 items-center justify-center rounded-full gradient-pink shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg hover:rotate-3 active:scale-95"
             title="分享链接"
+            aria-label="分享链接"
             @click="copyUrl"
           >
             <Icon icon="lucide:arrow-up-right" class="h-5 w-5 text-white transition-transform duration-200" :class="{ 'rotate-45': copied }" />

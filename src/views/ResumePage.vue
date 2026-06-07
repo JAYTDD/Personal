@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const typeText = ref('')
 const fullText = '全栈工程师和前端开发'
 const showContent = ref(false)
 
-onMounted(() => {
+function handlePrint() {
+  window.print()
+}
+
+onMounted(async () => {
   // Typewriter effect
   let i = 0
   const timer = setInterval(() => {
@@ -21,7 +25,21 @@ onMounted(() => {
     }
   }, 80)
 
-  // Scroll reveal animation
+  await nextTick()
+
+  // Scroll reveal — immediately reveal visible, then observe for scroll
+  const revealElements = document.querySelectorAll<HTMLElement>('.reveal')
+  const revealNow = () => {
+    revealElements.forEach((el) => {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < window.innerHeight * 0.95) {
+        el.classList.add('revealed')
+      }
+    })
+  }
+
+  revealNow()
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -30,10 +48,16 @@ onMounted(() => {
         }
       })
     },
-    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
+    { threshold: 0.08, rootMargin: '120px 0px -10% 0px' },
   )
 
-  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+  revealElements.forEach((el) => {
+    if (!el.classList.contains('revealed')) {
+      observer.observe(el)
+    }
+  })
+
+  window.addEventListener('resize', revealNow, { passive: true })
 })
 
 const navItems = [
@@ -105,7 +129,7 @@ const techStack = [
 
         <!-- CTA -->
         <div class="cta-section">
-          <button class="btn-primary" onclick="window.print()">
+          <button class="btn-primary" @click="handlePrint">
             <Icon icon="lucide:download" width="16" height="16" />
             下载简历
           </button>
@@ -140,6 +164,37 @@ const techStack = [
             <span class="card-badge">2024 - 2028</span>
           </div>
           <p class="card-subtitle">计算机科学与技术 · 本科</p>
+        </div>
+      </section>
+
+      <!-- Skills -->
+      <section id="skills" class="section reveal">
+        <h2 class="section-title">专业技能</h2>
+        <div class="skills-grid skills-grid--six">
+          <div class="card skill-card">
+            <h4 class="skill-category">前端基础</h4>
+            <p class="skill-detail">HTML5 语义化、CSS3 布局动画与响应式、JavaScript ES6+ 与 DOM / BOM。</p>
+          </div>
+          <div class="card skill-card">
+            <h4 class="skill-category">Vue 生态</h4>
+            <p class="skill-detail">Vue 3 组合式 API、Pinia 状态管理、Vue Router 路由与守卫。</p>
+          </div>
+          <div class="card skill-card">
+            <h4 class="skill-category">工程化</h4>
+            <p class="skill-detail">Vite 构建与配置、组件封装与模块化开发、Git 协作与版本管理。</p>
+          </div>
+          <div class="card skill-card">
+            <h4 class="skill-category">Java 后端</h4>
+            <p class="skill-detail">Java SE 基础语法、Spring Boot / MyBatis-Plus、MySQL 设计与优化。</p>
+          </div>
+          <div class="card skill-card">
+            <h4 class="skill-category">跨端开发</h4>
+            <p class="skill-detail">UniApp 跨平台开发、Flutter 移动端基础、多端适配与发布。</p>
+          </div>
+          <div class="card skill-card">
+            <h4 class="skill-category">协作与工具</h4>
+            <p class="skill-detail">Ajax / Axios 数据交互、Node.js 基础与脚本工具、接口联调与问题排查。</p>
+          </div>
         </div>
       </section>
 
@@ -189,33 +244,6 @@ const techStack = [
         </div>
       </section>
 
-      <!-- Skills -->
-      <section id="skills" class="section reveal">
-        <h2 class="section-title">专业技能</h2>
-        <div class="skills-grid">
-          <div class="card skill-card">
-            <h4 class="skill-category">前端基础</h4>
-            <p class="skill-detail">熟练掌握 HTML5、CSS3、JavaScript ES6+，深入理解 DOM、BOM、Event Loop</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">前端框架</h4>
-            <p class="skill-detail">熟悉 Vue 3 组合式 API、Pinia 状态管理、Vue Router、组件化开发</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">Java 后端</h4>
-            <p class="skill-detail">熟悉 Java SE、Spring Boot、MyBatis-Plus、MySQL 数据库设计与优化</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">跨端开发</h4>
-            <p class="skill-detail">熟悉 UniApp 跨平台开发、Flutter 移动端开发，实现一套代码多端运行</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">工程化工具</h4>
-            <p class="skill-detail">熟悉 Vite 构建工具、Git 版本控制、Ajax 数据交互、Node.js 基础</p>
-          </div>
-        </div>
-      </section>
-
       <!-- Tech Stack -->
       <section class="section reveal">
         <h2 class="section-title">技术栈</h2>
@@ -232,57 +260,66 @@ const techStack = [
 <style>
 /* ===== CSS Variables for Theme ===== */
 .resume-page {
-  --bg-primary: #FAFAF8;
-  --bg-card: #FFFFFF;
-  --text-primary: #18181B;
-  --text-secondary: #52525B;
-  --text-muted: #A1A1AA;
-  --border-light: #E4E4E7;
-  --border-medium: #D4D4D8;
-  --bg-hover: #F4F4F5;
+  --bg-primary: var(--color-bg-primary);
+  --bg-card: var(--color-text-inverse);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-tertiary);
+  --border-light: var(--color-border-default);
+  --border-medium: var(--color-border-hover);
+  --bg-hover: var(--color-bg-secondary);
   --shadow-color: rgba(0, 0, 0, 0.04);
-  --metric-bg: #F4F4F5;
-  --accent: #EC4899;
+  --metric-bg: var(--color-bg-secondary);
+  --accent: var(--color-brand-pink);
 }
 
 html.dark .resume-page {
-  --bg-primary: #0F0F10;
-  --bg-card: #18181B;
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted: #71717A;
-  --border-light: #27272A;
-  --border-medium: #3F3F46;
-  --bg-hover: #27272A;
+  --bg-primary: var(--color-bg-dark-primary);
+  --bg-card: var(--color-bg-dark-secondary);
+  --text-primary: var(--color-text-dark-primary);
+  --text-secondary: var(--color-text-dark-secondary);
+  --text-muted: var(--color-text-dark-tertiary);
+  --border-light: var(--color-border-dark);
+  --border-medium: var(--color-border-dark-hover);
+  --bg-hover: var(--color-bg-dark-tertiary);
   --shadow-color: rgba(255, 255, 255, 0.06);
-  --metric-bg: #27272A;
-  --accent: #F472B6;
+  --metric-bg: var(--color-bg-dark-tertiary);
+  --accent: var(--color-brand-pink-light);
 }
 
 /* ===== Page Layout ===== */
 .resume-page {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 80px;
+  display: flex;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 64px 32px;
+  padding: 48px 32px 120px;
   min-height: 100vh;
   background: var(--bg-primary);
   transition: background 0.3s ease;
+  gap: 40px;
 }
 
 /* ===== Sidebar ===== */
 .sidebar {
-  position: relative;
+  position: sticky;
+  top: 100px;
+  width: 280px;
+  flex-shrink: 0;
+  z-index: 10;
+  align-self: flex-start;
 }
 
 .sidebar-inner {
-  position: sticky;
-  top: 100px;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+/* ===== Main Content ===== */
+.main-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .name-section {
@@ -377,7 +414,7 @@ html.dark .resume-page {
 
 .btn-primary {
   background: var(--accent);
-  color: #FFFFFF;
+  color: var(--color-text-inverse);
   border: none;
 }
 
@@ -401,12 +438,12 @@ html.dark .resume-page {
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 80px;
-  padding-bottom: 64px;
+  gap: 44px;
+  padding-bottom: 48px;
 }
 
 .section {
-  scroll-margin-top: 100px;
+  scroll-margin-top: 88px;
 }
 
 .section-title {
@@ -415,7 +452,7 @@ html.dark .resume-page {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   transition: color 0.3s ease;
 }
 
@@ -467,10 +504,11 @@ html.dark .resume-page {
 /* ===== Scroll Reveal Animation ===== */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(16px);
   transition:
-    opacity 0.6s ease,
-    transform 0.6s ease;
+    opacity 0.22s ease,
+    transform 0.22s ease;
+  will-change: opacity, transform;
 }
 
 .reveal.revealed {
@@ -487,13 +525,18 @@ html.dark .resume-page {
   border: 1px solid var(--border-light);
   border-radius: 16px;
   padding: 28px;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+  will-change: transform, box-shadow, border-color;
 }
 
 .card:hover {
   border-color: var(--border-medium);
-  box-shadow: 0 4px 20px var(--shadow-color);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.35), 0 0 18px rgba(236, 72, 153, 0.14);
+  transform: translateY(-2px) scale(1.006);
 }
 
 .card-header {
@@ -519,7 +562,11 @@ html.dark .resume-page {
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.3s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .card-subtitle {
@@ -614,27 +661,31 @@ html.dark .resume-page {
 /* Skills Grid */
 .skills-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
+.skills-grid--six {
+  grid-template-columns: 1fr;
+}
+
 .skill-card {
-  padding: 20px 24px;
+  padding: 18px 20px;
 }
 
 .skill-category {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 4px;
-  transition: color 0.3s ease;
+  margin-bottom: 8px;
+  transition: color 0.15s ease;
 }
 
 .skill-detail {
   font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  transition: color 0.3s ease;
+  line-height: 1.6;
+  transition: color 0.15s ease;
 }
 
 /* Tech Tags */
@@ -693,7 +744,7 @@ html.dark .resume-page {
   }
 
   .main-content {
-    gap: 32px;
+    gap: 28px;
   }
 
   .section {
@@ -730,9 +781,16 @@ html.dark .resume-page {
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .resume-page {
-    grid-template-columns: 1fr;
-    gap: 40px;
+    flex-direction: column;
     padding: 32px 20px;
+    gap: 24px;
+  }
+
+  .sidebar {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
   }
 
   .sidebar-inner {
@@ -741,6 +799,10 @@ html.dark .resume-page {
     flex-wrap: wrap;
     align-items: center;
     gap: 16px;
+  }
+
+  .main-content {
+    margin-left: 0;
   }
 
   .name-section {

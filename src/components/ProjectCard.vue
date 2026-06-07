@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 interface Project {
@@ -22,9 +22,14 @@ const cardRef = ref<HTMLElement | null>(null)
 const mouseX = ref(0)
 const mouseY = ref(0)
 const isHovered = ref(false)
+const reducedMotion = ref(false)
+
+onMounted(() => {
+  reducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+})
 
 const spotlightStyle = computed(() => {
-  if (!isHovered.value) return { opacity: 0 }
+  if (!isHovered.value || reducedMotion.value) return { opacity: 0 }
   return {
     opacity: 1,
     background: `radial-gradient(600px circle at ${mouseX.value}px ${mouseY.value}px, rgba(255,255,255,0.06), transparent 40%)`,
@@ -32,7 +37,7 @@ const spotlightStyle = computed(() => {
 })
 
 const cardTransform = computed(() => {
-  if (!isHovered.value) return 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+  if (!isHovered.value || reducedMotion.value) return 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
   const rect = cardRef.value?.getBoundingClientRect()
   if (!rect) return ''
   const x = mouseX.value - rect.width / 2
@@ -40,6 +45,14 @@ const cardTransform = computed(() => {
   const rotateX = (y / rect.height) * -10
   const rotateY = (x / rect.width) * 10
   return `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`
+})
+
+const glowStyle = computed(() => {
+  if (!isHovered.value || reducedMotion.value) return { opacity: 0 }
+  return {
+    opacity: 1,
+    background: `radial-gradient(400px circle at ${mouseX.value}px ${mouseY.value}px, rgba(236, 72, 153, 0.15), transparent 50%)`,
+  }
 })
 
 function handleMouseMove(e: MouseEvent) {
@@ -64,12 +77,18 @@ function handleMouseLeave() {
     class="group relative aspect-[6/4] rounded-xl overflow-hidden shadow-lg cursor-pointer transition-transform duration-300 ease-out"
     :style="{
       transform: cardTransform,
-      transitionDelay: `${index * 50}ms`,
+      willChange: reducedMotion ? 'auto' : 'transform',
     }"
     @mousemove="handleMouseMove"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Glow border overlay -->
+    <div
+      class="absolute inset-0 pointer-events-none z-30 rounded-xl transition-opacity duration-300"
+      :style="glowStyle"
+    />
+
     <!-- Spotlight overlay -->
     <div
       class="absolute inset-0 pointer-events-none z-20 transition-opacity duration-300"
@@ -132,7 +151,8 @@ function handleMouseLeave() {
             :href="project.github"
             target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center justify-center w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+            class="flex items-center justify-center w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+            :aria-label="'查看 ' + project.title + ' 的 GitHub 仓库'"
             @click.stop
           >
             <Icon icon="simple-icons:github" class="w-4 h-4" />

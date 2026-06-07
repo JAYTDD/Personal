@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "browser-xterm-interaction": {
+      "source": "wgpsec/AboutSecurity",
+      "sourceType": "github",
+      "skillPath": "skills/tool/browser-xterm-interaction/SKILL.md",
+      "computedHash": "7cf2451fa859d3d8b191115dfd3fecf364d8dd91c06102f2498e3425e52afa9c"
+    }
+  }
+}

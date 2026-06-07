@@ -3,18 +3,14 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const tags = [
-  { name: '全栈开发', color: 'teal' },
+  { name: '全栈开发', color: 'pink' },
   { name: 'Vue', color: 'coral' },
   { name: 'Java', color: 'violet' },
-  { name: 'TypeScript', color: 'teal' },
+  { name: 'TypeScript', color: 'pink' },
   { name: 'UniApp', color: 'coral' },
 ] as const
 
-const lines = [
-  '欢迎来到我的博客',
-  '你好，我是 Lunesnow',
-  '用代码，构建属于自己的宇宙。',
-]
+const lines = ['欢迎来到我的博客', '你好，我是 Lunesnow', '用代码，构建属于自己的宇宙。']
 const displayedLines = ref(['', '', ''])
 const currentLineIndex = ref(0)
 const typingDone = ref(false)
@@ -73,23 +69,6 @@ onUnmounted(() => {
     class="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 overflow-hidden"
   >
     <!-- Animated background gradient orbs -->
-    <div
-      class="absolute inset-0 pointer-events-none overflow-hidden"
-      aria-hidden="true"
-    >
-      <div
-        class="absolute -top-40 -left-40 w-80 h-80 rounded-full bg-brand-pink/10 dark:bg-brand-pink-light/10 blur-3xl animate-pulse"
-        style="animation-duration: 8s"
-      />
-      <div
-        class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-brand-coral/10 dark:bg-brand-coral-light/10 blur-3xl animate-pulse"
-        style="animation-duration: 10s; animation-delay: 2s"
-      />
-      <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-brand-violet/5 dark:bg-brand-violet-light/5 blur-3xl animate-pulse"
-        style="animation-duration: 12s; animation-delay: 4s"
-      />
-    </div>
 
     <div class="text-center space-y-10 relative z-10">
       <!-- Line 1: Welcome text -->
@@ -130,11 +109,15 @@ onUnmounted(() => {
         <p
           class="select-none mt-3 text-base sm:text-lg text-text-secondary dark:text-text-dark-secondary tracking-wide h-7"
         >
-          {{ displayedLines[2]
-          }}<span
-            v-if="currentLineIndex === 2 || typingDone"
+          {{ displayedLines[2] }}
+          <span
+            v-if="currentLineIndex === 2 && !typingDone"
             class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
             :class="{ 'opacity-0': !cursorVisible }"
+          />
+          <span
+            v-else-if="typingDone && cursorVisible"
+            class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
           />
         </p>
       </div>
@@ -155,7 +138,7 @@ onUnmounted(() => {
           :key="tag.name"
           class="rounded-full px-4 py-1.5 text-xs font-medium backdrop-blur-sm transition-all duration-500 ease-out select-none hover:scale-105 hover:shadow-md cursor-default"
           :class="{
-            'tag-pink': tag.color === 'teal',
+            'tag-pink': tag.color === 'pink',
             'tag-coral': tag.color === 'coral',
             'tag-violet': tag.color === 'violet',
             'opacity-0 translate-y-4 scale-90': !showTags,
@@ -170,28 +153,14 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Bottom gradient -->
-    <div
-      class="fixed bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-brand-pink/10 via-brand-violet/5 to-transparent pointer-events-none dark:from-brand-pink/5 dark:via-brand-violet/3"
-    />
-
     <!-- Scroll hint with enhanced animation -->
-    <div class="absolute bottom-8 flex flex-col items-center gap-3">
-      <span
-        class="text-xs tracking-widest text-text-tertiary dark:text-text-dark-tertiary transition-all duration-500"
-        :class="{
-          'opacity-0 translate-y-2': !typingDone,
-          'opacity-100 translate-y-0': typingDone,
-        }"
-      >
-        向下滚动
-      </span>
+    <div class="absolute bottom-8 flex flex-col items-center gap-2">
       <Icon
         icon="lucide:chevrons-down"
-        class="w-6 h-6 text-text-tertiary dark:text-text-dark-tertiary transition-all duration-500"
+        class="w-5 h-5 text-text-tertiary dark:text-text-dark-tertiary transition-all duration-500"
         :class="{
           'opacity-0 translate-y-2': !typingDone,
-          'opacity-100 translate-y-0 animate-bounce': typingDone,
+          'opacity-60 translate-y-0 animate-bounce': typingDone,
         }"
       />
     </div>
