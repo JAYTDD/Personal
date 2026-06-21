@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 
 const route = useRoute()
 const themeStore = useThemeStore()
@@ -89,8 +89,8 @@ onUnmounted(() => {
           @click="themeStore.toggle()"
         >
           <span class="sr-only">{{ themeLabel }}</span>
-          <Icon icon="lucide:sun" class="absolute h-[18px] w-[18px] transition-all duration-300 ease-out rotate-0 scale-100 opacity-100 dark:-rotate-90 dark:scale-0 dark:opacity-0" />
-          <Icon icon="lucide:moon" class="absolute h-[18px] w-[18px] transition-all duration-300 ease-out rotate-90 scale-0 opacity-0 dark:rotate-0 dark:scale-100 dark:opacity-100" />
+          <AppIcon name="sun" class="absolute h-[18px] w-[18px] transition-all duration-300 ease-out rotate-0 scale-100 opacity-100 dark:-rotate-90 dark:scale-0 dark:opacity-0" />
+          <AppIcon name="moon" class="absolute h-[18px] w-[18px] transition-all duration-300 ease-out rotate-90 scale-0 opacity-0 dark:rotate-0 dark:scale-100 dark:opacity-100" />
         </button>
 
         <!-- Hamburger (mobile) — animates to X -->
