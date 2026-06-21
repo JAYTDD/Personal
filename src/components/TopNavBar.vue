@@ -60,7 +60,7 @@ onUnmounted(() => {
           class="text-lg font-semibold tracking-tight text-text-primary dark:text-text-dark-primary transition-transform duration-200 hover:scale-105"
           @click="closeMenu"
         >
-          resin-blog
+          Lunesnow-blog
         </RouterLink>
 
         <div class="hidden items-center gap-1 sm:flex">

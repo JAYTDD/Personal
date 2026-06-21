@@ -2,12 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 
-const WEEKS = 52
+const WEEKS = 53
 const DAYS = 7
 
 const MONTH_LABELS = [
-  'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  'Jan', 'Feb', 'Mar', 'Apr', 'May',
+  '1月', '2月', '3月', '4月', '5月', '6月',
+  '7月', '8月', '9月', '10月', '11月', '12月',
 ]
 
 const DAY_LABELS = ['', '周一', '', '周三', '', '周五', '']
@@ -19,33 +19,117 @@ interface Cell {
   weekIndex: number
   dayIndex: number
   level: number
+  count: number
+  date: string
 }
 
 const cells = ref<Cell[]>([])
 const totalContributions = ref(0)
+const loading = ref(true)
+const error = ref('')
 
-function generateData() {
-  const result: Cell[] = []
-  let total = 0
-  for (let w = 0; w < WEEKS; w++) {
-    for (let d = 0; d < DAYS; d++) {
-      const level = Math.floor(Math.random() * 5)
-      result.push({ weekIndex: w, dayIndex: d, level })
-      total += level
-    }
+function levelFromCount(count: number): number {
+  if (count === 0) return 0
+  if (count <= 3) return 1
+  if (count <= 6) return 2
+  if (count <= 9) return 3
+  return 4
+}
+
+async function fetchContributions() {
+  const token = import.meta.env.VITE_GITHUB_TOKEN as string | undefined
+  if (!token) {
+    error.value = '未配置 VITE_GITHUB_TOKEN'
+    loading.value = false
+    return
   }
-  cells.value = result
-  totalContributions.value = total
+
+  const query = `
+    query {
+      user(login: "JAYTDD") {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                contributionCount
+                date
+                weekday
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    })
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+    const json = await res.json()
+    if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error')
+
+    const calendar = json.data.user.contributionsCollection.contributionCalendar
+    totalContributions.value = calendar.totalContributions
+
+    const result: Cell[] = []
+    const weeks = calendar.weeks as Array<{
+      contributionDays: Array<{ contributionCount: number; date: string; weekday: number }>
+    }>
+
+    // Take last WEEKS weeks
+    const recentWeeks = weeks.slice(-WEEKS)
+
+    recentWeeks.forEach((week, w) => {
+      week.contributionDays.forEach((day) => {
+        result.push({
+          weekIndex: w,
+          dayIndex: day.weekday,
+          level: levelFromCount(day.contributionCount),
+          count: day.contributionCount,
+          date: day.date,
+        })
+      })
+    })
+
+    cells.value = result
+  } catch (e: any) {
+    error.value = e.message || '获取数据失败'
+  } finally {
+    loading.value = false
+  }
 }
 
 const monthPositions = (() => {
   const positions: { index: number; label: string }[] = []
-  const weeksPerMonth = WEEKS / MONTH_LABELS.length
-  for (let i = 0; i < MONTH_LABELS.length; i++) {
-    positions.push({
-      index: Math.floor(i * weeksPerMonth),
-      label: MONTH_LABELS[i]!,
-    })
+  const seen = new Set<string>()
+  // Calculate from current date
+  const now = new Date()
+  const startDate = new Date(now)
+  startDate.setDate(startDate.getDate() - (WEEKS * 7 - 1))
+  // Align to Sunday
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+
+  for (let w = 0; w < WEEKS; w++) {
+    const weekStart = new Date(startDate)
+    weekStart.setDate(weekStart.getDate() + w * 7)
+    const monthKey = `${weekStart.getFullYear()}-${weekStart.getMonth()}`
+    if (!seen.has(monthKey)) {
+      seen.add(monthKey)
+      positions.push({
+        index: w,
+        label: MONTH_LABELS[weekStart.getMonth()]!,
+      })
+    }
   }
   return positions
 })()
@@ -58,7 +142,7 @@ const isVisible = ref(false)
 const isDark = ref(false)
 
 onMounted(() => {
-  generateData()
+  fetchContributions()
   isDark.value = document.documentElement.classList.contains('dark')
 
   const observer = new IntersectionObserver(
@@ -68,7 +152,7 @@ onMounted(() => {
         observer.disconnect()
       }
     },
-    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
   )
 
   if (sectionRef.value) {
@@ -90,8 +174,19 @@ onMounted(() => {
         我的 GitHub 贡献
       </h2>
 
+      <!-- Loading -->
+      <div v-if="loading" class="text-center text-sm text-text-tertiary dark:text-text-dark-tertiary py-8">
+        加载中...
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="error" class="text-center text-sm text-red-400 py-8">
+        {{ error }}
+      </div>
+
       <!-- Heatmap SVG -->
       <div
+        v-else
         class="overflow-x-auto pb-2 transition-all duration-700 ease-out delay-100"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
@@ -115,7 +210,7 @@ onMounted(() => {
             <!-- Month labels (x-axis) -->
             <text
               v-for="pos in monthPositions"
-              :key="'month-' + pos.label"
+              :key="'month-' + pos.label + pos.index"
               :x="pos.index * 14 + 28"
               :y="10"
               class="text-[9px]"
@@ -124,7 +219,7 @@ onMounted(() => {
               {{ pos.label }}
             </text>
 
-            <!-- Contribution cells with staggered animation -->
+            <!-- Contribution cells -->
             <rect
               v-for="(cell, idx) in cells"
               :key="'cell-' + idx"
@@ -144,13 +239,16 @@ onMounted(() => {
               :style="{
                 transformOrigin: `${cell.weekIndex * 14 + 34}px ${cell.dayIndex * 14 + 19}px`,
               }"
-            />
+            >
+              <title>{{ cell.date }}: {{ cell.count }} 次贡献</title>
+            </rect>
           </svg>
         </div>
       </div>
 
       <!-- Footer: total + legend -->
       <div
+        v-if="!loading && !error"
         class="flex items-center justify-between mt-4 text-xs text-text-secondary dark:text-text-dark-secondary max-w-[780px] mx-auto transition-all duration-700 ease-out delay-300"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
@@ -158,7 +256,7 @@ onMounted(() => {
         }"
         style="font-family: 'Geist Mono', monospace;"
       >
-        <span>总共有 {{ totalContributions }} 贡献</span>
+        <span>过去一年共 {{ totalContributions }} 次贡献</span>
         <div class="flex items-center gap-1.5">
           <span>Less</span>
           <svg width="60" height="12" class="inline-block">

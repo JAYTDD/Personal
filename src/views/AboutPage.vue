@@ -622,7 +622,7 @@ onUnmounted(() => {
             </span>
           </a>
         </div>
-        <p class="social-footer">2025 &mdash; resin-blog</p>
+        <p class="social-footer">2025 &mdash; Lunesnow-blog</p>
       </section>
     </main>
   </div>

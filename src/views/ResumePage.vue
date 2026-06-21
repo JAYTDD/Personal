@@ -77,14 +77,22 @@ const techStack = [
   'CSS',
   'JavaScript',
   'TypeScript',
-  'Vue',
-  'MySQL',
+  'Vue 3',
+  'Vite',
+  'Pinia',
+  'Vue Router',
+  'ElementPlus',
+  'Ant Design',
+  'ECharts',
+  'ESLint',
+  'Prettier',
+  'Git',
   'Java',
   'Spring Boot',
+  'MyBatis',
+  'MySQL',
   'UniApp',
-  'Flutter',
-  'Node.js',
-  'Ajax',
+  'WebSocket',
 ]
 </script>
 
@@ -150,8 +158,8 @@ const techStack = [
           <span class="cursor" />
         </div>
         <p class="intro-desc" :class="{ show: showContent }">
-          热爱技术，专注于前端工程化与 AI
-          应用开发。善于利用现代工具链提升开发效率，追求代码质量与用户体验的完美平衡。
+          熟悉前端工程化与 Vue3 生态，善于利用 AI
+          工具链提升开发效率，具备全栈开发经验，追求代码质量与用户体验的平衡。
         </p>
       </section>
 
@@ -170,32 +178,21 @@ const techStack = [
       <!-- Skills -->
       <section id="skills" class="section reveal">
         <h2 class="section-title">专业技能</h2>
-        <div class="skills-grid skills-grid--six">
-          <div class="card skill-card">
-            <h4 class="skill-category">前端基础</h4>
-            <p class="skill-detail">HTML5 语义化、CSS3 布局动画与响应式、JavaScript ES6+ 与 DOM / BOM。</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">Vue 生态</h4>
-            <p class="skill-detail">Vue 3 组合式 API、Pinia 状态管理、Vue Router 路由与守卫。</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">工程化</h4>
-            <p class="skill-detail">Vite 构建与配置、组件封装与模块化开发、Git 协作与版本管理。</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">Java 后端</h4>
-            <p class="skill-detail">Java SE 基础语法、Spring Boot / MyBatis-Plus、MySQL 设计与优化。</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">跨端开发</h4>
-            <p class="skill-detail">UniApp 跨平台开发、Flutter 移动端基础、多端适配与发布。</p>
-          </div>
-          <div class="card skill-card">
-            <h4 class="skill-category">协作与工具</h4>
-            <p class="skill-detail">Ajax / Axios 数据交互、Node.js 基础与脚本工具、接口联调与问题排查。</p>
-          </div>
-        </div>
+        <ul class="skill-list">
+          <li>
+            熟悉 HTML/CSS/JavaScript/TypeScript，熟悉 ES6+ 语法新特性，掌握 Flex、Grid 等布局方式
+          </li>
+          <li>能够使用 Ant Design、ECharts、ElementPlus，具备快速查阅官方文档解决问题的能力</li>
+          <li>熟悉 Vue3 生态系统，包括 Vite、Vue Router、Pinia，了解组合式 API 和生命周期管理</li>
+          <li>
+            熟悉前端工程化与代码规范，能够使用 ESLint + Prettier 保障项目代码质量，熟悉 Git 协作
+          </li>
+          <li>能够使用 Claude Code、Cursor、OpenCode 等工具高效开发前端项目</li>
+          <li>了解 UniApp 跨平台开发</li>
+          <li>
+            了解 Java 基础、MySQL 数据库以及 Spring Boot、MyBatis 框架，具备 Java 后端开发经验
+          </li>
+        </ul>
       </section>
 
       <!-- Internship -->
@@ -206,7 +203,9 @@ const techStack = [
             <h3 class="card-title">准备暑假实习中</h3>
             <span class="card-badge">待开始</span>
           </div>
-          <p class="card-desc">正在积极准备暑期实习，已系统学习前端和 Java 全栈技术，正在完成企业级项目实战。</p>
+          <p class="card-desc">
+            正在积极准备暑期实习，已系统学习前端和 Java 全栈技术，正在完成企业级项目实战。
+          </p>
         </div>
       </section>
 
@@ -216,29 +215,51 @@ const techStack = [
         <div class="bento-grid">
           <div class="card bento-card">
             <div class="card-header">
-              <h3 class="card-title">智能协同云图库</h3>
+              <h3 class="card-title">AI 驱动的数据分析平台</h3>
               <span class="card-badge">全栈</span>
             </div>
             <p class="card-desc">
-              基于 Vue 3 + Spring Boot + COS + WebSocket 的企业级智能协同云图库平台，支持图片存管、内容检索、权限控制、实时协同等企业主流业务场景
+              上传 Excel 数据文件，AI 自动生成 ECharts
+              可视化图表与数据分析结论，支持实时状态推送、图表编辑导出、可拖拽仪表盘布局的智能 BI
+              平台
             </p>
             <ul class="project-list">
-              <li>Vue 3 + Vite + Ant Design Vue 搭建前端，Pinia 状态管理</li>
-              <li>Spring Boot + MySQL + Redis + Caffeine 构建高性能后端</li>
-              <li>实现图片上传、审核、搜索、分享、批量管理等核心功能</li>
-              <li>支持私有空间、团队空间、实时协同编辑等企业级功能</li>
+              <li>
+                ECharts 配置运行时校验机制，实现三重容错解析与危险字段过滤，结合 onErrorCaptured
+                兜底，实现图表渲染零崩溃
+              </li>
+              <li>
+                封装通用轮询 usePolling Hook，集成指数退避策略与 Page Visibility
+                API，页面不可见时自动暂停轮询，减少约 60% 无效请求
+              </li>
+              <li>支持 AI 异步生成图表、实时状态推送与图表编辑导出</li>
             </ul>
+            <a
+              href="https://github.com/JAYTDD/lunesnow-Intelligent-BI"
+              target="_blank"
+              class="project-link"
+            >
+              <Icon icon="simple-icons:github" width="14" height="14" />
+              github.com/JAYTDD/lunesnow-Intelligent-BI
+            </a>
           </div>
           <div class="card bento-card">
             <div class="card-header">
-              <h3 class="card-title">Vue3 小兔鲜电商项目</h3>
+              <h3 class="card-title">雪屿协作云图库</h3>
               <span class="card-badge">前端</span>
             </div>
-            <p class="card-desc">基于 Vue3 开发的电商类型项目，实现商品展示、购物车、订单管理等核心功能</p>
+            <p class="card-desc">
+              基于 Vue3 + Ant Design + WebSocket + VueCropper 的企业级智能协同云图库平台
+            </p>
             <ul class="project-list">
-              <li>Vue 3 + Vite + ElementPlus 构建用户端界面</li>
-              <li>实现商品列表、商品详情、购物车、订单流程</li>
-              <li>封装通用组件，实现路由守卫和权限控制</li>
+              <li>
+                前端防抖 + 操作聚合策略，带宽降低 89%+；单图互斥锁 + 三态权限控制解决多人编辑冲突
+              </li>
+              <li>心跳保活与指数退避重连机制保障协同编辑连接稳定性</li>
+              <li>
+                集成 compressorjs 客户端压缩，上传体积减少 70%+；支持文件/URL
+                双模式上传及图片裁剪，3 路并发上传
+              </li>
             </ul>
           </div>
         </div>
@@ -535,7 +556,9 @@ html.dark .resume-page {
 
 .card:hover {
   border-color: var(--border-medium);
-  box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.35), 0 0 18px rgba(236, 72, 153, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(236, 72, 153, 0.35),
+    0 0 18px rgba(236, 72, 153, 0.14);
   transform: translateY(-2px) scale(1.006);
 }
 
@@ -658,6 +681,22 @@ html.dark .resume-page {
   transition: background 0.3s ease;
 }
 
+/* Project Link */
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.project-link:hover {
+  color: var(--accent);
+}
+
 /* Skills Grid */
 .skills-grid {
   display: grid;
@@ -669,23 +708,32 @@ html.dark .resume-page {
   grid-template-columns: 1fr;
 }
 
-.skill-card {
-  padding: 18px 20px;
+/* Skill List */
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.skill-category {
+.skill-list li {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  transition: color 0.15s ease;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: 16px;
+  position: relative;
+  transition: color 0.3s ease;
 }
 
-.skill-detail {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  transition: color 0.15s ease;
+.skill-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: background 0.3s ease;
 }
 
 /* Tech Tags */
