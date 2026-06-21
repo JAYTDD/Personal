@@ -68,3 +68,10 @@
     @content;
   }
 }
+
+// Skip off-screen rendering for long sections
+// contain-intrinsic-size reserves layout space to prevent scrollbar jumps
+@mixin off-screen-skip($intrinsic-height: 800px) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto $intrinsic-height;
+}

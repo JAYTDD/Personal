@@ -65,7 +65,7 @@ onMounted(() => {
       </section>
 
       <!-- Projects Section -->
-      <section ref="projectsSectionRef" class="relative z-10 pb-20">
+      <section ref="projectsSectionRef" class="relative z-10 pb-20 projects-section">
         <div class="mx-auto max-w-4xl px-4">
           <div
             class="transition-all duration-700 ease-out"
@@ -157,3 +157,10 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.projects-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+</style>

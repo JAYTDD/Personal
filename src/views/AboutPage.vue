@@ -721,6 +721,7 @@ onUnmounted(() => {
 /* ===== Hero Section ===== */
 .hero-section {
   margin-bottom: 16px;
+  @include anim.off-screen-skip(900px);
 }
 
 /* Double-Bezel Hero Card */
@@ -921,6 +922,7 @@ onUnmounted(() => {
 /* ===== Sections ===== */
 .section {
   margin-bottom: 14px;
+  @include anim.off-screen-skip(700px);
 
   &::before {
     content: '';

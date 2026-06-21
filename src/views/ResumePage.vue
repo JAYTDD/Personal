@@ -319,6 +319,8 @@ html.dark .resume-page {
   min-height: 100vh;
   background: var(--bg-primary);
   gap: 40px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
 }
 
 /* ===== Sidebar ===== */

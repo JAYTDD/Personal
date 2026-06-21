@@ -317,6 +317,8 @@ onMounted(async () => {
   padding: 16px 32px 80px;
   min-height: 100vh;
   gap: 48px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
   background: var(--page-bg);
   position: relative;
 
