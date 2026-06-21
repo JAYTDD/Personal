@@ -36,8 +36,26 @@ watch(
   },
 )
 
+// Prefetch all view chunks during browser idle so navigation has 0 wait.
+// We trigger dynamic imports explicitly; Vite emits these as separate chunks
+// that the browser caches, and the request fires only when idle.
+function prefetchRoutes() {
+  // Add 5 view chunks to the cache. import() returns a Promise we don't await.
+  import('@/views/HomePage.vue')
+  import('@/views/ResumePage.vue')
+  import('@/views/ExperiencePage.vue')
+  import('@/views/AboutPage.vue')
+  import('@/views/NotFound.vue')
+}
+
 onMounted(() => {
   themeStore.init()
+
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(prefetchRoutes, { timeout: 2000 })
+  } else {
+    setTimeout(prefetchRoutes, 200)
+  }
 })
 </script>
 
