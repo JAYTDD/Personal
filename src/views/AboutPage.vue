@@ -625,7 +625,6 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
-@use '../styles/variables' as vars;
 @use '../styles/animations' as anim;
 @use '../styles/mixins' as mix;
 
@@ -707,17 +706,11 @@ onUnmounted(() => {
 
 /* ===== Layout ===== */
 .about-layout {
-  @include vars.page-variables;
-
   max-width: 960px;
   margin: 0 auto;
   padding: 16px 24px 24px;
   min-height: 100vh;
   position: relative;
-
-  html.dark & {
-    @include vars.page-variables-dark;
-  }
 }
 
 /* ===== Main Content ===== */

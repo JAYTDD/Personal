@@ -64,11 +64,10 @@ onMounted(async () => {
 })
 
 const navItems = [
-  { id: 'intro', label: '简介' },
   { id: 'education', label: '教育' },
+  { id: 'skills', label: '技能' },
   { id: 'internship', label: '实习' },
   { id: 'projects', label: '项目' },
-  { id: 'skills', label: '技能' },
 ]
 
 const scrollTo = (id: string) => {
@@ -769,7 +768,6 @@ html.dark .resume-page {
 /* ===== Print Styles ===== */
 @media print {
   .resume-page {
-    @include vars.page-variables;
     display: block;
     padding: 40px;
     background: #ffffff !important;

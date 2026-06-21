@@ -306,17 +306,10 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-@use '../styles/variables' as vars;
 @use '../styles/animations' as anim;
 @use '../styles/mixins' as mix;
 
 .experience-page {
-  @include vars.page-variables;
-
-  html.dark & {
-    @include vars.page-variables-dark;
-  }
-
   /* ===== Page Layout ===== */
   display: flex;
   max-width: 1100px;
