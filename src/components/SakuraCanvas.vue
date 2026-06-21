@@ -165,7 +165,6 @@ onUnmounted(() => {
   themeObserver?.disconnect()
   window.removeEventListener('resize', resize)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
-  document.removeEventListener('classchange', handleThemeChange)
 })
 </script>
 

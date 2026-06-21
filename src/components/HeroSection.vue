@@ -51,14 +51,26 @@ function typeLine(lineIndex: number) {
 }
 
 onMounted(() => {
-  cursorInterval = setInterval(() => {
-    cursorVisible.value = !cursorVisible.value
-  }, 530)
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  setTimeout(() => {
+  if (prefersReducedMotion) {
+    // Skip typewriter, show all text immediately
+    displayedLines.value = [...lines]
+    currentLineIndex.value = lines.length
+    typingDone.value = true
     isVisible.value = true
-    setTimeout(() => typeLine(0), 300)
-  }, 200)
+    showTags.value = true
+    dividerVisible.value = true
+  } else {
+    cursorInterval = setInterval(() => {
+      cursorVisible.value = !cursorVisible.value
+    }, 530)
+
+    setTimeout(() => {
+      isVisible.value = true
+      setTimeout(() => typeLine(0), 300)
+    }, 200)
+  }
 })
 
 onUnmounted(() => {

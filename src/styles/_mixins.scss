@@ -1,0 +1,52 @@
+@use 'sass:map';
+
+// Responsive breakpoints
+$breakpoints: (
+  'xs': 360px,
+  'sm': 480px,
+  'md': 640px,
+  'lg': 768px,
+);
+
+@mixin respond-to($breakpoint) {
+  $value: map.get($breakpoints, $breakpoint);
+  @if $value {
+    @media (max-width: $value) {
+      @content;
+    }
+  }
+}
+
+// Card base style
+@mixin card-base {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+
+  &:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 16px var(--shadow-soft);
+    transform: translateY(-2px);
+  }
+}
+
+// Tag base style
+@mixin tag-base {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+}

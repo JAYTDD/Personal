@@ -27,13 +27,16 @@ onMounted(async () => {
 
   await nextTick()
 
-  // Scroll reveal — immediately reveal visible, then observe for scroll
+  // Scroll reveal — stagger first-screen sections, observe the rest
   const revealElements = document.querySelectorAll<HTMLElement>('.reveal')
   const revealNow = () => {
+    let firstScreenIndex = 0
     revealElements.forEach((el) => {
       const rect = el.getBoundingClientRect()
       if (rect.top < window.innerHeight * 0.95) {
+        el.style.setProperty('--reveal-delay', `${firstScreenIndex * 100}ms`)
         el.classList.add('revealed')
+        firstScreenIndex++
       }
     })
   }
@@ -322,7 +325,7 @@ html.dark .resume-page {
 /* ===== Sidebar ===== */
 .sidebar {
   position: sticky;
-  top: 100px;
+  top: 80px;
   width: 280px;
   flex-shrink: 0;
   z-index: 10;
@@ -524,16 +527,20 @@ html.dark .resume-page {
 /* ===== Scroll Reveal Animation ===== */
 .reveal {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(18px);
+  filter: blur(4px);
   transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
-  will-change: opacity, transform;
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
 }
 
 .reveal.revealed {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 }
 .reveal:first-child {
   scroll-margin-top: 0;
@@ -762,13 +769,13 @@ html.dark .resume-page {
 /* ===== Print Styles ===== */
 @media print {
   .resume-page {
+    @include vars.page-variables;
     display: block;
     padding: 40px;
     background: #ffffff !important;
     color: #1a1a1a !important;
   }
 
-  .theme-toggle,
   .nav-section,
   .cta-section {
     display: none !important;
@@ -868,6 +875,25 @@ html.dark .resume-page {
 
   .main-content {
     gap: 48px;
+  }
+}
+
+/* ===== Reduced Motion ===== */
+@include anim.reduced-motion {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .intro-desc {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .cursor {
+    animation: none;
   }
 }
 </style>

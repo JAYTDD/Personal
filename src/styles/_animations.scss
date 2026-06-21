@@ -1,0 +1,70 @@
+// Shared keyframes
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+// Reveal animation — heavy fade-up with blur + optional stagger
+// Usage: `@include anim.reveal(20px)` then set `--reveal-delay` per element for stagger
+@mixin reveal($offset: 20px, $duration: 0.7s) {
+  opacity: 0;
+  transform: translateY($offset);
+  filter: blur(4px);
+  transition:
+    opacity $duration cubic-bezier(0.16, 1, 0.3, 1),
+    transform $duration cubic-bezier(0.16, 1, 0.3, 1),
+    filter $duration cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+
+  &.revealed {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+// Cursor blink
+@mixin cursor($height: 16px) {
+  display: inline-block;
+  width: 2px;
+  height: $height;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: middle;
+
+  &.blink {
+    animation: blink 1s step-end infinite;
+  }
+}
+
+// Section title with lamp effect
+@mixin section-title-lamp {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 40px;
+    background: radial-gradient(ellipse at center, var(--accent), transparent 70%);
+    opacity: 0;
+    filter: blur(16px);
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+  }
+
+  &.lamp-on::after {
+    opacity: 0.15;
+  }
+}
+
+// Reduced motion helper
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}

@@ -145,6 +145,11 @@ const themeStore = useThemeStore()
 onMounted(() => {
   fetchContributions()
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (prefersReducedMotion) {
+    isVisible.value = true
+  }
+
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry?.isIntersecting) {

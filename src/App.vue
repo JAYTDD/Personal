@@ -11,6 +11,8 @@ const themeStore = useThemeStore()
 const route = useRoute()
 
 // Route order for direction-aware transitions
+// - Initial mount: stay on 'page-fade' so the appear animation runs
+// - Subsequent navigations: slide left/right based on previous order
 const routeOrder: Record<string, number> = {
   '/': 0,
   '/resume': 1,
@@ -18,21 +20,24 @@ const routeOrder: Record<string, number> = {
   '/about': 3,
 }
 
+const initialOrder = routeOrder[route.path] ?? 0
 const transitionName = ref('page-fade')
-const prevOrder = ref(0)
+const prevOrder = ref(initialOrder)
 
 watch(
   () => route.path,
   (to) => {
     const toOrder = routeOrder[to] ?? 0
-    transitionName.value = toOrder >= prevOrder.value ? 'page-slide-left' : 'page-slide-right'
+    // Skip the first trigger that fires right after mount with the same path
+    if (toOrder === prevOrder.value) return
+    transitionName.value =
+      toOrder >= prevOrder.value ? 'page-slide-left' : 'page-slide-right'
     prevOrder.value = toOrder
   },
 )
 
 onMounted(() => {
   themeStore.init()
-  prevOrder.value = routeOrder[route.path] ?? 0
 })
 </script>
 
@@ -52,7 +57,7 @@ onMounted(() => {
     <TopNavBar />
     <main class="relative z-10 flex-1">
       <RouterView v-slot="{ Component, route }">
-        <Transition :name="transitionName" mode="out-in">
+        <Transition :name="transitionName" mode="out-in" appear>
           <component :is="Component" :key="route.path" />
         </Transition>
       </RouterView>
@@ -62,7 +67,10 @@ onMounted(() => {
   </div>
 </template>
 
-<style>
+<style lang="scss">
+@use './styles/animations' as anim;
+
+// Scrollbar
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -72,67 +80,109 @@ onMounted(() => {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-default, #E4E4E7);
+  background: var(--color-border-default);
   border-radius: 3px;
-}
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover, #D4D4D8);
+  &:hover {
+    background: var(--color-border-hover);
+  }
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: var(--color-border-dark, #27272A);
+  background: var(--color-border-dark);
+
+  &:hover {
+    background: var(--color-border-dark-hover);
+  }
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-dark-hover, #3F3F46);
+// ===== Initial page entry (refresh / first load) =====
+// Heavy fade-up + blur using swift-out cubic-bezier
+.page-fade-appear-from {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(10px);
 }
 
-/* Slide left (forward navigation) */
+.page-fade-appear-active {
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.page-fade-appear-to {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+// ===== Slide left (forward navigation) =====
 .page-slide-left-enter-active {
-  transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .page-slide-left-leave-active {
-  transition: opacity 0.2s ease-in, transform 0.2s ease-in;
+  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
+
 .page-slide-left-enter-from {
   opacity: 0;
   transform: translateX(40px);
 }
+
 .page-slide-left-leave-to {
   opacity: 0;
-  transform: translateX(-40px);
+  transform: translateX(-24px);
+  filter: blur(4px);
 }
 
-/* Slide right (backward navigation) */
+// ===== Slide right (backward navigation) =====
 .page-slide-right-enter-active {
-  transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .page-slide-right-leave-active {
-  transition: opacity 0.2s ease-in, transform 0.2s ease-in;
+  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
+
 .page-slide-right-enter-from {
   opacity: 0;
   transform: translateX(-40px);
 }
+
 .page-slide-right-leave-to {
   opacity: 0;
-  transform: translateX(40px);
+  transform: translateX(24px);
+  filter: blur(4px);
 }
 
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
+// Reduced motion support
+@include anim.reduced-motion {
+  .page-fade-appear-from,
+  .page-fade-appear-to {
+    transform: none;
+    filter: none;
+  }
+
+  .page-fade-appear-active {
+    transition: opacity 0.15s ease-out;
+  }
+
   .page-slide-left-enter-active,
   .page-slide-left-leave-active,
   .page-slide-right-enter-active,
   .page-slide-right-leave-active {
     transition: opacity 0.1s ease-out;
   }
+
   .page-slide-left-enter-from,
   .page-slide-left-leave-to,
   .page-slide-right-enter-from,
   .page-slide-right-leave-to {
     transform: none;
+    filter: none;
   }
 }
 </style>

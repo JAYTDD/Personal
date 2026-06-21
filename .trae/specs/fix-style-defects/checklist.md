@@ -1,0 +1,17 @@
+- [x] 暗色模式下打印简历，所有文本在白色背景上清晰可见（无浅色文字）
+- [x] 暗色模式下 ExperiencePage 时间线卡片双边框效果可见
+- [x] 暗色模式下 AboutPage 技能标签 hover 颜色对比度达到 WCAG AA 标准（≥4.5:1）
+- [x] 暗色模式下 AboutPage 联系卡片 glow 边框效果可见（包括 GitHub 图标）
+- [x] ResumePage 在 prefers-reduced-motion 下无动画（cursor 不闪烁、内容直接显示）
+- [x] HeroSection 在 prefers-reduced-motion 下跳过打字机效果直接显示文本
+- [x] GitHubContributions 在 prefers-reduced-motion 下直接显示无过渡
+- [x] ScrollToTop 按钮渲染在樱花花瓣之上（z-index > 100）
+- [x] ResumePage 侧边栏 sticky top 值为 80px
+- [x] ExperiencePage 无硬编码颜色值（#0F0F10 改为 CSS 变量）
+- [x] AboutPage 无硬编码 `color: #fff`（改为 CSS 变量）
+- [x] SakuraCanvas 中无 classchange 事件监听死代码
+- [x] _animations.scss 中 @keyframes blink 保留在顶层（scoped 自动加后缀不冲突）
+- [x] AboutPage @property 声明位于全局样式文件中
+- [x] _mixins.scss 包含 xs: 360px 断点
+- [x] ResumePage 打印样式中无 .theme-toggle 死代码选择器
+- [x] `npm run build` 零错误零警告

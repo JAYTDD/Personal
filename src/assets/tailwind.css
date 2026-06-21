@@ -1,4 +1,11 @@
 @import "tailwindcss";
+
+@property --hero-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
