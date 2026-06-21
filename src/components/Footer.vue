@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 
 const currentYear = new Date().getFullYear()
 const copied = ref(false)
@@ -66,7 +66,7 @@ async function copyUrl() {
             :title="link.title"
             :aria-label="link.title"
           >
-            <Icon :icon="link.icon" class="h-5 w-5" />
+            <AppIcon :name="link.icon" class="h-5 w-5" />
           </a>
 
           <!-- FAB Share Button -->
@@ -77,7 +77,7 @@ async function copyUrl() {
             aria-label="分享链接"
             @click="copyUrl"
           >
-            <Icon icon="lucide:arrow-up-right" class="h-5 w-5 text-white transition-transform duration-200" :class="{ 'rotate-45': copied }" />
+            <AppIcon name="arrow-up-right" class="h-5 w-5 text-white transition-transform duration-200" :class="{ 'rotate-45': copied }" />
             <!-- Copied toast -->
             <Transition
               enter-active-class="transition-all duration-200 ease-out"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 
 interface Project {
   name: string
@@ -108,7 +108,7 @@ function handleMouseLeave() {
       v-if="project.stars > 0"
       class="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-black/20 text-white/90 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105"
     >
-      <Icon icon="lucide:star" width="12" height="12" />
+      <AppIcon name="lucide:star" :width="12" :height="12" />
       <span>{{ project.stars }}</span>
     </div>
 
@@ -155,7 +155,7 @@ function handleMouseLeave() {
             :aria-label="'查看 ' + project.title + ' 的 GitHub 仓库'"
             @click.stop
           >
-            <Icon icon="simple-icons:github" class="w-4 h-4" />
+            <AppIcon name="github" class="w-4 h-4" />
           </a>
         </div>
       </div>

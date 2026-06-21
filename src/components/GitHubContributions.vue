@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 import { useThemeStore } from '@/stores/theme'
 
 const WEEKS = 53
@@ -285,7 +285,7 @@ onMounted(() => {
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-brand-pink dark:text-text-dark-tertiary dark:hover:text-brand-pink-light transition-colors hover:scale-105 transform duration-200"
         >
-          <Icon icon="simple-icons:github" class="w-5 h-5" />
+          <AppIcon name="github" class="w-5 h-5" />
           在 GitHub 上查看
         </a>
       </div>

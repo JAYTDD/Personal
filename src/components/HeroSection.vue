@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 
 const tags = [
   { name: '全栈开发', color: 'pink' },
@@ -169,8 +169,8 @@ onUnmounted(() => {
 
     <!-- Scroll hint with enhanced animation -->
     <div class="absolute bottom-8 flex flex-col items-center gap-2">
-      <Icon
-        icon="lucide:chevrons-down"
+      <AppIcon
+        name="lucide:chevrons-down"
         class="w-5 h-5 text-text-tertiary dark:text-text-dark-tertiary transition-all duration-500"
         :class="{
           'opacity-0 translate-y-2': !typingDone,
