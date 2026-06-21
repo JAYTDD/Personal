@@ -729,12 +729,16 @@ onUnmounted(() => {
   border: 1px solid var(--border-light);
   border-radius: 24px;
   padding: 2px;
-  box-shadow: 0 24px 64px rgba(24, 24, 27, 0.06);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.06);
   position: relative;
 
   html.dark & {
     background: rgba(250, 250, 248, 0.03);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
   html.dark &::before {
@@ -790,14 +794,18 @@ onUnmounted(() => {
     height: 96px;
     border-radius: 50%;
     border: 2px solid var(--border-light);
-    box-shadow: 0 8px 32px var(--shadow-soft);
+    box-shadow:
+      0 1px 2px var(--shadow-soft),
+      0 8px 24px var(--shadow-soft);
     object-fit: cover;
     transform-style: preserve-3d;
     will-change: transform;
   }
 
   &:hover .avatar {
-    box-shadow: 0 20px 60px var(--shadow-soft);
+    box-shadow:
+      0 1px 2px var(--shadow-soft),
+      0 8px 24px var(--shadow-soft);
   }
 }
 

@@ -74,7 +74,7 @@ function handleMouseLeave() {
 <template>
   <article
     ref="cardRef"
-    class="group relative aspect-[6/4] rounded-xl overflow-hidden shadow-lg cursor-pointer transition-transform duration-300 ease-out"
+    class="group relative aspect-[6/4] rounded-xl overflow-hidden shadow-md cursor-pointer transition-transform duration-300 ease-out"
     :style="{
       transform: cardTransform,
       willChange: reducedMotion ? 'auto' : 'transform',
