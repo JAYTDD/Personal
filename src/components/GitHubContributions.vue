@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useThemeStore } from '@/stores/theme'
 
 const WEEKS = 53
 const DAYS = 7
@@ -139,11 +140,10 @@ const svgHeight = DAYS * 14 + 24
 
 const sectionRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
-const isDark = ref(false)
+const themeStore = useThemeStore()
 
 onMounted(() => {
   fetchContributions()
-  isDark.value = document.documentElement.classList.contains('dark')
 
   const observer = new IntersectionObserver(
     ([entry]) => {
@@ -202,7 +202,7 @@ onMounted(() => {
               :x="0"
               :y="i * 14 + 22"
               class="text-[9px]"
-              :fill="isDark ? '#71717A' : '#A1A1AA'"
+              :fill="themeStore.isDark ? '#71717A' : '#A1A1AA'"
             >
               {{ label }}
             </text>
@@ -214,7 +214,7 @@ onMounted(() => {
               :x="pos.index * 14 + 28"
               :y="10"
               class="text-[9px]"
-              :fill="isDark ? '#71717A' : '#A1A1AA'"
+              :fill="themeStore.isDark ? '#71717A' : '#A1A1AA'"
             >
               {{ pos.label }}
             </text>
@@ -228,8 +228,8 @@ onMounted(() => {
               width="12"
               height="12"
               rx="2"
-              :fill="isDark ? COLOR_SCALE_DARK[cell.level] : COLOR_SCALE[cell.level]"
-              :stroke="isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'"
+              :fill="themeStore.isDark ? COLOR_SCALE_DARK[cell.level] : COLOR_SCALE[cell.level]"
+              :stroke="themeStore.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'"
               stroke-width="1"
               class="transition-all duration-300 ease-out"
               :class="{
@@ -260,7 +260,7 @@ onMounted(() => {
         <div class="flex items-center gap-1.5">
           <span>Less</span>
           <svg width="60" height="12" class="inline-block">
-            <rect v-for="i in 5" :key="'l-' + i" :x="(i - 1) * 12" y="0" width="10" height="10" rx="2" :fill="isDark ? COLOR_SCALE_DARK[i - 1] : COLOR_SCALE[i - 1]" />
+            <rect v-for="i in 5" :key="'l-' + i" :x="(i - 1) * 12" y="0" width="10" height="10" rx="2" :fill="themeStore.isDark ? COLOR_SCALE_DARK[i - 1] : COLOR_SCALE[i - 1]" />
           </svg>
           <span>More</span>
         </div>

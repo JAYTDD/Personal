@@ -103,7 +103,7 @@ async function copyUrl() {
 
       <!-- Bottom: Copyright -->
       <p class="text-center text-sm text-text-tertiary dark:text-text-dark-tertiary">
-        &copy; {{ currentYear }} Resin. All rights reserved.
+        &copy; {{ currentYear }} Lunesnow. All rights reserved.
       </p>
     </div>
   </footer>

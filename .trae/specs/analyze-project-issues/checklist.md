@@ -1,0 +1,12 @@
+- [x] `.env` 已加入 `.gitignore`，真实 Token 不再被 Git 跟踪
+- [x] `.env.example` 已创建，包含所需环境变量模板
+- [x] Footer.vue 版权信息显示 "Lunesnow" 而非 "Resin"
+- [x] 首页"查看全部项目"链接指向有效路由或外部链接
+- [x] GitHubContributions 热力图在切换主题时颜色实时更新
+- [x] AboutPage 中无旧域名 coderesin.xyz 引用
+- [x] AboutPage 与 ResumePage 技术栈数据一致
+- [x] AboutPage 社交页脚年份动态获取而非硬编码
+- [x] AboutPage 头像使用合适的图片资源（暂保留 ico，待后续替换）
+- [x] ResumePage 下载/打印按钮文案与实际行为一致
+- [x] 不可达页面已处理（已删除 ArchivePage 和 PlanningPage）
+- [x] 项目可正常 `npm run build` 无报错

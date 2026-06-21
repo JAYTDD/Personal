@@ -138,8 +138,8 @@ const techStack = [
         <!-- CTA -->
         <div class="cta-section">
           <button class="btn-primary" @click="handlePrint">
-            <Icon icon="lucide:download" width="16" height="16" />
-            下载简历
+            <Icon icon="lucide:printer" width="16" height="16" />
+            打印简历
           </button>
           <a href="mailto:363807870@qq.com" class="btn-secondary">
             <Icon icon="lucide:send" width="16" height="16" />
@@ -316,7 +316,6 @@ html.dark .resume-page {
   padding: 48px 32px 120px;
   min-height: 100vh;
   background: var(--bg-primary);
-  transition: background 0.3s ease;
   gap: 40px;
 }
 

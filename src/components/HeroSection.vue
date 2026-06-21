@@ -8,6 +8,8 @@ const tags = [
   { name: 'Java', color: 'violet' },
   { name: 'TypeScript', color: 'pink' },
   { name: 'UniApp', color: 'coral' },
+  { name: 'Pinia', color: 'pink' },
+  { name: 'MySQL', color: 'coral' },
 ] as const
 
 const lines = ['欢迎来到我的博客', '你好，我是 Lunesnow', '用代码，构建属于自己的宇宙。']

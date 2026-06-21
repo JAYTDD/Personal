@@ -203,24 +203,30 @@ const copyToClipboard = (text: string, label: string, e: MouseEvent) => {
   })
 }
 
-const copyEmail = (e: MouseEvent) => {
-  copyToClipboard('363807870@qq.com', '邮箱', e)
-}
-
 // ========== Data ==========
+const currentYear = new Date().getFullYear()
+
 const techStack = [
   { name: 'HTML', icon: 'simple-icons:html5', color: '#E34F26', level: 90 },
   { name: 'CSS', icon: 'simple-icons:css3', color: '#1572B6', level: 85 },
   { name: 'JavaScript', icon: 'simple-icons:javascript', color: '#F7DF1E', level: 85 },
   { name: 'TypeScript', icon: 'simple-icons:typescript', color: '#3178C6', level: 75 },
   { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D', level: 88 },
+  { name: 'Vite', icon: 'simple-icons:vite', color: '#646CFF', level: 80 },
+  { name: 'Pinia', icon: 'lucide:database', color: '#FFD859', level: 78 },
+  { name: 'Vue Router', icon: 'simple-icons:vuedotjs', color: '#4FC08D', level: 76 },
+  { name: 'ElementPlus', icon: 'lucide:layout-grid', color: '#409EFF', level: 72 },
+  { name: 'Ant Design', icon: 'lucide:palette', color: '#0170FE', level: 70 },
+  { name: 'ECharts', icon: 'lucide:bar-chart-3', color: '#AA344D', level: 68 },
+  { name: 'ESLint', icon: 'lucide:check-circle', color: '#4B32C3', level: 75 },
+  { name: 'Prettier', icon: 'lucide:align-left', color: '#F7B93E', level: 74 },
+  { name: 'Git', icon: 'simple-icons:git', color: '#F05032', level: 82 },
   { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1', level: 70 },
   { name: 'Java', icon: 'devicon-plain:java', color: '#007396', level: 65 },
   { name: 'Spring Boot', icon: 'simple-icons:springboot', color: '#6DB33F', level: 60 },
+  { name: 'MyBatis', icon: 'lucide:layers', color: '#C7254E', level: 58 },
   { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939', level: 72 },
-  { name: 'Flutter', icon: 'simple-icons:flutter', color: '#02569B', level: 55 },
-  { name: 'Node.js', icon: 'simple-icons:nodedotjs', color: '#339933', level: 68 },
-  { name: 'Ajax', icon: 'lucide:loader-2', color: '#F97316', level: 80 },
+  { name: 'WebSocket', icon: 'lucide:cable', color: '#6B7280', level: 65 },
 ]
 
 const hobbies = [
@@ -493,22 +499,6 @@ onUnmounted(() => {
                 <span>正在听：{{ nowPlaying.artist }} - {{ nowPlaying.song }}</span>
               </div>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-              <button class="action-btn" @click="copyEmail">
-                <Icon icon="lucide:copy" width="12" height="12" />
-                <span>复制邮箱</span>
-              </button>
-              <a href="https://www.coderesin.xyz" target="_blank" class="action-btn">
-                <Icon icon="lucide:external-link" width="12" height="12" />
-                <span>访问博客</span>
-              </a>
-              <a href="https://github.com/JAYTDD" target="_blank" class="action-btn">
-                <Icon icon="simple-icons:github" width="12" height="12" />
-                <span>GitHub</span>
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -542,11 +532,7 @@ onUnmounted(() => {
           </span>
         </div>
         <div class="hobbies-row">
-          <span
-            v-for="hobby in hobbies"
-            :key="hobby.name"
-            class="hobby-tag"
-          >
+          <span v-for="hobby in hobbies" :key="hobby.name" class="hobby-tag">
             <span class="hobby-icon-bg">
               <Icon :icon="hobby.icon" width="12" height="12" />
             </span>
@@ -585,7 +571,12 @@ onUnmounted(() => {
             :key="contact.label"
             class="contact-card magnetic-contact"
             :style="{ '--contact-color': contact.color }"
-            @mousemove="(e) => { handleMagneticMove(e); handleContactGlow(e) }"
+            @mousemove="
+              (e) => {
+                handleMagneticMove(e)
+                handleContactGlow(e)
+              }
+            "
             @mouseleave="handleMagneticLeave"
             @click="(e) => copyToClipboard(contact.value, contact.label, e)"
           >
@@ -622,7 +613,7 @@ onUnmounted(() => {
             </span>
           </a>
         </div>
-        <p class="social-footer">2025 &mdash; Lunesnow-blog</p>
+        <p class="social-footer">{{ currentYear }} &mdash; Lunesnow-blog</p>
       </section>
     </main>
   </div>
@@ -995,7 +986,7 @@ html.dark .action-btn {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.7;
-  max-width: 65ch;
+  max-width: 100%;
 }
 
 /* Text Generate Effect (Aceternity style) */
@@ -1353,7 +1344,9 @@ html.dark .spotlight-tag::before {
 
 .about-timeline-card:hover {
   border-color: var(--tl-color, var(--accent));
-  box-shadow: 0 2px 8px var(--shadow-soft), 0 0 14px -5px var(--tl-color, var(--accent));
+  box-shadow:
+    0 2px 8px var(--shadow-soft),
+    0 0 14px -5px var(--tl-color, var(--accent));
   transform: translateY(-2px) scale(1.03);
 }
 

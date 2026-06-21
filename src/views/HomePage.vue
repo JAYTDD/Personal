@@ -4,7 +4,6 @@ import GitHubContributions from '@/components/GitHubContributions.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
 import { Icon } from '@iconify/vue'
 import { computed, ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useGithubRepos, getLanguageGradient, formatRepoName } from '@/composables/useGithubRepos'
 
 const { repos, loading, error, fetchRepos } = useGithubRepos()
@@ -143,13 +142,15 @@ onMounted(() => {
               'opacity-100 translate-y-0': projectsVisible,
             }"
           >
-            <RouterLink
-              to="/projects"
+            <a
+              href="https://github.com/JAYTDD?tab=repositories"
+              target="_blank"
+              rel="noopener noreferrer"
               class="inline-flex items-center gap-2 text-sm text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light transition-colors duration-200"
             >
               查看全部项目
               <Icon icon="lucide:arrow-right" class="w-4 h-4" />
-            </RouterLink>
+            </a>
           </div>
         </div>
       </section>
