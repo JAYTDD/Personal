@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { Icon } from '@iconify/vue'
 
 // Top 5 most-frequently-used icons inlined as SVG paths to skip iconify lookup.
@@ -17,6 +17,19 @@ const props = withDefaults(
     height: '1em',
   },
 )
+
+// Multi-root template (v-if/v-else) breaks Vue's automatic class/style
+// fallthrough, so consumers' Tailwind size/position classes (h-5, w-4,
+// absolute, etc.) were silently dropped — the SVG kept its intrinsic
+// 1em × 1em size and clipped the 24×24 viewBox content. Merge manually.
+const attrs = useAttrs()
+const mergedClass = computed<string>(() => {
+  const incoming = attrs.class
+  const extra = Array.isArray(incoming)
+    ? incoming.filter(Boolean).join(' ')
+    : (incoming as string | undefined) ?? ''
+  return extra ? `icon-root ${extra}` : 'icon-root'
+})
 
 const inlineIcons: Record<InlineName, string> = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
@@ -38,7 +51,7 @@ const inlineName = computed<InlineName | null>(() => {
     xmlns="http://www.w3.org/2000/svg"
     :width="width"
     :height="height"
-    class="icon-root"
+    :class="mergedClass"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -53,7 +66,7 @@ const inlineName = computed<InlineName | null>(() => {
     :icon="name"
     :width="width"
     :height="height"
-    class="icon-root"
+    :class="mergedClass"
     aria-hidden="true"
   />
 </template>
