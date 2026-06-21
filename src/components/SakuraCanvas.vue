@@ -126,38 +126,50 @@ function handleThemeChange() {
   })
 }
 
+function startAnimation() {
+  if (reducedMotion) return
+  const canvas = canvasRef.value
+  if (!canvas) return
+
+  checkDarkMode()
+  resize()
+
+  const count = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
+  petals = Array.from({ length: count }, () =>
+    createPetal(window.innerWidth, window.innerHeight),
+  )
+
+  animate()
+
+  window.addEventListener('resize', resize)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  themeObserver = new MutationObserver(() => {
+    handleThemeChange()
+  })
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  })
+}
+
 onMounted(() => {
   reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  // Lazy init: delay canvas setup until after first paint
-  requestAnimationFrame(() => {
+  // Defer canvas init to browser idle time so it never competes with the
+  // first paint of <RouterView> and the appear animation.
+  const start = () => {
     requestAnimationFrame(() => {
-      const canvas = canvasRef.value
-      if (!canvas) return
-
-      checkDarkMode()
-      resize()
-
-      const count = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
-      petals = Array.from({ length: count }, () =>
-        createPetal(window.innerWidth, window.innerHeight),
-      )
-
-      if (!reducedMotion) animate()
-
-      window.addEventListener('resize', resize)
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-
-      // Watch for theme changes via MutationObserver
-      themeObserver = new MutationObserver(() => {
-        handleThemeChange()
-      })
-      themeObserver.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class'],
+      requestAnimationFrame(() => {
+        startAnimation()
       })
     })
-  })
+  }
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(start, { timeout: 1500 })
+  } else {
+    setTimeout(start, 400)
+  }
 })
 
 onUnmounted(() => {
