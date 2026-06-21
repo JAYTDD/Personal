@@ -6,6 +6,8 @@
 
 // Reveal animation — heavy fade-up with blur + optional stagger
 // Usage: `@include anim.reveal(20px)` then set `--reveal-delay` per element for stagger
+// Note: no will-change here — IntersectionObserver can add it dynamically
+// just before the element enters the viewport (see views that use .reveal).
 @mixin reveal($offset: 20px, $duration: 0.7s) {
   opacity: 0;
   transform: translateY($offset);
@@ -15,7 +17,6 @@
     transform $duration cubic-bezier(0.16, 1, 0.3, 1),
     filter $duration cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
 
   &.revealed {
     opacity: 1;
