@@ -522,7 +522,7 @@ onUnmounted(() => {
         <h2 class="section-title">技能与兴趣</h2>
         <div class="skills-grid">
           <span
-            v-for="(tech, i) in techStack"
+            v-for="tech in techStack"
             :key="tech.name"
             class="skill-tag spotlight-tag"
             :style="{

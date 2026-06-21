@@ -103,8 +103,8 @@ async function fetchContributions() {
     })
 
     cells.value = result
-  } catch (e: any) {
-    error.value = e.message || '获取数据失败'
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : '获取数据失败'
   } finally {
     loading.value = false
   }

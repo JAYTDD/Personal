@@ -11,7 +11,6 @@ const props = withDefaults(
     name: string
     width?: string | number
     height?: string | number
-    class?: string
   }>(),
   {
     width: '1em',
@@ -39,7 +38,7 @@ const inlineName = computed<InlineName | null>(() => {
     xmlns="http://www.w3.org/2000/svg"
     :width="width"
     :height="height"
-    :class="props.class"
+    class="icon-root"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -54,7 +53,7 @@ const inlineName = computed<InlineName | null>(() => {
     :icon="name"
     :width="width"
     :height="height"
-    :class="props.class"
+    class="icon-root"
     aria-hidden="true"
   />
 </template>
