@@ -1,5 +1,8 @@
-// Page-level CSS variables (light mode)
-@mixin page-variables {
+// Page-level CSS variables — hoisted from per-view mixin into :root / html.dark
+// so every component reads them without re-declaring. This kills the duplicated
+// `@include vars.page-variables` + `vars.page-variables-dark` blocks in 3 views.
+
+:root {
   --page-bg: var(--color-bg-primary);
   --card-bg: var(--color-text-inverse);
   --text-primary: var(--color-text-primary);
@@ -13,8 +16,7 @@
   --bg-hover: var(--color-bg-secondary);
 }
 
-// Page-level CSS variables (dark mode)
-@mixin page-variables-dark {
+html.dark {
   --page-bg: var(--color-bg-dark-primary);
   --card-bg: var(--color-bg-dark-secondary);
   --text-primary: var(--color-text-dark-primary);
