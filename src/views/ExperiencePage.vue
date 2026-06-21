@@ -28,7 +28,7 @@ const experiences: ExperienceItem[] = [
     metrics: [
       { label: '学习时长', value: '92天' },
     ],
-    icon: 'lucide:code-2',
+    icon: 'lucide:code',
   },
   {
     date: '2026.01',
@@ -106,7 +106,7 @@ const experiences: ExperienceItem[] = [
     metrics: [
       { label: '学习时长', value: '4小时' },
     ],
-    icon: 'lucide:layout',
+    icon: 'lucide:layout-grid',
   },
   {
     date: '2026.04',

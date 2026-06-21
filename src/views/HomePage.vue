@@ -105,7 +105,7 @@ onMounted(() => {
           <!-- Error State -->
           <div v-else-if="error" class="text-center py-16">
             <Icon
-              icon="lucide:alert-circle"
+              icon="lucide:circle-alert"
               class="w-10 h-10 mx-auto mb-3 text-text-tertiary dark:text-text-dark-tertiary"
             />
             <p class="text-sm text-text-secondary dark:text-text-dark-secondary mb-4">
@@ -120,7 +120,7 @@ onMounted(() => {
           </div>
 
           <!-- Project Grid -->
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6" style="perspective: 1000px">
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style="perspective: 1000px">
             <ProjectCard
               v-for="(project, index) in cardProjects"
               :key="project.name"

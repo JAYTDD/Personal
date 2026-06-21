@@ -218,7 +218,7 @@ const techStack = [
   { name: 'ElementPlus', icon: 'lucide:layout-grid', color: '#409EFF', level: 72 },
   { name: 'Ant Design', icon: 'lucide:palette', color: '#0170FE', level: 70 },
   { name: 'ECharts', icon: 'lucide:bar-chart-3', color: '#AA344D', level: 68 },
-  { name: 'ESLint', icon: 'lucide:check-circle', color: '#4B32C3', level: 75 },
+  { name: 'ESLint', icon: 'lucide:circle-check', color: '#4B32C3', level: 75 },
   { name: 'Prettier', icon: 'lucide:align-left', color: '#F7B93E', level: 74 },
   { name: 'Git', icon: 'simple-icons:git', color: '#F05032', level: 82 },
   { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1', level: 70 },
@@ -244,7 +244,7 @@ const timeline = [
     year: '2025',
     title: '前端三件套',
     desc: '系统学习 HTML / CSS / JavaScript，搭建第一个静态个人博客',
-    icon: 'lucide:code-2',
+    icon: 'lucide:code',
     color: '#EC4899',
   },
   {
@@ -286,7 +286,7 @@ const timeline = [
     year: '2026',
     title: 'ElementPlus',
     desc: '学习并实践 ElementPlus 组件库，快速搭建后台管理系统',
-    icon: 'lucide:layout',
+    icon: 'lucide:layout-grid',
     color: '#EC4899',
   },
   {

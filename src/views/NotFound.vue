@@ -44,7 +44,7 @@ onMounted(() => {
         to="/"
         class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full gradient-pink text-white text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
       >
-        <Icon icon="lucide:home" class="w-4 h-4" />
+        <Icon icon="lucide:house" class="w-4 h-4" />
         返回首页
       </RouterLink>
     </div>
