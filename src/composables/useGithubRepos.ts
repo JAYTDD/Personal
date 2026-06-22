@@ -1,4 +1,5 @@
-import { ref, onMounted, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
+import { STATIC_PROJECTS } from '@/data/projects'
 
 export interface GithubRepo {
   name: string
@@ -36,51 +37,31 @@ export function formatRepoName(name: string): string {
 }
 
 interface UseGithubReposOptions {
+  /** Reserved for future use; data source is currently hardcoded. */
   username?: string
+  /** Reserved for future use; no fetch happens in static mode. */
   autoFetch?: boolean
 }
 
-export function useGithubRepos(options: UseGithubReposOptions = {}) {
-  const { username = 'JAYTDD', autoFetch = true } = options
-
-  const repos: Ref<GithubRepo[]> = ref([])
+/**
+ * Returns the project's static repo list. The composable shape is kept
+ * (loading / error / fetchRepos) for backward compatibility with the
+ * consumer in HomePage.vue, but no network calls are made.
+ *
+ * To add or change projects, edit `src/data/projects.ts`.
+ */
+export function useGithubRepos(_options: UseGithubReposOptions = {}) {
+  const repos: Ref<GithubRepo[]> = ref<GithubRepo[]>(
+    [...STATIC_PROJECTS].sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    ),
+  )
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   const fetchRepos = async () => {
-    loading.value = true
-    error.value = null
-
-    try {
-      const res = await fetch(
-        `/api/github/github-repos?user=${encodeURIComponent(username)}&per_page=30&sort=updated`,
-        { headers: { Accept: 'application/vnd.github+json' } }
-      )
-
-      if (!res.ok) {
-        if (res.status === 403 || res.status === 429) {
-          throw new Error('API 频率限制，请稍后再试')
-        }
-        throw new Error(`请求失败 (${res.status})`)
-      }
-
-      const data: GithubRepo[] = await res.json()
-
-      repos.value = data
-        .filter((r) => !r.fork)
-        .sort(
-          (a, b) =>
-            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        )
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : '获取项目失败'
-    } finally {
-      loading.value = false
-    }
-  }
-
-  if (autoFetch) {
-    onMounted(fetchRepos)
+    // No-op: data is hardcoded. Kept so consumer can call it without changes.
   }
 
   return { repos, loading, error, fetchRepos }
