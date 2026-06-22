@@ -53,12 +53,14 @@ export function useGithubRepos(options: UseGithubReposOptions = {}) {
 
     try {
       const res = await fetch(
-        `https://api.github.com/users/${username}/repos?per_page=30&sort=updated`,
-        { headers: { Accept: 'application/vnd.github.v3+json' } }
+        `/api/github/repos?user=${encodeURIComponent(username)}&per_page=30&sort=updated`,
+        { headers: { Accept: 'application/vnd.github+json' } }
       )
 
       if (!res.ok) {
-        if (res.status === 403) throw new Error('API 频率限制，请稍后再试')
+        if (res.status === 403 || res.status === 429) {
+          throw new Error('API 频率限制，请稍后再试')
+        }
         throw new Error(`请求失败 (${res.status})`)
       }
 
