@@ -134,7 +134,8 @@ function startAnimation() {
   checkDarkMode()
   resize()
 
-  const count = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
+  const base = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
+  const count = Math.round(base * 1.3)
   petals = Array.from({ length: count }, () =>
     createPetal(window.innerWidth, window.innerHeight),
   )
@@ -166,9 +167,9 @@ onMounted(() => {
     })
   }
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(start, { timeout: 1500 })
+    requestIdleCallback(start, { timeout: 800 })
   } else {
-    setTimeout(start, 400)
+    setTimeout(start, 0)
   }
 })
 
