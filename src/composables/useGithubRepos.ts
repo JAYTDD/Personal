@@ -53,7 +53,7 @@ export function useGithubRepos(options: UseGithubReposOptions = {}) {
 
     try {
       const res = await fetch(
-        `/api/github/repos?user=${encodeURIComponent(username)}&per_page=30&sort=updated`,
+        `/api/github/github-repos?user=${encodeURIComponent(username)}&per_page=30&sort=updated`,
         { headers: { Accept: 'application/vnd.github+json' } }
       )
 
