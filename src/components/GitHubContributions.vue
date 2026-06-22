@@ -38,43 +38,15 @@ function levelFromCount(count: number): number {
 }
 
 async function fetchContributions() {
-  const token = import.meta.env.VITE_GITHUB_TOKEN as string | undefined
-  if (!token) {
-    error.value = '未配置 VITE_GITHUB_TOKEN'
-    loading.value = false
-    return
-  }
-
-  const query = `
-    query {
-      user(login: "JAYTDD") {
-        contributionsCollection {
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                contributionCount
-                date
-                weekday
-              }
-            }
-          }
-        }
-      }
-    }
-  `
+  const login = 'JAYTDD'
 
   try {
-    const res = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    })
+    const res = await fetch(`/api/github/github-contributions?login=${encodeURIComponent(login)}`)
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    if (!res.ok) {
+      if (res.status === 500) throw new Error('服务端未配置 GITHUB_TOKEN')
+      throw new Error(`请求失败 (${res.status})`)
+    }
 
     const json = await res.json()
     if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error')

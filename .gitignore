@@ -39,3 +39,6 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 .env
+
+# Netlify CLI local state
+.netlify/

@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Order matters: more specific rules must come first.
+# 1) API proxy: browser calls /api/github/<name>?... and gets routed to
+#    netlify/functions/<name>.ts
+[[redirects]]
+  from = "/api/github/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# 2) SPA fallback: any other path that doesn't match a static asset
+#    falls through to index.html so Vue Router can handle it.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

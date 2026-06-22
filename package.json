@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:netlify": "netlify dev",
     "build": "run-p type-check icons:build \"build-only {@}\" --",
     "icons:build": "node scripts/build-icon-subset.mjs",
     "preview": "vite preview",
