@@ -58,7 +58,13 @@ const simpleFull = JSON.parse(
 )
 
 function pickCollection(full, prefix) {
+  // Preserve root-level viewBox dimensions (e.g. 24x24 for lucide/simple-icons).
+  // Without this, @iconify/vue's getIcon() falls back to its 16x16 default,
+  // and AppIcon.vue's viewBox ends up "0 0 16 16" — clipping the 24x24 icon
+  // body to its top-left quadrant inside any sized container.
   const out = { prefix, icons: {} }
+  if (typeof full.width === 'number') out.width = full.width
+  if (typeof full.height === 'number') out.height = full.height
   for (const fullName of referenced) {
     if (!fullName.startsWith(prefix + ':')) continue
     const name = fullName.slice(prefix.length + 1)

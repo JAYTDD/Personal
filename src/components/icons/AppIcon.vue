@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { Icon } from '@iconify/vue'
+import { getIcon, replaceIDs } from '@iconify/vue'
 
 // Top 5 most-frequently-used icons inlined as SVG paths to skip iconify lookup.
-// All other icons fall through to @iconify/vue (now backed by local data).
+// All other icons fall through to a manually rendered <svg> (now backed by local data).
 type InlineName = 'sun' | 'moon' | 'arrow-up' | 'arrow-up-right' | 'github'
 
 const props = withDefaults(
@@ -18,10 +18,9 @@ const props = withDefaults(
   },
 )
 
-// Multi-root template (v-if/v-else) breaks Vue's automatic class/style
+// Multi-root template (v-if/v-else-if) breaks Vue's automatic class/style
 // fallthrough, so consumers' Tailwind size/position classes (h-5, w-4,
-// absolute, etc.) were silently dropped — the SVG kept its intrinsic
-// 1em × 1em size and clipped the 24×24 viewBox content. Merge manually.
+// absolute, etc.) were silently dropped. Merge manually.
 const attrs = useAttrs()
 const mergedClass = computed<string>(() => {
   const incoming = attrs.class
@@ -43,6 +42,30 @@ const inlineName = computed<InlineName | null>(() => {
   if (props.name in inlineIcons) return props.name as InlineName
   return null
 })
+
+// For non-inline icons, resolve the icon data synchronously from the locally
+// registered collections and render the <svg> manually. @iconify/vue v5's
+// <Icon> component declares a hardcoded props list that omits `class`, and
+// its setup() only destructures `props` + `emit` (never `attrs`), so the
+// consumer's Tailwind size classes get dropped — leaving the SVG at its
+// intrinsic 24×24 size with no CSS override, which clips the viewBox content
+// to the top-left corner inside any constrained parent layout.
+const iconData = computed(() => {
+  if (inlineName.value) return null
+  return getIcon(props.name)
+})
+
+const viewBox = computed(() => {
+  const data = iconData.value
+  if (!data) return '0 0 24 24'
+  return `${data.left || 0} ${data.top || 0} ${data.width} ${data.height}`
+})
+
+const body = computed(() => {
+  const data = iconData.value
+  if (!data) return ''
+  return replaceIDs(data.body)
+})
 </script>
 
 <template>
@@ -61,12 +84,14 @@ const inlineName = computed<InlineName | null>(() => {
     aria-hidden="true"
     v-html="inlineIcons[inlineName]"
   />
-  <Icon
-    v-else
-    :icon="name"
+  <svg
+    v-else-if="iconData"
+    xmlns="http://www.w3.org/2000/svg"
     :width="width"
     :height="height"
     :class="mergedClass"
+    :viewBox="viewBox"
     aria-hidden="true"
+    v-html="body"
   />
 </template>
