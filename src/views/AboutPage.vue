@@ -282,6 +282,8 @@ const socials = SOCIAL_LINKS.map((s) => ({
   icon: s.icon,
   color: s.color ?? '#FAFAFA',
 }))
+// public/ asset — must be a runtime string so Vite/Rolldown does not try to bundle it
+const avatarSrc = `${import.meta.env.BASE_URL}lunesnow.ico`
 
 // ========== Lifecycle ==========
 let revealObserver: IntersectionObserver | null = null
@@ -429,7 +431,7 @@ onUnmounted(() => {
               @mouseleave="handleAvatarLeave"
             >
               <img
-                src="/lunesnow.ico"
+                :src="avatarSrc"
                 alt="avatar"
                 class="avatar"
                 :style="avatarStyle"
