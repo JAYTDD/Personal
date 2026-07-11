@@ -1,2 +1,4 @@
-# SPA fallback. API proxy rules live in netlify.toml (takes precedence on Netlify).
-/*    /index.html   200
+# Order matters: API proxy first, then SPA fallback.
+# Netlify merges this with netlify.toml; keep both sources consistent.
+/api/github/*  /.netlify/functions/:splat  200
+/*             /index.html                 200

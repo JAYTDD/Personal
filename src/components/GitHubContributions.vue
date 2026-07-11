@@ -52,15 +52,57 @@ async function fetchContributions() {
       `/api/github/github-contributions?login=${encodeURIComponent(GITHUB_LOGIN)}`,
     )
 
-    if (!res.ok) {
-      if (res.status === 500) throw new Error('服务端未配置 GITHUB_TOKEN（请用 npm run dev:netlify）')
-      throw new Error(`请求失败 (${res.status})`)
+    const contentType = res.headers.get('content-type') || ''
+    // SPA fallback / mis-routed proxy returns HTML — not a Function response
+    if (contentType.includes('text/html')) {
+      throw new Error('热力图接口未到达 Function（检查 Netlify redirects / Functions 部署）')
     }
 
-    const json = await res.json()
-    if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error')
+    let json: {
+      message?: string
+      errors?: Array<{ message?: string }>
+      data?: {
+        user?: {
+          contributionsCollection?: {
+            contributionCalendar?: {
+              totalContributions: number
+              weeks: Array<{
+                contributionDays: Array<{
+                  contributionCount: number
+                  date: string
+                  weekday: number
+                }>
+              }>
+            }
+          }
+        }
+      }
+    }
+    try {
+      json = await res.json()
+    } catch {
+      throw new Error(`响应不是 JSON (${res.status})`)
+    }
 
-    const calendar = json.data.user.contributionsCollection.contributionCalendar
+    if (!res.ok) {
+      const serverMsg = json.message || json.errors?.[0]?.message
+      if (res.status === 500) {
+        throw new Error(
+          serverMsg ||
+            '服务端未配置 GITHUB_TOKEN（Netlify 环境变量，或本地 npm run dev:netlify）',
+        )
+      }
+      throw new Error(serverMsg || `请求失败 (${res.status})`)
+    }
+
+    if (json.errors?.length) {
+      throw new Error(json.errors[0]?.message || 'GraphQL error')
+    }
+
+    const calendar = json.data?.user?.contributionsCollection?.contributionCalendar
+    if (!calendar) {
+      throw new Error('GitHub 未返回贡献数据（用户不存在或 Token 权限不足）')
+    }
     totalContributions.value = calendar.totalContributions
 
     const result: Cell[] = []
