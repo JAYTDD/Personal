@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import TopNavBar from '@/components/TopNavBar.vue'
 import AppFooter from '@/components/Footer.vue'
-import SakuraCanvas from '@/components/SakuraCanvas.vue'
-import ScrollToTop from '@/components/ScrollToTop.vue'
 import { useThemeStore } from '@/stores/theme'
-import { ROUTE_ORDER } from '@/data/site'
+import { NAV_ITEMS, ROUTE_ORDER } from '@/data/site'
+import { prefetchAdjacent } from '@/utils/prefetchView'
+
+// Non-critical chrome: load after first paint (own chunks)
+const SakuraCanvas = defineAsyncComponent(() => import('@/components/SakuraCanvas.vue'))
+const ScrollToTop = defineAsyncComponent(() => import('@/components/ScrollToTop.vue'))
 
 const themeStore = useThemeStore()
 const route = useRoute()
@@ -32,25 +35,16 @@ watch(
   },
 )
 
-// Prefetch all view chunks during browser idle so navigation has 0 wait.
-// We trigger dynamic imports explicitly; Vite emits these as separate chunks
-// that the browser caches, and the request fires only when idle.
-function prefetchRoutes() {
-  // Add 5 view chunks to the cache. import() returns a Promise we don't await.
-  import('@/views/HomePage.vue')
-  import('@/views/ResumePage.vue')
-  import('@/views/ExperiencePage.vue')
-  import('@/views/AboutPage.vue')
-  import('@/views/NotFound.vue')
-}
-
 onMounted(() => {
   themeStore.init()
 
+  // Light idle: only adjacent nav routes (not all pages)
+  const paths = NAV_ITEMS.map((i) => i.path)
+  const run = () => prefetchAdjacent(route.path, paths)
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(prefetchRoutes, { timeout: 2000 })
+    requestIdleCallback(run, { timeout: 4000 })
   } else {
-    setTimeout(prefetchRoutes, 200)
+    setTimeout(run, 800)
   }
 })
 </script>
@@ -143,12 +137,13 @@ onMounted(() => {
 }
 
 // ===== Slide left (forward navigation) =====
+// Leave: opacity + translate only (no filter blur — cheaper paint, enter still soft)
 .page-slide-left-enter-active {
   transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .page-slide-left-leave-active {
-  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .page-slide-left-enter-from {
@@ -159,7 +154,6 @@ onMounted(() => {
 .page-slide-left-leave-to {
   opacity: 0;
   transform: translateX(-24px);
-  filter: blur(4px);
 }
 
 // ===== Slide right (backward navigation) =====
@@ -168,7 +162,7 @@ onMounted(() => {
 }
 
 .page-slide-right-leave-active {
-  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), filter 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1), transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .page-slide-right-enter-from {
@@ -179,7 +173,6 @@ onMounted(() => {
 .page-slide-right-leave-to {
   opacity: 0;
   transform: translateX(24px);
-  filter: blur(4px);
 }
 
 // Reduced motion support
@@ -206,7 +199,6 @@ onMounted(() => {
   .page-slide-right-enter-from,
   .page-slide-right-leave-to {
     transform: none;
-    filter: none;
   }
 }
 </style>

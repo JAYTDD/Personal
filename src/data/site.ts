@@ -4,10 +4,11 @@
  */
 
 export const SITE_NAME = 'Lunesnow'
-export const SITE_URL = 'https://www.coderesin.xyz'
+/** 导航 / 页脚品牌展示名 */
+export const SITE_BRAND = 'Lunesnow-blog'
 export const GITHUB_LOGIN = 'JAYTDD'
 export const GITHUB_URL = `https://github.com/${GITHUB_LOGIN}`
-export const JOB_TITLE = '前端开发工程师'
+export const JOB_TITLE = '全栈工程师和前端开发'
 
 export interface NavItem {
   name: string

@@ -21,7 +21,6 @@ export interface ProjectItem {
   topics: string[]
   /** ISO 时间，用于首页排序 */
   updated_at: string
-  fork: boolean
   /** 简历：项目周期 */
   period: string
   /** 简历：角色标签（全栈 / 前端） */
@@ -46,7 +45,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['vue3', 'typescript', 'echarts', 'spring-boot', 'bi', 'ai'],
     updated_at: '2026-07-10T15:13:08Z',
-    fork: false,
     period: '2026.06 - 2026.07',
     /** 简历侧展示角色标签：全栈 */
     role: '全栈',
@@ -70,7 +68,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['vue3', 'websocket', 'collaboration', 'cloud-gallery', 'java'],
     updated_at: '2026-07-10T16:34:04Z',
-    fork: false,
     period: '2026.05 - 2026.06',
     /** 简历侧展示角色标签：前端 */
     role: '前端',
@@ -93,7 +90,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['vue', 'typescript', 'vite', 'tailwindcss', 'portfolio'],
     updated_at: '2026-06-22T06:28:50Z',
-    fork: false,
     period: '2026.05 - 至今',
     stack: 'Vue3、TypeScript、Vite、Tailwind CSS 4',
     highlights: [],
@@ -108,7 +104,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['vue', 'wallpaper', 'frontend'],
     updated_at: '2026-05-20T01:16:03Z',
-    fork: false,
     period: '2026.05',
     stack: 'Vue3',
     highlights: [],
@@ -123,7 +118,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['typescript', 'todolist', 'vibe-coding'],
     updated_at: '2026-05-14T09:11:00Z',
-    fork: false,
     period: '2026.02 - 2026.05',
     stack: 'TypeScript',
     highlights: [],
@@ -139,7 +133,6 @@ export const PROJECTS: ProjectItem[] = [
     stargazers_count: 0,
     topics: ['vue3', 'ecommerce', 'shopping-cart', 'frontend'],
     updated_at: '2026-03-07T07:39:46Z',
-    fork: false,
     period: '2026.02 - 2026.03',
     stack: 'Vue3',
     highlights: [],

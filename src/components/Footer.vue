@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import { NAV_ITEMS, SOCIAL_LINKS } from '@/data/site'
+import { NAV_ITEMS, SITE_NAME, SOCIAL_LINKS } from '@/data/site'
+import { prefetchView } from '@/utils/prefetchView'
 
 const currentYear = new Date().getFullYear()
 const copied = ref(false)
@@ -40,6 +41,8 @@ async function copyUrl() {
             :key="link.path"
             :to="link.path"
             class="relative text-sm text-text-secondary transition-all duration-200 hover:text-text-primary dark:text-text-dark-secondary dark:hover:text-text-dark-primary group"
+            @mouseenter="prefetchView(link.path)"
+            @focus="prefetchView(link.path)"
           >
             {{ link.name }}
             <span class="absolute -bottom-1 left-0 w-0 h-px bg-brand-pink dark:bg-brand-pink-light transition-all duration-200 group-hover:w-full" />
@@ -95,7 +98,7 @@ async function copyUrl() {
 
       <!-- Bottom: Copyright -->
       <p class="text-center text-sm text-text-tertiary dark:text-text-dark-tertiary">
-        &copy; {{ currentYear }} Lunesnow. All rights reserved.
+        &copy; {{ currentYear }} {{ SITE_NAME }}. All rights reserved.
       </p>
     </div>
   </footer>

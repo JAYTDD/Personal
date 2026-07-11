@@ -4,6 +4,10 @@ import AppIcon from '@/components/icons/AppIcon.vue'
 import { useThemeStore } from '@/stores/theme'
 import { GITHUB_LOGIN, GITHUB_URL } from '@/data/site'
 
+// Mono only needed here / code UI — keep out of global critical CSS
+void import('@fontsource/geist-mono/400.css')
+
+
 const WEEKS = 53
 const DAYS = 7
 
@@ -191,7 +195,7 @@ onMounted(() => {
               :x="0"
               :y="i * 14 + 22"
               class="text-[9px]"
-              :fill="themeStore.isDark ? '#71717A' : '#A1A1AA'"
+              :fill="themeStore.isDark ? '#D4D4D8' : '#A1A1AA'"
             >
               {{ label }}
             </text>
@@ -203,7 +207,7 @@ onMounted(() => {
               :x="pos.index * 14 + 28"
               :y="10"
               class="text-[9px]"
-              :fill="themeStore.isDark ? '#71717A' : '#A1A1AA'"
+              :fill="themeStore.isDark ? '#D4D4D8' : '#A1A1AA'"
             >
               {{ pos.label }}
             </text>

@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { nextTick, ref, onMounted } from 'vue'
+import { nextTick, ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { EXPERIENCES, EXPERIENCE_TYPE_COLORS } from '@/data/experience'
+
+// Metric/date mono — not on home critical path
+void import('@fontsource/geist-mono/400.css')
 
 const activeIndex = ref(0)
 const experiences = EXPERIENCES
 const typeColors = EXPERIENCE_TYPE_COLORS
 
+let revealObserver: IntersectionObserver | null = null
+
 const scrollTo = (index: number) => {
   activeIndex.value = index
   const el = document.getElementById(`exp-${index}`)
   if (el) {
-    const offset = 120
+    const offset = 128
     const top = el.getBoundingClientRect().top + window.scrollY - offset
     window.scrollTo({ top, behavior: 'smooth' })
   }
@@ -46,7 +51,7 @@ onMounted(async () => {
   })
 
   // Observe remaining items for scroll-reveal
-  const observer = new IntersectionObserver(
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -60,9 +65,14 @@ onMounted(async () => {
   )
   items.forEach((el) => {
     if (!el.classList.contains('revealed')) {
-      observer.observe(el)
+      revealObserver?.observe(el)
     }
   })
+})
+
+onUnmounted(() => {
+  revealObserver?.disconnect()
+  revealObserver = null
 })
 </script>
 
@@ -179,7 +189,7 @@ onMounted(async () => {
   /* ===== Fixed TOC Sidebar ===== */
   .toc-sidebar {
     position: sticky;
-    top: 100px;
+    top: 108px;
     width: 200px;
     height: fit-content;
     flex-shrink: 0;
@@ -212,7 +222,11 @@ onMounted(async () => {
     border: none;
     background: none;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1);
     width: 100%;
     text-align: left;
 
@@ -253,7 +267,11 @@ onMounted(async () => {
     background: var(--accent);
     border-radius: 0 2px 2px 0;
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .toc-info {
@@ -274,7 +292,9 @@ onMounted(async () => {
     font-size: 13px;
     color: var(--text-secondary);
     line-height: 1.3;
-    transition: all 0.3s ease;
+    transition:
+      color 0.3s ease,
+      font-weight 0.3s ease;
   }
 
   /* ===== Main Content ===== */
@@ -361,7 +381,11 @@ onMounted(async () => {
     border-radius: 50%;
     background: var(--card-bg);
     border: 2px solid var(--text-muted);
-    transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      border-color 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 
     html.dark & {
       background: var(--color-bg-dark-primary);
@@ -403,7 +427,10 @@ onMounted(async () => {
     border-radius: 16px;
     background: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.01) 100%);
     margin-bottom: 12px;
-    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      background 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     max-width: none;
     min-height: 180px;
 
@@ -434,7 +461,10 @@ onMounted(async () => {
     box-shadow:
       0 1px 2px var(--shadow-soft),
       0 4px 12px var(--shadow-soft);
-    transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      background 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -523,7 +553,10 @@ onMounted(async () => {
     padding: 5px 12px;
     border-radius: 8px;
     border: 1px solid var(--border-light);
-    transition: all 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
 
     html.dark & {
       background: rgba(255, 255, 255, 0.05);

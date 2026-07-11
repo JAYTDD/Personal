@@ -23,27 +23,46 @@ const dividerVisible = ref(false)
 const isVisible = ref(false)
 
 let cursorInterval: ReturnType<typeof setInterval> | null = null
+let typingInterval: ReturnType<typeof setInterval> | null = null
+let startTimeout: ReturnType<typeof setTimeout> | null = null
+let lineDelayTimeout: ReturnType<typeof setTimeout> | null = null
+let tagsTimeout: ReturnType<typeof setTimeout> | null = null
+let dividerTimeout: ReturnType<typeof setTimeout> | null = null
+let disposed = false
+
+function clearTypingInterval() {
+  if (typingInterval) {
+    clearInterval(typingInterval)
+    typingInterval = null
+  }
+}
 
 function typeLine(lineIndex: number) {
+  if (disposed) return
   const text = lines[lineIndex]
   if (text === undefined) return
 
   let charIndex = 0
-  const interval = setInterval(() => {
+  clearTypingInterval()
+  typingInterval = setInterval(() => {
+    if (disposed) {
+      clearTypingInterval()
+      return
+    }
     if (charIndex < text.length) {
       displayedLines.value[lineIndex] += text.charAt(charIndex)
       charIndex++
     } else {
-      clearInterval(interval)
+      clearTypingInterval()
       currentLineIndex.value++
       if (currentLineIndex.value < lines.length) {
-        setTimeout(() => typeLine(currentLineIndex.value), 400)
+        lineDelayTimeout = setTimeout(() => typeLine(currentLineIndex.value), 400)
       } else {
         typingDone.value = true
-        setTimeout(() => {
+        tagsTimeout = setTimeout(() => {
           showTags.value = true
         }, 200)
-        setTimeout(() => {
+        dividerTimeout = setTimeout(() => {
           dividerVisible.value = true
         }, 400)
       }
@@ -67,15 +86,21 @@ onMounted(() => {
       cursorVisible.value = !cursorVisible.value
     }, 530)
 
-    setTimeout(() => {
+    startTimeout = setTimeout(() => {
       isVisible.value = true
-      setTimeout(() => typeLine(0), 300)
+      lineDelayTimeout = setTimeout(() => typeLine(0), 300)
     }, 200)
   }
 })
 
 onUnmounted(() => {
+  disposed = true
   if (cursorInterval) clearInterval(cursorInterval)
+  clearTypingInterval()
+  if (startTimeout) clearTimeout(startTimeout)
+  if (lineDelayTimeout) clearTimeout(lineDelayTimeout)
+  if (tagsTimeout) clearTimeout(tagsTimeout)
+  if (dividerTimeout) clearTimeout(dividerTimeout)
 })
 </script>
 

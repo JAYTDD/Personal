@@ -8,12 +8,79 @@ import {
   PROFILE,
 } from '@/data/profile'
 import { ABOUT_TIMELINE } from '@/data/experience'
-import { SOCIAL_LINKS } from '@/data/site'
+import { SITE_BRAND, SOCIAL_LINKS } from '@/data/site'
 
 // ========== Typewriter Signature ==========
 const signatureLines = PROFILE.signatureLines
 const signatureLine1 = ref('')
 const signatureLine2 = ref('')
+const typeTimers: Array<ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>> = []
+
+// ========== Pointer helpers (rAF + cached rect) ==========
+type RectCache = { left: number; top: number; width: number; height: number }
+const rectCache = new WeakMap<HTMLElement, RectCache>()
+type PointerKind = 'avatar' | 'spotlight' | 'contact'
+const pendingPointer = new WeakMap<HTMLElement, { x: number; y: number; kind: PointerKind }>()
+const pointerRaf = new WeakMap<HTMLElement, number>()
+
+function cacheRect(el: HTMLElement) {
+  const r = el.getBoundingClientRect()
+  const cached = { left: r.left, top: r.top, width: r.width, height: r.height }
+  rectCache.set(el, cached)
+  return cached
+}
+
+function getRect(el: HTMLElement) {
+  return rectCache.get(el) ?? cacheRect(el)
+}
+
+function schedulePointer(el: HTMLElement, kind: PointerKind, clientX: number, clientY: number) {
+  pendingPointer.set(el, { x: clientX, y: clientY, kind })
+  if (pointerRaf.has(el)) return
+  const id = requestAnimationFrame(() => {
+    pointerRaf.delete(el)
+    const pending = pendingPointer.get(el)
+    if (!pending) return
+    pendingPointer.delete(el)
+    const rect = getRect(el)
+    const x = pending.x - rect.left
+    const y = pending.y - rect.top
+
+    if (pending.kind === 'avatar') {
+      const cx = rect.width / 2
+      const cy = rect.height / 2
+      const rx = ((y - cy) / cy) * -15
+      const ry = ((x - cx) / cx) * 15
+      avatarStyle.value = {
+        transform: `rotateX(${rx}deg) rotateY(${ry}deg)`,
+        transition: 'transform 0.1s ease-out',
+      }
+      return
+    }
+    if (pending.kind === 'spotlight') {
+      el.style.setProperty('--spotlight-x', `${x}px`)
+      el.style.setProperty('--spotlight-y', `${y}px`)
+      return
+    }
+    // contact = magnetic translate + glow vars in one frame
+    const mx = x - rect.width / 2
+    const my = y - rect.height / 2
+    el.style.transition = 'none'
+    el.style.transform = `translate(${mx * 0.15}px, ${my * 0.15}px)`
+    el.style.setProperty('--glow-x', `${x}px`)
+    el.style.setProperty('--glow-y', `${y}px`)
+  })
+  pointerRaf.set(el, id)
+}
+
+function cancelPointer(el: HTMLElement) {
+  const id = pointerRaf.get(el)
+  if (id !== undefined) {
+    cancelAnimationFrame(id)
+    pointerRaf.delete(el)
+  }
+  pendingPointer.delete(el)
+}
 
 // ========== 3D Avatar Tilt ==========
 const avatarStyle = ref({
@@ -21,21 +88,17 @@ const avatarStyle = ref({
   transition: 'transform 0.1s ease-out',
 })
 
-const handleAvatarMove = (e: MouseEvent) => {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  const cx = rect.width / 2
-  const cy = rect.height / 2
-  const rx = ((y - cy) / cy) * -15
-  const ry = ((x - cx) / cx) * 15
-  avatarStyle.value = {
-    transform: `rotateX(${rx}deg) rotateY(${ry}deg)`,
-    transition: 'transform 0.1s ease-out',
-  }
+const handleAvatarEnter = (e: MouseEvent) => {
+  cacheRect(e.currentTarget as HTMLElement)
 }
 
-const handleAvatarLeave = () => {
+const handleAvatarMove = (e: MouseEvent) => {
+  schedulePointer(e.currentTarget as HTMLElement, 'avatar', e.clientX, e.clientY)
+}
+
+const handleAvatarLeave = (e: MouseEvent) => {
+  cancelPointer(e.currentTarget as HTMLElement)
+  rectCache.delete(e.currentTarget as HTMLElement)
   avatarStyle.value = {
     transform: 'rotateX(0deg) rotateY(0deg)',
     transition: 'transform 0.5s ease',
@@ -43,41 +106,37 @@ const handleAvatarLeave = () => {
 }
 
 // ========== Spotlight Tag ==========
-const handleTagMouseMove = (e: MouseEvent) => {
-  const el = e.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  el.style.setProperty('--spotlight-x', `${x}px`)
-  el.style.setProperty('--spotlight-y', `${y}px`)
+const handleTagEnter = (e: MouseEvent) => {
+  cacheRect(e.currentTarget as HTMLElement)
 }
 
-// ========== Magnetic Contact ==========
-const handleMagneticMove = (e: MouseEvent) => {
+const handleTagMouseMove = (e: MouseEvent) => {
+  schedulePointer(e.currentTarget as HTMLElement, 'spotlight', e.clientX, e.clientY)
+}
+
+const handleTagLeave = (e: MouseEvent) => {
   const el = e.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  const x = e.clientX - rect.left - rect.width / 2
-  const y = e.clientY - rect.top - rect.height / 2
-  el.style.transition = 'none'
-  el.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`
+  cancelPointer(el)
+  rectCache.delete(el)
+}
+
+// ========== Magnetic Contact + Glow (same rAF) ==========
+const handleContactEnter = (e: MouseEvent) => {
+  cacheRect(e.currentTarget as HTMLElement)
+}
+
+const handleContactMove = (e: MouseEvent) => {
+  schedulePointer(e.currentTarget as HTMLElement, 'contact', e.clientX, e.clientY)
 }
 
 const handleMagneticLeave = (e: MouseEvent) => {
   const el = e.currentTarget as HTMLElement
+  cancelPointer(el)
+  rectCache.delete(el)
   el.style.transition = 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)'
   requestAnimationFrame(() => {
     el.style.transform = 'translate(0px, 0px)'
   })
-}
-
-// ========== Contact Glow ==========
-const handleContactGlow = (e: MouseEvent) => {
-  const el = e.currentTarget as HTMLElement
-  const rect = el.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  el.style.setProperty('--glow-x', `${x}px`)
-  el.style.setProperty('--glow-y', `${y}px`)
 }
 
 // ========== Particle Burst ==========
@@ -225,13 +284,27 @@ const socials = SOCIAL_LINKS.map((s) => ({
 }))
 
 // ========== Lifecycle ==========
+let revealObserver: IntersectionObserver | null = null
+let textObserver: IntersectionObserver | null = null
+let lampObserver: IntersectionObserver | null = null
+let disposed = false
+
 onMounted(() => {
   // Typewriter
   const typeLine = (line: string, target: typeof signatureLine1, delay: number) => {
     return new Promise<void>((resolve) => {
-      setTimeout(() => {
+      const delayTimer = setTimeout(() => {
+        if (disposed) {
+          resolve()
+          return
+        }
         let i = 0
         const timer = setInterval(() => {
+          if (disposed) {
+            clearInterval(timer)
+            resolve()
+            return
+          }
           if (i < line.length) {
             target.value += line.charAt(i)
             i++
@@ -240,11 +313,13 @@ onMounted(() => {
             resolve()
           }
         }, 80)
+        typeTimers.push(timer)
       }, delay)
+      typeTimers.push(delayTimer)
     })
   }
   typeLine(signatureLines[0]!, signatureLine1, 0).then(() => {
-    typeLine(signatureLines[1]!, signatureLine2, 400)
+    if (!disposed) typeLine(signatureLines[1]!, signatureLine2, 400)
   })
 
   // Weather
@@ -265,7 +340,7 @@ onMounted(() => {
     }
   })
 
-  const observer = new IntersectionObserver(
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -277,7 +352,7 @@ onMounted(() => {
   )
   revealElements.forEach((el) => {
     if (!(el as HTMLElement).classList.contains('revealed')) {
-      observer.observe(el)
+      revealObserver?.observe(el)
     }
   })
 
@@ -289,7 +364,7 @@ onMounted(() => {
       el.classList.add('revealed-text')
     }
   })
-  const textObserver = new IntersectionObserver(
+  textObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -301,13 +376,13 @@ onMounted(() => {
   )
   textElements.forEach((el) => {
     if (!(el as HTMLElement).classList.contains('revealed-text')) {
-      textObserver.observe(el)
+      textObserver?.observe(el)
     }
   })
 
   // Section title lamp effect
   const lampElements = document.querySelectorAll('.section-title')
-  const lampObserver = new IntersectionObserver(
+  lampObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -319,11 +394,23 @@ onMounted(() => {
     },
     { threshold: 0.5 },
   )
-  lampElements.forEach((el) => lampObserver.observe(el))
+  lampElements.forEach((el) => lampObserver?.observe(el))
 })
 
 onUnmounted(() => {
+  disposed = true
   stopWeatherRefresh()
+  typeTimers.forEach((t) => {
+    clearInterval(t)
+    clearTimeout(t)
+  })
+  typeTimers.length = 0
+  revealObserver?.disconnect()
+  textObserver?.disconnect()
+  lampObserver?.disconnect()
+  revealObserver = null
+  textObserver = null
+  lampObserver = null
 })
 </script>
 
@@ -337,6 +424,7 @@ onUnmounted(() => {
             <!-- 3D Tilt Avatar -->
             <div
               class="avatar-wrapper"
+              @mouseenter="handleAvatarEnter"
               @mousemove="handleAvatarMove"
               @mouseleave="handleAvatarLeave"
             >
@@ -418,7 +506,9 @@ onUnmounted(() => {
               '--tag-color': tech.color,
               '--tag-level': tech.level + '%',
             }"
+            @mouseenter="handleTagEnter"
             @mousemove="handleTagMouseMove"
+            @mouseleave="handleTagLeave"
           >
             <Icon :icon="tech.icon" width="14" height="14" />
             <span>{{ tech.name }}</span>
@@ -467,12 +557,8 @@ onUnmounted(() => {
             class="contact-card magnetic-contact"
             :style="{ '--contact-color': contact.color }"
             :aria-label="`复制${contact.label}：${contact.value}`"
-            @mousemove="
-              (e) => {
-                handleMagneticMove(e)
-                handleContactGlow(e)
-              }
-            "
+            @mouseenter="handleContactEnter"
+            @mousemove="handleContactMove"
             @mouseleave="handleMagneticLeave"
             @click="(e) => copyToClipboard(contact.value, contact.label, e)"
           >
@@ -510,7 +596,7 @@ onUnmounted(() => {
             </span>
           </a>
         </div>
-        <p class="social-footer">{{ currentYear }} &mdash; Lunesnow-blog</p>
+        <p class="social-footer">{{ currentYear }} &mdash; {{ SITE_BRAND }}</p>
       </section>
     </main>
   </div>
@@ -1012,7 +1098,12 @@ onUnmounted(() => {
     background: transparent;
     border: 1px solid rgba(24, 24, 27, 0.08);
     color: var(--text-muted);
-    transition: all 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    transition:
+      transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+      border-color 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+      color 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.28s cubic-bezier(0.32, 0.72, 0, 1);
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -1191,7 +1282,12 @@ onUnmounted(() => {
     color: var(--accent);
     opacity: 0;
     transform: translateX(6px);
-    transition: all 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &.show {
       opacity: 1;
@@ -1266,7 +1362,12 @@ onUnmounted(() => {
     background: transparent;
     border: 1px solid rgba(24, 24, 27, 0.08);
     color: var(--tl-color, var(--accent));
-    transition: all 0.25s ease;
+    transition:
+      transform 0.25s ease,
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease,
+      box-shadow 0.25s ease;
 
     html.dark & {
       border-color: rgba(250, 250, 248, 0.1);
@@ -1330,7 +1431,12 @@ onUnmounted(() => {
   background: transparent;
   border: 1px solid var(--border-light);
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    background-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    color 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;
 
   &::before {

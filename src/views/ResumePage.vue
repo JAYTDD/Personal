@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { RESUME_PROJECTS } from '@/data/projects'
-import {
-  PROFILE,
-  RESUME_NAV,
-  RESUME_SKILL_BULLETS,
-  RESUME_TECH_TAGS,
-} from '@/data/profile'
+import { PROFILE, RESUME_NAV, RESUME_SKILL_BULLETS, RESUME_TECH_TAGS } from '@/data/profile'
 
 const typeText = ref('')
 const fullText = PROFILE.jobTitle
 const showContent = ref(false)
+
+let typeTimer: ReturnType<typeof setInterval> | null = null
+let showContentTimer: ReturnType<typeof setTimeout> | null = null
+let revealObserver: IntersectionObserver | null = null
+let revealNowHandler: (() => void) | null = null
 
 function handlePrint() {
   window.print()
@@ -20,13 +20,16 @@ function handlePrint() {
 onMounted(async () => {
   // Typewriter effect
   let i = 0
-  const timer = setInterval(() => {
+  typeTimer = setInterval(() => {
     if (i < fullText.length) {
       typeText.value += fullText.charAt(i)
       i++
     } else {
-      clearInterval(timer)
-      setTimeout(() => {
+      if (typeTimer) {
+        clearInterval(typeTimer)
+        typeTimer = null
+      }
+      showContentTimer = setTimeout(() => {
         showContent.value = true
       }, 200)
     }
@@ -47,10 +50,11 @@ onMounted(async () => {
       }
     })
   }
+  revealNowHandler = revealNow
 
   revealNow()
 
-  const observer = new IntersectionObserver(
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -63,11 +67,22 @@ onMounted(async () => {
 
   revealElements.forEach((el) => {
     if (!el.classList.contains('revealed')) {
-      observer.observe(el)
+      revealObserver?.observe(el)
     }
   })
 
   window.addEventListener('resize', revealNow, { passive: true })
+})
+
+onUnmounted(() => {
+  if (typeTimer) clearInterval(typeTimer)
+  if (showContentTimer) clearTimeout(showContentTimer)
+  revealObserver?.disconnect()
+  revealObserver = null
+  if (revealNowHandler) {
+    window.removeEventListener('resize', revealNowHandler)
+    revealNowHandler = null
+  }
 })
 
 const navItems = RESUME_NAV
@@ -157,7 +172,7 @@ const projects = RESUME_PROJECTS.map((p) => ({
           <span class="cursor" />
         </div>
         <p class="intro-desc" :class="{ show: showContent }">
-          求职意向：{{ PROFILE.jobTitle }}
+          {{ PROFILE.skills }}
         </p>
       </section>
 
@@ -243,7 +258,6 @@ const projects = RESUME_PROJECTS.map((p) => ({
   --border-medium: var(--color-border-hover);
   --bg-hover: var(--color-bg-secondary);
   --shadow-color: rgba(0, 0, 0, 0.04);
-  --metric-bg: var(--color-bg-secondary);
   --accent: var(--color-brand-pink);
 }
 
@@ -257,7 +271,6 @@ html.dark .resume-page {
   --border-medium: var(--color-border-dark-hover);
   --bg-hover: var(--color-bg-dark-tertiary);
   --shadow-color: rgba(255, 255, 255, 0.06);
-  --metric-bg: var(--color-bg-dark-tertiary);
   --accent: var(--color-brand-pink-light);
 }
 
@@ -275,7 +288,7 @@ html.dark .resume-page {
 /* ===== Sidebar ===== */
 .sidebar {
   position: sticky;
-  top: 80px;
+  top: 88px;
   width: 280px;
   flex-shrink: 0;
   z-index: 10;
@@ -354,7 +367,13 @@ html.dark .resume-page {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   font-weight: 500;
 }
 
@@ -381,7 +400,13 @@ html.dark .resume-page {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
   text-decoration: none;
 }
 
@@ -416,7 +441,7 @@ html.dark .resume-page {
 }
 
 .section {
-  scroll-margin-top: 88px;
+  scroll-margin-top: 96px;
 }
 
 .section-title {
@@ -449,16 +474,6 @@ html.dark .resume-page {
   vertical-align: text-bottom;
 }
 
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-
 .intro-desc {
   font-size: 16px;
   line-height: 1.7;
@@ -466,7 +481,9 @@ html.dark .resume-page {
   max-width: 560px;
   opacity: 0;
   transform: translateY(12px);
-  transition: all 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 }
 
 .intro-desc.show {
@@ -476,18 +493,9 @@ html.dark .resume-page {
 
 /* ===== Scroll Reveal Animation ===== */
 .reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
+  @include anim.reveal(18px);
 }
 
-.reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
 .reveal:first-child {
   scroll-margin-top: 0;
 }
@@ -594,45 +602,6 @@ html.dark .resume-page {
   margin-right: 2px;
 }
 
-/* Achievement List */
-.achievement-list {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.achievement-item {
-  display: flex;
-  gap: 12px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
-}
-
-.achievement-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-top: 8px;
-  flex-shrink: 0;
-  transition: background 0.3s ease;
-}
-
-.achievement-metric {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-  background: var(--metric-bg);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-left: 8px;
-  transition: all 0.3s ease;
-}
-
 /* Project Cards */
 /* content-visibility on the long list, not the page root */
 .project-list-wrap {
@@ -691,17 +660,6 @@ html.dark .resume-page {
   color: var(--accent);
 }
 
-/* Skills Grid */
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.skills-grid--six {
-  grid-template-columns: 1fr;
-}
-
 /* Skill List */
 .skill-list {
   display: flex;
@@ -745,7 +703,13 @@ html.dark .resume-page {
   padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid var(--border-light);
-  transition: all 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .tech-tag:hover {
@@ -811,10 +775,6 @@ html.dark .resume-page {
 
   .tech-tag {
     border: 1px solid #e5e5e5;
-    background: #f5f5f5;
-  }
-
-  .achievement-metric {
     background: #f5f5f5;
   }
 }

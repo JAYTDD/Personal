@@ -1,9 +1,9 @@
+/* Critical path: body + UI weights. Mono loads with GitHubContributions chunk. */
 @import '@fontsource/geist-sans/400.css';
 @import '@fontsource/geist-sans/500.css';
 @import '@fontsource/geist-sans/600.css';
 @import '@fontsource/geist-sans/700.css';
-@import '@fontsource/geist-mono/400.css';
-@import '@fontsource/geist-mono/500.css';
+
 
 @import "tailwindcss";
 
@@ -42,10 +42,10 @@
   --color-text-tertiary: #A1A1AA;
   --color-text-inverse: #FAFAFA;
 
-  /* Dark Mode Text */
-  --color-text-dark-primary: #D4D4D8;
-  --color-text-dark-secondary: #A1A1AA;
-  --color-text-dark-tertiary: #71717A;
+  /* Dark Mode Text — bright on near-black backgrounds */
+  --color-text-dark-primary: #FAFAFA;
+  --color-text-dark-secondary: #E4E4E7;
+  --color-text-dark-tertiary: #D4D4D8;
 
   /* Border Scale */
   --color-border-default: #E4E4E7;
@@ -150,41 +150,9 @@
 }
 
 @layer components {
-  /* Theme transition utility - apply to elements that should animate on theme switch */
-  .theme-transition {
-    transition-property: background-color, border-color, color, fill, stroke;
-    transition-timing-function: var(--ease-spring);
-    transition-duration: var(--duration-normal);
-  }
-
   /* Brand gradient utilities */
   .gradient-pink {
     background: linear-gradient(135deg, var(--color-brand-pink), var(--color-brand-pink-light));
-  }
-
-  .gradient-coral {
-    background: linear-gradient(135deg, var(--color-brand-coral), var(--color-brand-coral-light));
-  }
-
-  .gradient-violet {
-    background: linear-gradient(135deg, var(--color-brand-violet), var(--color-brand-violet-light));
-  }
-
-  .gradient-hero {
-    background: linear-gradient(135deg, var(--color-brand-pink) 0%, var(--color-brand-violet) 50%, var(--color-brand-coral) 100%);
-  }
-
-  /* Glass morphism with brand colors */
-  .glass-pink {
-    background: rgba(236, 72, 153, 0.08);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(236, 72, 153, 0.15);
-  }
-
-  .glass-coral {
-    background: rgba(249, 115, 22, 0.08);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(249, 115, 22, 0.15);
   }
 
   /* Tag styles */
@@ -271,31 +239,5 @@
     background-color: var(--color-tag-dark-cyan-bg);
     color: var(--color-tag-dark-cyan-text);
     border-color: var(--color-tag-dark-cyan-border);
-  }
-
-  /* Glow effects */
-  .glow-pink {
-    box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 40px rgba(236, 72, 153, 0.1);
-  }
-
-  .glow-coral {
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), 0 0 40px rgba(249, 115, 22, 0.1);
-  }
-
-  .glow-violet {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
-  }
-
-  /* Tactile press feedback */
-  .press-scale {
-    transition: transform var(--duration-fast) var(--ease-spring);
-  }
-  .press-scale:active {
-    transform: scale(0.98);
-  }
-
-  /* CSS containment for page views */
-  .page-contain {
-    contain: content;
   }
 }

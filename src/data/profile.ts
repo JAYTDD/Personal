@@ -9,6 +9,8 @@ export const PROFILE = {
   name: '黄晓伟',
   displayName: SITE_NAME,
   jobTitle: JOB_TITLE,
+  skills:
+    '熟悉前端工程化与 Vue3 生态，善于利用 AI 工具链提升开发效率，具备全栈开发经验，追求代码质量与用户体验的平衡。',
   email: '363807870@qq.com',
   phone: '13410972606',
   wechat: '13410972606',

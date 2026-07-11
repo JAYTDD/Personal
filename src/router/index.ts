@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { SITE_NAME } from '@/data/site'
+import { JOB_TITLE, SITE_NAME } from '@/data/site'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,7 +42,7 @@ const router = createRouter({
 
 router.afterEach((to) => {
   const pageTitle = typeof to.meta.title === 'string' ? to.meta.title : ''
-  document.title = pageTitle ? `${pageTitle} · ${SITE_NAME}` : `${SITE_NAME} | 前端开发工程师`
+  document.title = pageTitle ? `${pageTitle} · ${SITE_NAME}` : `${SITE_NAME} | ${JOB_TITLE}`
 })
 
 export default router

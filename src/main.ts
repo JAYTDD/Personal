@@ -1,3 +1,15 @@
+// Preload primary UI font as early as possible (hashed URL from Vite)
+import geistSans400 from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url'
+{
+  const link = document.createElement('link')
+  link.rel = 'preload'
+  link.as = 'font'
+  link.type = 'font/woff2'
+  link.crossOrigin = 'anonymous'
+  link.href = geistSans400
+  document.head.appendChild(link)
+}
+
 import './assets/tailwind.css'
 // Page-level CSS variables (:root / html.dark) used by About / Experience / mixins.
 import './styles/_variables.scss'

@@ -171,8 +171,6 @@ export const EXPERIENCE_TYPE_COLORS: Record<string, string> = {
   前端: 'tag-pink',
   全栈: 'tag-violet',
   Java: 'tag-coral',
-  学习: 'tag-violet',
-  项目: 'tag-pink',
 }
 
 /** About 页精简时间线 */

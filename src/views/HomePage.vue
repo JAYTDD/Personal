@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import { computed, defineAsyncComponent, ref, onMounted } from 'vue'
 import HeroSection from '@/components/HeroSection.vue'
-import GitHubContributions from '@/components/GitHubContributions.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import { computed, ref, onMounted } from 'vue'
 import { getLanguageGradient } from '@/composables/useGithubRepos'
 import { PROJECTS } from '@/data/projects'
 import { GITHUB_LOGIN } from '@/data/site'
+
+// Below-fold: own chunk; API still viewport-gated inside the component.
+// Section min-height reserves space while the async chunk loads (limits CLS).
+const GitHubContributions = defineAsyncComponent(
+  () => import('@/components/GitHubContributions.vue'),
+)
 
 const cardProjects = computed(() =>
   [...PROJECTS]
@@ -63,8 +68,8 @@ onMounted(() => {
       <!-- Hero Section -->
       <HeroSection />
 
-      <!-- GitHub Contributions -->
-      <section class="relative z-10 py-8">
+      <!-- GitHub Contributions (async chunk + min-height to limit CLS) -->
+      <section class="relative z-10 py-8 min-h-[280px]">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
           <GitHubContributions />
         </div>
@@ -96,7 +101,6 @@ onMounted(() => {
               v-for="(project, index) in cardProjects"
               :key="project.name"
               :project="project"
-              :index="index"
               class="transition-all duration-700 ease-out h-full"
               :class="{
                 'opacity-0 translate-y-8': !projectsVisible,

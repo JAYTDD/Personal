@@ -104,7 +104,8 @@ function resize() {
   canvas.style.width = w + 'px'
   canvas.style.height = h + 'px'
   const ctx = canvas.getContext('2d')
-  if (ctx) ctx.scale(dpr, dpr)
+  // setTransform replaces scale so repeated resize doesn't compound DPR
+  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
 function checkDarkMode() {

@@ -1,6 +1,6 @@
-import { PROJECTS } from '@/data/projects'
+/** 项目展示辅助 —— 语言色渐变（首页 ProjectCard 顶栏） */
 
-export const LANGUAGE_GRADIENTS: Record<string, { from: string; to: string }> = {
+const LANGUAGE_GRADIENTS: Record<string, { from: string; to: string }> = {
   TypeScript: { from: '#3178C6', to: '#235A97' },
   Vue: { from: '#4FC08D', to: '#3BA776' },
   JavaScript: { from: '#F7DF1E', to: '#D4B812' },
@@ -16,16 +16,4 @@ const DEFAULT_GRADIENT = { from: '#6B7280', to: '#4B5563' }
 
 export function getLanguageGradient(language: string | null) {
   return LANGUAGE_GRADIENTS[language ?? ''] ?? DEFAULT_GRADIENT
-}
-
-export function formatRepoName(name: string): string {
-  return name
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-}
-
-/** 优先用数据源里的中文 title，没有则格式化仓库名 */
-export function getProjectTitle(name: string): string {
-  const found = PROJECTS.find((p) => p.name === name)
-  return found?.title ?? formatRepoName(name)
 }

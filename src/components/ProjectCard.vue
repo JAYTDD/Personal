@@ -17,7 +17,6 @@ interface Project {
 
 const props = defineProps<{
   project: Project
-  index: number
 }>()
 
 /** 技术栈拆成标签，最多展示 5 个；无 stack 时回退 topics */
