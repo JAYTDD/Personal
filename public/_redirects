@@ -1,4 +1,2 @@
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# SPA fallback. API proxy rules live in netlify.toml (takes precedence on Netlify).
+/*    /index.html   200

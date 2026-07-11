@@ -42,7 +42,7 @@ onUnmounted(() => {
     <button
       v-show="visible"
       aria-label="回到顶部"
-      class="fixed bottom-6 right-6 z-[110] flex h-10 w-10 items-center justify-center rounded-full bg-bg-primary/80 dark:bg-bg-dark-primary/80 border border-border-default dark:border-border-dark backdrop-blur-md shadow-lg text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light hover:border-brand-pink/30 dark:hover:border-brand-pink-light/30 transition-colors duration-200 cursor-pointer active:scale-90"
+      class="print-hide scroll-to-top fixed bottom-6 right-6 z-[110] flex h-10 w-10 items-center justify-center rounded-full bg-bg-primary/80 dark:bg-bg-dark-primary/80 border border-border-default dark:border-border-dark backdrop-blur-md shadow-lg text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light hover:border-brand-pink/30 dark:hover:border-brand-pink-light/30 transition-colors duration-200 cursor-pointer active:scale-90"
       @click="scrollToTop"
     >
       <AppIcon name="arrow-up" class="w-4 h-4" />

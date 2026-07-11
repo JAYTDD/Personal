@@ -6,19 +6,15 @@ import AppFooter from '@/components/Footer.vue'
 import SakuraCanvas from '@/components/SakuraCanvas.vue'
 import ScrollToTop from '@/components/ScrollToTop.vue'
 import { useThemeStore } from '@/stores/theme'
+import { ROUTE_ORDER } from '@/data/site'
 
 const themeStore = useThemeStore()
 const route = useRoute()
 
-// Route order for direction-aware transitions
+// Route order for direction-aware transitions (single source: data/site.ts)
 // - Initial mount: stay on 'page-fade' so the appear animation runs
 // - Subsequent navigations: slide left/right based on previous order
-const routeOrder: Record<string, number> = {
-  '/': 0,
-  '/resume': 1,
-  '/experience': 2,
-  '/about': 3,
-}
+const routeOrder = ROUTE_ORDER
 
 const initialOrder = routeOrder[route.path] ?? 0
 const transitionName = ref('page-fade')
@@ -73,7 +69,7 @@ onMounted(() => {
     <SakuraCanvas />
 
     <TopNavBar />
-    <main class="relative z-10 flex-1">
+    <main id="main-content" class="relative z-10 flex-1" tabindex="-1">
       <RouterView v-slot="{ Component, route }">
         <Transition :name="transitionName" mode="out-in" appear>
           <component :is="Component" :key="route.path" />
@@ -87,6 +83,16 @@ onMounted(() => {
 
 <style lang="scss">
 @use './styles/animations' as anim;
+
+// Print: hide site chrome so /resume prints clean
+@media print {
+  .print-hide,
+  .sakura-canvas,
+  footer,
+  .scroll-to-top {
+    display: none !important;
+  }
+}
 
 // Scrollbar
 ::-webkit-scrollbar {

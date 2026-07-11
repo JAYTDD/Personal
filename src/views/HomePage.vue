@@ -2,27 +2,33 @@
 import HeroSection from '@/components/HeroSection.vue'
 import GitHubContributions from '@/components/GitHubContributions.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
-import { Icon } from '@iconify/vue'
+import AppIcon from '@/components/icons/AppIcon.vue'
 import { computed, ref, onMounted } from 'vue'
-import { useGithubRepos, getLanguageGradient, formatRepoName } from '@/composables/useGithubRepos'
-
-const { repos, loading, error, fetchRepos } = useGithubRepos()
+import { getLanguageGradient } from '@/composables/useGithubRepos'
+import { PROJECTS } from '@/data/projects'
+import { GITHUB_LOGIN } from '@/data/site'
 
 const cardProjects = computed(() =>
-  repos.value.map((r) => {
-    const gradient = getLanguageGradient(r.language)
-    return {
-      name: r.name,
-      title: formatRepoName(r.name),
-      description:
-        r.description || (r.language ? `一个基于 ${r.language} 的开源项目` : '一个开源项目'),
-      gradient,
-      language: r.language,
-      topics: r.topics,
-      stars: r.stargazers_count,
-      github: r.html_url,
-    }
-  }),
+  [...PROJECTS]
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    )
+    .map((p) => {
+      const gradient = getLanguageGradient(p.language)
+      return {
+        name: p.name,
+        title: p.title,
+        description: p.description,
+        gradient,
+        language: p.language,
+        topics: p.topics,
+        stars: p.stargazers_count,
+        github: p.html_url,
+        period: p.period,
+        stack: p.stack,
+      }
+    }),
 )
 
 // Scroll reveal for sections
@@ -59,14 +65,14 @@ onMounted(() => {
 
       <!-- GitHub Contributions -->
       <section class="relative z-10 py-8">
-        <div class="mx-auto max-w-4xl px-4">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
           <GitHubContributions />
         </div>
       </section>
 
       <!-- Projects Section -->
       <section ref="projectsSectionRef" class="relative z-10 pb-20 projects-section">
-        <div class="mx-auto max-w-4xl px-4">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
           <div
             class="transition-all duration-700 ease-out"
             :class="{
@@ -84,53 +90,19 @@ onMounted(() => {
             </p>
           </div>
 
-          <!-- Loading State -->
-          <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div
-              v-for="i in 4"
-              :key="'skeleton-' + i"
-              class="aspect-[6/4] rounded-xl overflow-hidden bg-bg-secondary dark:bg-bg-dark-secondary animate-pulse"
-            >
-              <div class="h-full w-full flex flex-col justify-end p-5">
-                <div class="h-5 w-2/3 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded mb-2" />
-                <div class="h-3 w-full bg-bg-tertiary dark:bg-bg-dark-tertiary rounded mb-3" />
-                <div class="flex gap-2">
-                  <div class="h-5 w-14 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded-full" />
-                  <div class="h-5 w-14 bg-bg-tertiary dark:bg-bg-dark-tertiary rounded-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Error State -->
-          <div v-else-if="error" class="text-center py-16">
-            <Icon
-              icon="lucide:circle-alert"
-              class="w-10 h-10 mx-auto mb-3 text-text-tertiary dark:text-text-dark-tertiary"
-            />
-            <p class="text-sm text-text-secondary dark:text-text-dark-secondary mb-4">
-              {{ error }}
-            </p>
-            <button
-              class="px-4 py-2 rounded-lg text-sm font-medium text-text-inverse bg-bg-inverse dark:bg-bg-primary dark:text-text-primary hover:opacity-90 transition-opacity cursor-pointer"
-              @click="fetchRepos"
-            >
-              重新加载
-            </button>
-          </div>
-
           <!-- Project Grid -->
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style="perspective: 1000px">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             <ProjectCard
               v-for="(project, index) in cardProjects"
               :key="project.name"
               :project="project"
               :index="index"
-              class="transition-all duration-700 ease-out"
+              class="transition-all duration-700 ease-out h-full"
               :class="{
                 'opacity-0 translate-y-8': !projectsVisible,
                 'opacity-100 translate-y-0': projectsVisible,
               }"
+              :style="{ transitionDelay: `${index * 60}ms` }"
             />
           </div>
 
@@ -143,13 +115,13 @@ onMounted(() => {
             }"
           >
             <a
-              href="https://github.com/JAYTDD?tab=repositories"
+              :href="`https://github.com/${GITHUB_LOGIN}?tab=repositories`"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center gap-2 text-sm text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light transition-colors duration-200"
             >
               查看全部项目
-              <Icon icon="lucide:arrow-right" class="w-4 h-4" />
+              <AppIcon name="lucide:arrow-right" class="w-4 h-4" />
             </a>
           </div>
         </div>

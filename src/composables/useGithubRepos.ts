@@ -1,16 +1,4 @@
-import { ref, type Ref } from 'vue'
-import { STATIC_PROJECTS } from '@/data/projects'
-
-export interface GithubRepo {
-  name: string
-  description: string | null
-  html_url: string
-  language: string | null
-  stargazers_count: number
-  topics: string[]
-  updated_at: string
-  fork: boolean
-}
+import { PROJECTS } from '@/data/projects'
 
 export const LANGUAGE_GRADIENTS: Record<string, { from: string; to: string }> = {
   TypeScript: { from: '#3178C6', to: '#235A97' },
@@ -36,33 +24,8 @@ export function formatRepoName(name: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-interface UseGithubReposOptions {
-  /** Reserved for future use; data source is currently hardcoded. */
-  username?: string
-  /** Reserved for future use; no fetch happens in static mode. */
-  autoFetch?: boolean
-}
-
-/**
- * Returns the project's static repo list. The composable shape is kept
- * (loading / error / fetchRepos) for backward compatibility with the
- * consumer in HomePage.vue, but no network calls are made.
- *
- * To add or change projects, edit `src/data/projects.ts`.
- */
-export function useGithubRepos(_options: UseGithubReposOptions = {}) {
-  const repos: Ref<GithubRepo[]> = ref<GithubRepo[]>(
-    [...STATIC_PROJECTS].sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-    ),
-  )
-  const loading = ref(false)
-  const error = ref<string | null>(null)
-
-  const fetchRepos = async () => {
-    // No-op: data is hardcoded. Kept so consumer can call it without changes.
-  }
-
-  return { repos, loading, error, fetchRepos }
+/** 优先用数据源里的中文 title，没有则格式化仓库名 */
+export function getProjectTitle(name: string): string {
+  const found = PROJECTS.find((p) => p.name === name)
+  return found?.title ?? formatRepoName(name)
 }

@@ -2,21 +2,13 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppIcon from '@/components/icons/AppIcon.vue'
+import { NAV_ITEMS, SOCIAL_LINKS } from '@/data/site'
 
 const currentYear = new Date().getFullYear()
 const copied = ref(false)
 
-const navLinks = [
-  { name: '首页', path: '/' },
-  { name: '简历', path: '/resume' },
-  { name: '经历', path: '/experience' },
-  { name: '关于', path: '/about' },
-]
-
-const socialLinks = [
-  { icon: 'simple-icons:github', title: 'GitHub', href: 'https://github.com/JAYTDD', external: true },
-  { icon: 'simple-icons:juejin', title: '掘金', href: 'https://juejin.cn/user/2385290407448745', external: true },
-]
+const navLinks = NAV_ITEMS
+const socialLinks = SOCIAL_LINKS
 
 async function copyUrl() {
   try {
@@ -37,8 +29,8 @@ async function copyUrl() {
 </script>
 
 <template>
-  <footer class="bg-bg-primary dark:bg-bg-dark-primary border-t border-border-default dark:border-border-dark">
-    <div class="mx-auto max-w-4xl px-4 py-10">
+  <footer class="print-hide bg-bg-primary dark:bg-bg-dark-primary border-t border-border-default dark:border-border-dark">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 py-10">
       <!-- Top: Nav + Social -->
       <div class="flex flex-col items-center gap-6 sm:flex-row sm:justify-between sm:items-center">
         <!-- Left: Nav links -->

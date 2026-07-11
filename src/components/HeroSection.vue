@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
+import { SITE_NAME } from '@/data/site'
 
 const tags = [
-  { name: '全栈开发', color: 'pink' },
-  { name: 'Vue', color: 'coral' },
-  { name: 'Java', color: 'violet' },
-  { name: 'TypeScript', color: 'pink' },
-  { name: 'UniApp', color: 'coral' },
-  { name: 'Pinia', color: 'pink' },
-  { name: 'MySQL', color: 'coral' },
+  { name: '前端开发', color: 'pink' },
+  { name: 'Vue', color: 'emerald' },
+  { name: 'TypeScript', color: 'blue' },
+  { name: 'Java', color: 'coral' },
+  { name: 'UniApp', color: 'cyan' },
+  { name: 'Pinia', color: 'amber' },
+  { name: 'MySQL', color: 'violet' },
 ] as const
 
-const lines = ['欢迎来到我的博客', '你好，我是 Lunesnow', '用代码，构建属于自己的宇宙。']
+const lines = ['欢迎来到我的博客', `你好，我是 ${SITE_NAME}`, '用代码，构建属于自己的宇宙。']
 const displayedLines = ref(['', '', ''])
 const currentLineIndex = ref(0)
 const typingDone = ref(false)
@@ -82,12 +83,10 @@ onUnmounted(() => {
   <section
     class="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 overflow-hidden"
   >
-    <!-- Animated background gradient orbs -->
-
-    <div class="text-center space-y-10 relative z-10">
+    <div class="text-center space-y-8 sm:space-y-10 relative z-10 max-w-5xl mx-auto">
       <!-- Line 1: Welcome text -->
       <p
-        class="text-sm tracking-[0.2em] text-text-tertiary dark:text-text-dark-tertiary h-5 transition-all duration-700 ease-out"
+        class="text-sm sm:text-base tracking-[0.28em] uppercase text-text-tertiary dark:text-text-dark-tertiary min-h-[1.5rem] transition-all duration-700 ease-out"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
           'opacity-100 translate-y-0': isVisible,
@@ -110,18 +109,18 @@ onUnmounted(() => {
         }"
       >
         <h1
-          class="select-none text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-text-primary dark:text-text-dark-primary"
+          class="select-none text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-text-primary dark:text-text-dark-primary leading-[1.08]"
         >
           {{ displayedLines[1]
           }}<span
             v-if="currentLineIndex === 1 && !typingDone"
-            class="inline-block w-[3px] h-[0.9em] align-middle ml-0.5 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
+            class="inline-block w-[3px] sm:w-1 h-[0.85em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
             :class="{ 'opacity-0': !cursorVisible }"
           />
         </h1>
         <!-- Line 3: Tagline -->
         <p
-          class="select-none mt-3 text-base sm:text-lg text-text-secondary dark:text-text-dark-secondary tracking-wide h-7"
+          class="select-none mt-5 sm:mt-6 text-lg sm:text-xl md:text-2xl text-text-secondary dark:text-text-dark-secondary tracking-wide min-h-[2rem] font-light"
         >
           {{ displayedLines[2] }}
           <span
@@ -138,28 +137,28 @@ onUnmounted(() => {
 
       <!-- Divider -->
       <div
-        class="mx-auto w-12 h-px bg-border-default dark:bg-border-dark transition-all duration-700 ease-out"
+        class="mx-auto w-14 h-px bg-border-default dark:bg-border-dark transition-all duration-700 ease-out"
         :class="{
           'opacity-0 scale-x-0': !dividerVisible,
           'opacity-100 scale-x-100': dividerVisible,
         }"
       />
 
-      <!-- Tech tags with brand colors -->
-      <div class="flex flex-wrap justify-center gap-2">
+      <!-- Tech tags — each color unique -->
+      <div class="flex flex-wrap justify-center gap-2.5">
         <span
           v-for="(tag, i) in tags"
           :key="tag.name"
-          class="rounded-full px-4 py-1.5 text-xs font-medium backdrop-blur-sm transition-all duration-500 ease-out select-none hover:scale-105 hover:shadow-md cursor-default"
-          :class="{
-            'tag-pink': tag.color === 'pink',
-            'tag-coral': tag.color === 'coral',
-            'tag-violet': tag.color === 'violet',
-            'opacity-0 translate-y-4 scale-90': !showTags,
-            'opacity-100 translate-y-0 scale-100': showTags,
-          }"
+          class="rounded-full px-4 py-1.5 text-xs sm:text-sm font-medium transition-all duration-500 ease-out select-none hover:scale-105 hover:shadow-md cursor-default"
+          :class="[
+            `tag-${tag.color}`,
+            {
+              'opacity-0 translate-y-4 scale-90': !showTags,
+              'opacity-100 translate-y-0 scale-100': showTags,
+            },
+          ]"
           :style="{
-            transitionDelay: `${0.1 + i * 0.1}s`,
+            transitionDelay: `${0.1 + i * 0.08}s`,
           }"
         >
           {{ tag.name }}
@@ -167,7 +166,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Scroll hint with enhanced animation -->
+    <!-- Scroll hint -->
     <div class="absolute bottom-8 flex flex-col items-center gap-2">
       <AppIcon
         name="lucide:chevrons-down"

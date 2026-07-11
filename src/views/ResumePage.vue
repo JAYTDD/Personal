@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { RESUME_PROJECTS } from '@/data/projects'
+import {
+  PROFILE,
+  RESUME_NAV,
+  RESUME_SKILL_BULLETS,
+  RESUME_TECH_TAGS,
+} from '@/data/profile'
 
 const typeText = ref('')
-const fullText = '全栈工程师和前端开发'
+const fullText = PROFILE.jobTitle
 const showContent = ref(false)
 
 function handlePrint() {
@@ -63,39 +70,24 @@ onMounted(async () => {
   window.addEventListener('resize', revealNow, { passive: true })
 })
 
-const navItems = [
-  { id: 'education', label: '教育' },
-  { id: 'skills', label: '技能' },
-  { id: 'internship', label: '实习' },
-  { id: 'projects', label: '项目' },
-]
+const navItems = RESUME_NAV
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
-const techStack = [
-  'HTML',
-  'CSS',
-  'JavaScript',
-  'TypeScript',
-  'Vue 3',
-  'Vite',
-  'Pinia',
-  'Vue Router',
-  'ElementPlus',
-  'Ant Design',
-  'ECharts',
-  'ESLint',
-  'Prettier',
-  'Git',
-  'Java',
-  'Spring Boot',
-  'MyBatis',
-  'MySQL',
-  'UniApp',
-  'WebSocket',
-]
+const techStack = RESUME_TECH_TAGS
+const skillBullets = RESUME_SKILL_BULLETS
+
+const projects = RESUME_PROJECTS.map((p) => ({
+  name: p.title,
+  period: p.period,
+  role: p.role,
+  stack: p.stack,
+  description: p.description,
+  highlights: p.highlights,
+  github: p.html_url,
+}))
 </script>
 
 <template>
@@ -105,23 +97,28 @@ const techStack = [
       <div class="sidebar-inner">
         <!-- Name -->
         <div class="name-section">
-          <h1 class="name">黄晓伟</h1>
-          <p class="subtitle">Lunesnow</p>
+          <h1 class="name">{{ PROFILE.name }}</h1>
+          <p class="subtitle">{{ PROFILE.displayName }}</p>
         </div>
 
         <!-- Contact -->
         <div class="contact-section">
-          <a href="mailto:363807870@qq.com" class="contact-item">
+          <a :href="`mailto:${PROFILE.email}`" class="contact-item">
             <Icon icon="lucide:mail" width="16" height="16" />
-            <span>363807870@qq.com</span>
+            <span>{{ PROFILE.email }}</span>
           </a>
           <div class="contact-item">
             <Icon icon="lucide:phone" width="16" height="16" />
-            <span>13410972606</span>
+            <span>{{ PROFILE.phone }}</span>
           </div>
-          <a href="https://github.com/JAYTDD" target="_blank" class="contact-item">
+          <a
+            :href="PROFILE.githubUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-item"
+          >
             <Icon icon="simple-icons:github" width="16" height="16" />
-            <span>github.com/JAYTDD</span>
+            <span>{{ PROFILE.githubLabel }}</span>
           </a>
         </div>
 
@@ -143,7 +140,7 @@ const techStack = [
             <Icon icon="lucide:printer" width="16" height="16" />
             打印简历
           </button>
-          <a href="mailto:363807870@qq.com" class="btn-secondary">
+          <a :href="`mailto:${PROFILE.email}`" class="btn-secondary">
             <Icon icon="lucide:send" width="16" height="16" />
             联系我
           </a>
@@ -160,8 +157,7 @@ const techStack = [
           <span class="cursor" />
         </div>
         <p class="intro-desc" :class="{ show: showContent }">
-          熟悉前端工程化与 Vue3 生态，善于利用 AI
-          工具链提升开发效率，具备全栈开发经验，追求代码质量与用户体验的平衡。
+          求职意向：{{ PROFILE.jobTitle }}
         </p>
       </section>
 
@@ -170,10 +166,10 @@ const techStack = [
         <h2 class="section-title">教育经历</h2>
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">佛山大学</h3>
-            <span class="card-badge">2024 - 2028</span>
+            <h3 class="card-title">{{ PROFILE.education.school }}</h3>
+            <span class="card-badge">{{ PROFILE.education.period }}</span>
           </div>
-          <p class="card-subtitle">计算机科学与技术 · 本科</p>
+          <p class="card-subtitle">{{ PROFILE.education.major }}</p>
         </div>
       </section>
 
@@ -181,88 +177,41 @@ const techStack = [
       <section id="skills" class="section reveal">
         <h2 class="section-title">专业技能</h2>
         <ul class="skill-list">
-          <li>
-            熟悉 HTML/CSS/JavaScript/TypeScript，熟悉 ES6+ 语法新特性，掌握 Flex、Grid 等布局方式
-          </li>
-          <li>能够使用 Ant Design、ECharts、ElementPlus，具备快速查阅官方文档解决问题的能力</li>
-          <li>熟悉 Vue3 生态系统，包括 Vite、Vue Router、Pinia，了解组合式 API 和生命周期管理</li>
-          <li>
-            熟悉前端工程化与代码规范，能够使用 ESLint + Prettier 保障项目代码质量，熟悉 Git 协作
-          </li>
-          <li>能够使用 Claude Code、Cursor、OpenCode 等工具高效开发前端项目</li>
-          <li>了解 UniApp 跨平台开发</li>
-          <li>
-            了解 Java 基础、MySQL 数据库以及 Spring Boot、MyBatis 框架，具备 Java 后端开发经验
-          </li>
+          <li v-for="(item, i) in skillBullets" :key="i">{{ item }}</li>
         </ul>
       </section>
 
-      <!-- Internship -->
-      <section id="internship" class="section reveal">
-        <h2 class="section-title">实习经历</h2>
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">准备暑假实习中</h3>
-            <span class="card-badge">待开始</span>
-          </div>
-          <p class="card-desc">
-            正在积极准备暑期实习，已系统学习前端和 Java 全栈技术，正在完成企业级项目实战。
-          </p>
-        </div>
-      </section>
-
-      <!-- Projects -->
+      <!-- Projects —— 内容对齐自《简历.pdf》 -->
       <section id="projects" class="section reveal">
         <h2 class="section-title">项目经历</h2>
-        <div class="bento-grid">
-          <div class="card bento-card">
+        <div class="project-list-wrap">
+          <div v-for="project in projects" :key="project.name" class="card project-card">
             <div class="card-header">
-              <h3 class="card-title">AI 驱动的数据分析平台</h3>
-              <span class="card-badge">全栈</span>
+              <div class="card-title-row">
+                <h3 class="card-title">{{ project.name }}</h3>
+                <span v-if="project.role" class="card-role">{{ project.role }}</span>
+              </div>
+              <span class="card-badge">{{ project.period }}</span>
             </div>
+            <p class="card-stack">
+              <span class="card-stack-label">技术栈：</span>{{ project.stack }}
+            </p>
             <p class="card-desc">
-              上传 Excel 数据文件，AI 自动生成 ECharts
-              可视化图表与数据分析结论，支持实时状态推送、图表编辑导出、可拖拽仪表盘布局的智能 BI
-              平台
+              <span class="card-desc-label">项目简介：</span>{{ project.description }}
             </p>
             <ul class="project-list">
-              <li>
-                ECharts 配置运行时校验机制，实现三重容错解析与危险字段过滤，结合 onErrorCaptured
-                兜底，实现图表渲染零崩溃
-              </li>
-              <li>
-                封装通用轮询 usePolling Hook，集成指数退避策略与 Page Visibility
-                API，页面不可见时自动暂停轮询，减少约 60% 无效请求
-              </li>
-              <li>支持 AI 异步生成图表、实时状态推送与图表编辑导出</li>
+              <li v-for="(item, i) in project.highlights" :key="i">{{ item }}</li>
             </ul>
             <a
-              href="https://github.com/JAYTDD/lunesnow-Intelligent-BI"
+              v-if="project.github"
+              :href="project.github"
               target="_blank"
+              rel="noopener noreferrer"
               class="project-link"
             >
               <Icon icon="simple-icons:github" width="14" height="14" />
-              github.com/JAYTDD/lunesnow-Intelligent-BI
+              {{ project.github.replace(/^https?:\/\//, '') }}
             </a>
-          </div>
-          <div class="card bento-card">
-            <div class="card-header">
-              <h3 class="card-title">雪屿协作云图库</h3>
-              <span class="card-badge">前端</span>
-            </div>
-            <p class="card-desc">
-              基于 Vue3 + Ant Design + WebSocket + VueCropper 的企业级智能协同云图库平台
-            </p>
-            <ul class="project-list">
-              <li>
-                前端防抖 + 操作聚合策略，带宽降低 89%+；单图互斥锁 + 三态权限控制解决多人编辑冲突
-              </li>
-              <li>心跳保活与指数退避重连机制保障协同编辑连接稳定性</li>
-              <li>
-                集成 compressorjs 客户端压缩，上传体积减少 70%+；支持文件/URL
-                双模式上传及图片裁剪，3 路并发上传
-              </li>
-            </ul>
           </div>
         </div>
       </section>
@@ -280,7 +229,9 @@ const techStack = [
   </div>
 </template>
 
-<style>
+<style lang="scss">
+@use '../styles/animations' as anim;
+
 /* ===== CSS Variables for Theme ===== */
 .resume-page {
   --bg-primary: var(--color-bg-primary);
@@ -313,14 +264,12 @@ html.dark .resume-page {
 /* ===== Page Layout ===== */
 .resume-page {
   display: flex;
-  max-width: 1100px;
+  max-width: 72rem; /* max-w-6xl，与首页版心一致 */
   margin: 0 auto;
   padding: 48px 32px 120px;
   min-height: 100vh;
   background: var(--bg-primary);
   gap: 40px;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 800px;
 }
 
 /* ===== Sidebar ===== */
@@ -529,19 +478,15 @@ html.dark .resume-page {
 .reveal {
   opacity: 0;
   transform: translateY(18px);
-  filter: blur(4px);
   transition:
     opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
 }
 
 .reveal.revealed {
   opacity: 1;
   transform: translateY(0);
-  filter: blur(0);
 }
 .reveal:first-child {
   scroll-margin-top: 0;
@@ -558,7 +503,6 @@ html.dark .resume-page {
     border-color 0.12s ease,
     box-shadow 0.12s ease,
     background-color 0.12s ease;
-  will-change: transform, box-shadow, border-color;
 }
 
 .card:hover {
@@ -576,11 +520,32 @@ html.dark .resume-page {
   margin-bottom: 8px;
 }
 
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
 .card-title {
   font-size: 17px;
   font-weight: 600;
   color: var(--text-primary);
   transition: color 0.3s ease;
+}
+
+.card-role {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .card-badge {
@@ -612,6 +577,21 @@ html.dark .resume-page {
   line-height: 1.6;
   margin-top: 12px;
   transition: color 0.3s ease;
+}
+
+.card-stack {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.card-stack-label,
+.card-desc-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: 2px;
 }
 
 /* Achievement List */
@@ -653,11 +633,18 @@ html.dark .resume-page {
   transition: all 0.3s ease;
 }
 
-/* Bento Grid */
-.bento-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+/* Project Cards */
+/* content-visibility on the long list, not the page root */
+.project-list-wrap {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}
+
+.project-card {
+  width: 100%;
 }
 
 .project-list {

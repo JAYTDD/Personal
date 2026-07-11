@@ -1,4 +1,6 @@
 import './assets/tailwind.css'
+// Page-level CSS variables (:root / html.dark) used by About / Experience / mixins.
+import './styles/_variables.scss'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

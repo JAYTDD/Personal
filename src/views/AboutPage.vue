@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import {
+  ABOUT_TECH_STACK,
+  CONTACTS,
+  HOBBIES,
+  PROFILE,
+} from '@/data/profile'
+import { ABOUT_TIMELINE } from '@/data/experience'
+import { SOCIAL_LINKS } from '@/data/site'
 
 // ========== Typewriter Signature ==========
-const signatureLines = ['青春属于表白 阳光属于窗台', '而我想我属于一个拥有你的未来']
+const signatureLines = PROFILE.signatureLines
 const signatureLine1 = ref('')
 const signatureLine2 = ref('')
 
@@ -113,7 +121,7 @@ const getLocationAndWeather = async () => {
       `https://api.open-meteo.com/v1/forecast?latitude=${SHENZHEN_LAT}&longitude=${SHENZHEN_LON}&current=temperature_2m,weather_code&timezone=auto`,
     )
     const weatherData = await weatherRes.json()
-    location.value = '广东 · 深圳'
+    location.value = PROFILE.location
     weather.value = {
       temp: String(Math.round(weatherData.current.temperature_2m)),
       desc: getWeatherDesc(weatherData.current.weather_code),
@@ -121,7 +129,7 @@ const getLocationAndWeather = async () => {
     }
     weatherUpdatedAt.value = formatTime(new Date())
   } catch {
-    location.value = '广东 · 深圳'
+    location.value = PROFILE.location
     weather.value = { temp: '26', desc: '晴朗', icon: 'lucide:sun' }
     weatherUpdatedAt.value = formatTime(new Date())
   }
@@ -203,136 +211,18 @@ const copyToClipboard = (text: string, label: string, e: MouseEvent) => {
   })
 }
 
-// ========== Data ==========
+// ========== Data (from shared modules) ==========
 const currentYear = new Date().getFullYear()
-
-const techStack = [
-  { name: 'HTML', icon: 'simple-icons:html5', color: '#E34F26', level: 90 },
-  { name: 'CSS', icon: 'simple-icons:css3', color: '#1572B6', level: 85 },
-  { name: 'JavaScript', icon: 'simple-icons:javascript', color: '#F7DF1E', level: 85 },
-  { name: 'TypeScript', icon: 'simple-icons:typescript', color: '#3178C6', level: 75 },
-  { name: 'Vue', icon: 'simple-icons:vuedotjs', color: '#4FC08D', level: 88 },
-  { name: 'Vite', icon: 'simple-icons:vite', color: '#8B8FFF', level: 80 },
-  { name: 'Pinia', icon: 'lucide:database', color: '#FFD859', level: 78 },
-  { name: 'Vue Router', icon: 'simple-icons:vuedotjs', color: '#4FC08D', level: 76 },
-  { name: 'ElementPlus', icon: 'lucide:layout-grid', color: '#409EFF', level: 72 },
-  { name: 'Ant Design', icon: 'lucide:palette', color: '#0170FE', level: 70 },
-  { name: 'ECharts', icon: 'lucide:bar-chart-3', color: '#AA344D', level: 68 },
-  { name: 'ESLint', icon: 'lucide:circle-check', color: '#4B32C3', level: 75 },
-  { name: 'Prettier', icon: 'lucide:align-left', color: '#F7B93E', level: 74 },
-  { name: 'Git', icon: 'simple-icons:git', color: '#F05032', level: 82 },
-  { name: 'MySQL', icon: 'simple-icons:mysql', color: '#4479A1', level: 70 },
-  { name: 'Java', icon: 'devicon-plain:java', color: '#007396', level: 65 },
-  { name: 'Spring Boot', icon: 'simple-icons:springboot', color: '#8FD460', level: 60 },
-  { name: 'MyBatis', icon: 'lucide:layers', color: '#E8487A', level: 58 },
-  { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939', level: 72 },
-  { name: 'WebSocket', icon: 'lucide:cable', color: '#6B7280', level: 65 },
-]
-
-const hobbies = [
-  { name: '无畏契约', icon: 'lucide:target' },
-  { name: '三角洲', icon: 'lucide:crosshair' },
-  { name: '听音乐', icon: 'lucide:music' },
-  { name: 'JayChou', icon: 'lucide:mic' },
-  { name: '羽毛球', icon: 'lucide:volleyball' },
-  { name: '画画', icon: 'lucide:palette' },
-  { name: '追剧', icon: 'lucide:tv' },
-]
-
-const timeline = [
-  {
-    year: '2025',
-    title: '前端三件套',
-    desc: '系统学习 HTML / CSS / JavaScript，搭建第一个静态个人博客',
-    icon: 'lucide:code',
-    color: '#EC4899',
-  },
-  {
-    year: '2026',
-    title: 'Vue3 框架',
-    desc: '深入学习 Vue3 组合式 API，掌握响应式原理与组件化开发',
-    icon: 'simple-icons:vuedotjs',
-    color: '#EC4899',
-  },
-  {
-    year: '2026',
-    title: 'Java 基础',
-    desc: '系统学习 Java 基础语法，掌握面向对象编程与集合框架',
-    icon: 'devicon-plain:java',
-    color: '#F97316',
-  },
-  {
-    year: '2026',
-    title: '小兔鲜项目',
-    desc: '基于 Vue3 的电商实战项目，实现商品展示、购物车等核心功能',
-    icon: 'lucide:shopping-cart',
-    color: '#EC4899',
-  },
-  {
-    year: '2026',
-    title: 'MySQL',
-    desc: '学习关系型数据库，掌握 SQL 语句、索引优化与事务管理',
-    icon: 'simple-icons:mysql',
-    color: '#F97316',
-  },
-  {
-    year: '2026',
-    title: 'Java Web',
-    desc: '学习 Servlet / JSP / JDBC，理解 Web 开发基础与 MVC 模式',
-    icon: 'lucide:globe',
-    color: '#F97316',
-  },
-  {
-    year: '2026',
-    title: 'ElementPlus',
-    desc: '学习并实践 ElementPlus 组件库，快速搭建后台管理系统',
-    icon: 'lucide:layout-grid',
-    color: '#EC4899',
-  },
-  {
-    year: '2026',
-    title: '苍穹外卖',
-    desc: '完成外卖平台项目，实现用户端、商家端与骑手端完整功能',
-    icon: 'lucide:utensils',
-    color: '#F97316',
-  },
-  {
-    year: '2026',
-    title: 'uniapp',
-    desc: '学习跨平台开发框架，实现一套代码多端运行',
-    icon: 'lucide:smartphone',
-    color: '#EC4899',
-  },
-  {
-    year: '2026',
-    title: '智能协同云图库',
-    desc: '企业级项目实战，实现图片管理、团队协作等核心功能',
-    icon: 'lucide:cloud',
-    color: '#EC4899',
-  },
-]
-
-const contacts = [
-  { label: '微信', value: '13410972606', icon: 'lucide:message-circle', color: '#07C160' },
-  { label: 'QQ', value: '363807870', icon: 'lucide:at-sign', color: '#12B7F5' },
-  { label: '电话', value: '13410972606', icon: 'lucide:phone', color: '#F97316' },
-  { label: '邮箱', value: '363807870@qq.com', icon: 'lucide:mail', color: '#EA4335' },
-]
-
-const socials = [
-  {
-    name: 'GitHub',
-    url: 'https://github.com/JAYTDD',
-    icon: 'simple-icons:github',
-    color: '#FAFAFA',
-  },
-  {
-    name: '掘金',
-    url: 'https://juejin.cn/user/2385290407448745',
-    icon: 'simple-icons:juejin',
-    color: '#1E80FF',
-  },
-]
+const techStack = ABOUT_TECH_STACK
+const hobbies = HOBBIES
+const timeline = ABOUT_TIMELINE
+const contacts = CONTACTS
+const socials = SOCIAL_LINKS.map((s) => ({
+  name: s.name,
+  url: s.href,
+  icon: s.icon,
+  color: s.color ?? '#FAFAFA',
+}))
 
 // ========== Lifecycle ==========
 onMounted(() => {
@@ -451,14 +341,14 @@ onUnmounted(() => {
               @mouseleave="handleAvatarLeave"
             >
               <img
-                src="../../public/Lunesnow.ico"
+                src="/lunesnow.ico"
                 alt="avatar"
                 class="avatar"
                 :style="avatarStyle"
               />
             </div>
-            <h1 class="name">Lunesnow</h1>
-            <p class="title">全栈工程师</p>
+            <h1 class="name">{{ PROFILE.displayName }}</h1>
+            <p class="title">{{ PROFILE.jobTitle }}</p>
 
             <!-- Signature -->
             <div class="signature">
@@ -512,8 +402,7 @@ onUnmounted(() => {
       <section class="section reveal">
         <h2 class="section-title">关于</h2>
         <p class="about-text text-generate">
-          Lunesnow 的个人技术博客，基于 Vue + Vite + TypeScript
-          构建。记录全栈开发、工具链、以及日常学习中的思考与总结。
+          {{ PROFILE.aboutBlurb }}
         </p>
       </section>
 
@@ -571,11 +460,13 @@ onUnmounted(() => {
       <section class="section reveal">
         <h2 class="section-title">找到我</h2>
         <div class="contact-grid">
-          <div
+          <button
             v-for="contact in contacts"
             :key="contact.label"
+            type="button"
             class="contact-card magnetic-contact"
             :style="{ '--contact-color': contact.color }"
+            :aria-label="`复制${contact.label}：${contact.value}`"
             @mousemove="
               (e) => {
                 handleMagneticMove(e)
@@ -595,7 +486,7 @@ onUnmounted(() => {
             <div class="copy-hint" :class="{ show: copied === contact.label }">
               <Icon icon="lucide:check" width="12" height="12" />
             </div>
-          </div>
+          </button>
         </div>
       </section>
 
@@ -609,6 +500,7 @@ onUnmounted(() => {
             :key="social.name"
             :href="social.url"
             target="_blank"
+            rel="noopener noreferrer"
             class="social-circle"
             :style="{ '--social-color': social.color }"
             :title="social.name"
@@ -706,7 +598,7 @@ onUnmounted(() => {
 
 /* ===== Layout ===== */
 .about-layout {
-  max-width: 960px;
+  max-width: 72rem; /* max-w-6xl，与首页版心一致 */
   margin: 0 auto;
   padding: 16px 24px 24px;
   min-height: 100vh;
@@ -956,16 +848,16 @@ onUnmounted(() => {
   max-width: 100%;
 }
 
-/* Text Generate Effect (Aceternity style) */
+/* Text Generate Effect — opacity/transform only (no blur for lower GPU cost) */
 .text-generate {
   opacity: 0;
-  filter: blur(8px);
   transform: translateY(8px);
-  transition: all 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+  transition:
+    opacity 0.8s cubic-bezier(0.32, 0.72, 0, 1),
+    transform 0.8s cubic-bezier(0.32, 0.72, 0, 1);
 
   &.revealed-text {
     opacity: 1;
-    filter: blur(0);
     transform: translateY(0);
   }
 }
@@ -985,8 +877,9 @@ onUnmounted(() => {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 13px;
-  border: 1px solid var(--border-light);
-  background: var(--card-bg);
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  box-shadow: inset 0 0 0 0.5px rgba(24, 24, 27, 0.04);
+  background: transparent;
   color: var(--text-secondary);
   overflow: hidden;
   position: relative;
@@ -998,6 +891,11 @@ onUnmounted(() => {
     color 0.08s linear;
   opacity: 1;
   transform: translateY(0) rotate(0deg);
+
+  html.dark & {
+    border-color: rgba(250, 250, 248, 0.14);
+    box-shadow: inset 0 0 0 0.5px rgba(250, 250, 248, 0.05);
+  }
 
   &:hover {
     border-color: var(--tag-color, var(--accent));
@@ -1046,27 +944,61 @@ onUnmounted(() => {
   padding: 5px 10px;
   border-radius: 6px;
   font-size: 12px;
-  border: 1px solid var(--border-light);
-  background: var(--card-bg);
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  box-shadow: inset 0 0 0 0.5px rgba(24, 24, 27, 0.04);
+  background: transparent;
   color: var(--text-muted);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
   transition:
-    transform 0.16s cubic-bezier(0.32, 0.72, 0, 1),
-    box-shadow 0.16s cubic-bezier(0.32, 0.72, 0, 1),
-    border-color 0.16s cubic-bezier(0.32, 0.72, 0, 1),
-    color 0.08s linear;
+    transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 0.22s ease,
+    color 0.18s ease,
+    background-color 0.22s ease;
   opacity: 0;
   transform: translateY(8px) rotate(1deg);
 
+  html.dark & {
+    border-color: rgba(250, 250, 248, 0.14);
+    box-shadow: inset 0 0 0 0.5px rgba(250, 250, 248, 0.05);
+  }
+
+  /* soft accent wash on hover */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      color-mix(in srgb, var(--accent) 4%, transparent)
+    );
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    pointer-events: none;
+  }
+
   &:hover {
-    border-color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
     color: var(--accent);
-    transform: scale(1.08) translateY(-1px);
-    box-shadow: 0 2px 8px var(--shadow-soft);
+    background: transparent;
+    transform: translateY(-3px) scale(1.06);
+    box-shadow:
+      0 6px 16px -6px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
+
+    &::after {
+      opacity: 1;
+    }
 
     .hobby-icon-bg {
       background: var(--accent);
-      color: var(--card-bg);
-      transform: scale(1.1);
+      color: #fff;
+      transform: scale(1.12) rotate(-6deg);
+      border-color: transparent;
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
     }
   }
 
@@ -1077,10 +1009,22 @@ onUnmounted(() => {
     width: 20px;
     height: 20px;
     border-radius: 4px;
-    background: var(--page-bg);
+    background: transparent;
+    border: 1px solid rgba(24, 24, 27, 0.08);
     color: var(--text-muted);
-    transition: all 0.25s ease;
+    transition: all 0.28s cubic-bezier(0.32, 0.72, 0, 1);
     flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+
+    html.dark & {
+      border-color: rgba(250, 250, 248, 0.1);
+    }
+  }
+
+  > span:not(.hobby-icon-bg) {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -1130,17 +1074,31 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 16px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-light);
+  background: transparent;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  box-shadow: inset 0 0 0 0.5px rgba(24, 24, 27, 0.04);
   border-radius: 12px;
   cursor: pointer;
-  will-change: transform;
+  text-align: left;
+  font: inherit;
+  color: inherit;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  html.dark & {
+    border-color: rgba(250, 250, 248, 0.14);
+    box-shadow: inset 0 0 0 0.5px rgba(250, 250, 248, 0.05);
+  }
 
   &::before {
     content: '';
@@ -1171,11 +1129,14 @@ onUnmounted(() => {
   }
 
   &:hover {
-    border-color: transparent;
-    box-shadow: 0 4px 16px var(--shadow-soft);
+    border-color: color-mix(in srgb, var(--contact-color, var(--accent)) 45%, transparent);
+    box-shadow:
+      0 4px 16px var(--shadow-soft),
+      0 0 0 1px color-mix(in srgb, var(--contact-color, var(--accent)) 12%, transparent);
 
     .contact-card-icon {
       transform: scale(1.1);
+      border-color: color-mix(in srgb, var(--contact-color, var(--accent)) 30%, transparent);
     }
   }
 
@@ -1187,8 +1148,15 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: var(--page-bg);
-    transition: transform 0.2s ease;
+    background: transparent;
+    border: 1px solid rgba(24, 24, 27, 0.08);
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+
+    html.dark & {
+      border-color: rgba(250, 250, 248, 0.1);
+    }
   }
 
   .contact-card-info {
@@ -1255,8 +1223,9 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-light);
+  background: transparent;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  box-shadow: inset 0 0 0 0.5px rgba(24, 24, 27, 0.04);
   border-radius: 10px;
   cursor: default;
   opacity: 0;
@@ -1266,6 +1235,11 @@ onUnmounted(() => {
     box-shadow 0.16s cubic-bezier(0.32, 0.72, 0, 1),
     border-color 0.16s cubic-bezier(0.32, 0.72, 0, 1),
     color 0.08s linear;
+
+  html.dark & {
+    border-color: rgba(250, 250, 248, 0.14);
+    box-shadow: inset 0 0 0 0.5px rgba(250, 250, 248, 0.05);
+  }
 
   &:hover {
     border-color: var(--tl-color, var(--accent));
@@ -1277,6 +1251,7 @@ onUnmounted(() => {
     .about-timeline-card-icon {
       background: var(--tl-color, var(--accent));
       color: var(--color-text-inverse);
+      border-color: transparent;
     }
   }
 
@@ -1288,9 +1263,14 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    background: var(--page-bg);
+    background: transparent;
+    border: 1px solid rgba(24, 24, 27, 0.08);
     color: var(--tl-color, var(--accent));
     transition: all 0.25s ease;
+
+    html.dark & {
+      border-color: rgba(250, 250, 248, 0.1);
+    }
   }
 
   .about-timeline-card-info {
@@ -1347,7 +1327,7 @@ onUnmounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--card-bg);
+  background: transparent;
   border: 1px solid var(--border-light);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -1391,7 +1371,7 @@ onUnmounted(() => {
   }
 
   html.dark & {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
   }
 
   .social-icon-inner {
@@ -1435,7 +1415,6 @@ onUnmounted(() => {
 
   .text-generate {
     opacity: 1;
-    filter: none;
     transform: none;
     transition: none;
   }

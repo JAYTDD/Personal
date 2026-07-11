@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import AppIcon from '@/components/icons/AppIcon.vue'
+import { NAV_ITEMS } from '@/data/site'
 
 const route = useRoute()
 const themeStore = useThemeStore()
@@ -10,12 +11,7 @@ const isMenuOpen = ref(false)
 const isScrolled = ref(false)
 const scrollProgress = ref(0)
 
-const navItems = [
-  { name: '首页', path: '/' },
-  { name: '简历', path: '/resume' },
-  { name: '经历', path: '/experience' },
-  { name: '关于', path: '/about' },
-]
+const navItems = NAV_ITEMS
 
 const isActive = (path: string) => route.path === path
 
@@ -43,7 +39,7 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="sticky top-0 z-20 transition-all duration-300 ease-out"
+    class="print-hide sticky top-0 z-20 transition-all duration-300 ease-out"
     :class="{
       'border-b border-border-default bg-bg-primary/70 backdrop-blur-xl dark:border-border-dark dark:bg-bg-dark-primary/70': !isScrolled,
       'border-b border-border-hover bg-bg-primary/90 backdrop-blur-xl shadow-sm dark:border-border-dark-hover dark:bg-bg-dark-primary/90': isScrolled,
@@ -52,7 +48,7 @@ onUnmounted(() => {
     <!-- Scroll progress bar -->
     <div class="absolute bottom-0 left-0 h-[2px] bg-brand-pink dark:bg-brand-pink-light transition-none" :style="{ width: scrollProgress + '%' }" />
 
-    <nav aria-label="主导航" class="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+    <nav aria-label="主导航" class="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3">
       <!-- Brand + Nav Links -->
       <div class="flex items-center gap-6">
         <RouterLink
@@ -68,7 +64,8 @@ onUnmounted(() => {
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
-            class="relative rounded-full px-3 py-1 text-sm transition-all duration-200"
+            class="relative rounded-full px-3 py-1 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40 dark:focus-visible:ring-brand-pink-light/40"
+            :aria-current="isActive(item.path) ? 'page' : undefined"
             :class="
               isActive(item.path)
                 ? 'text-text-primary dark:text-text-dark-primary bg-bg-secondary dark:bg-bg-dark-secondary font-medium'
@@ -144,7 +141,8 @@ onUnmounted(() => {
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
-            class="rounded-full px-3 py-2 text-sm transition-all duration-200"
+            class="rounded-full px-3 py-2 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-pink/40"
+            :aria-current="isActive(item.path) ? 'page' : undefined"
             :class="
               isActive(item.path)
                 ? 'text-text-primary dark:text-text-dark-primary bg-bg-secondary dark:bg-bg-dark-secondary font-medium'

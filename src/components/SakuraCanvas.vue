@@ -134,8 +134,8 @@ function startAnimation() {
   checkDarkMode()
   resize()
 
-  const base = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
-  const count = Math.round(base * 1.3)
+  // Align with performance design: 18 / 24 / 32 — no extra 1.3× multiplier
+  const count = window.innerWidth < 768 ? 18 : window.innerWidth < 1200 ? 24 : 32
   petals = Array.from({ length: count }, () =>
     createPetal(window.innerWidth, window.innerHeight),
   )
@@ -185,6 +185,6 @@ onUnmounted(() => {
   <canvas
     ref="canvasRef"
     aria-hidden="true"
-    class="fixed left-0 top-0 pointer-events-none z-[100]"
+    class="print-hide sakura-canvas fixed left-0 top-0 pointer-events-none z-[100]"
   />
 </template>

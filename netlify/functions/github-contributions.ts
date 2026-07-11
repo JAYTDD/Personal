@@ -14,6 +14,9 @@
 
 const GITHUB_GRAPHQL = 'https://api.github.com/graphql'
 
+/** Only serve contribution calendars for this account — prevents PAT abuse as a public proxy. */
+const ALLOWED_LOGIN = (process.env.ALLOWED_GITHUB_LOGIN || 'JAYTDD').trim()
+
 const QUERY = /* GraphQL */ `
   query ($login: String!) {
     user(login: $login) {
@@ -33,14 +36,16 @@ const QUERY = /* GraphQL */ `
   }
 `
 
-const jsonResponse = (body: unknown, init: ResponseInit = {}): Response =>
+const CACHE_OK = 'public, max-age=300, s-maxage=300'
+const CACHE_ERR = 'no-store'
+
+const jsonResponse = (body: unknown, init: ResponseInit = {}, cache = CACHE_ERR): Response =>
   new Response(JSON.stringify(body), {
     ...init,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      // Cache 5 min at the edge and in the browser.
-      'Cache-Control': 'public, max-age=300, s-maxage=300',
-      ...(init.headers || {}),
+      'Cache-Control': cache,
+      ...init.headers,
     },
   })
 
@@ -52,16 +57,21 @@ export default async (req: Request): Promise<Response> => {
   const token = process.env.GITHUB_TOKEN
   if (!token) {
     return jsonResponse(
-      { message: 'GITHUB_TOKEN is not configured on the server' },
+      { message: 'Server is not configured for GitHub contributions' },
       { status: 500 },
     )
   }
 
   const url = new URL(req.url)
-  const login = (url.searchParams.get('login') || 'JAYTDD').trim()
+  const login = (url.searchParams.get('login') || ALLOWED_LOGIN).trim()
 
   if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(login)) {
     return jsonResponse({ message: 'Invalid login' }, { status: 400 })
+  }
+
+  // Hard allowlist — personal site only needs one user.
+  if (login.toLowerCase() !== ALLOWED_LOGIN.toLowerCase()) {
+    return jsonResponse({ message: 'Login not allowed' }, { status: 403 })
   }
 
   let upstream: Response
@@ -76,22 +86,18 @@ export default async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({ query: QUERY, variables: { login } }),
     })
-  } catch (err) {
-    return jsonResponse(
-      { message: `Upstream fetch failed: ${(err as Error).message}` },
-      { status: 502 },
-    )
+  } catch {
+    return jsonResponse({ message: 'Upstream request failed' }, { status: 502 })
   }
 
-  // Pass through GitHub's response body + status. Cache-Control is kept from
-  // jsonResponse so the result can be cached at the edge.
   const body = await upstream.text()
+  const ok = upstream.ok
   return new Response(body, {
     status: upstream.status,
     headers: {
       'Content-Type':
         upstream.headers.get('content-type') ?? 'application/json; charset=utf-8',
-      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'Cache-Control': ok ? CACHE_OK : CACHE_ERR,
     },
   })
 }

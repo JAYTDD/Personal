@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
 import { useThemeStore } from '@/stores/theme'
+import { GITHUB_LOGIN, GITHUB_URL } from '@/data/site'
 
 const WEEKS = 53
 const DAYS = 7
@@ -28,6 +29,7 @@ const cells = ref<Cell[]>([])
 const totalContributions = ref(0)
 const loading = ref(true)
 const error = ref('')
+const fetched = ref(false)
 
 function levelFromCount(count: number): number {
   if (count === 0) return 0
@@ -38,13 +40,16 @@ function levelFromCount(count: number): number {
 }
 
 async function fetchContributions() {
-  const login = 'JAYTDD'
+  loading.value = true
+  error.value = ''
 
   try {
-    const res = await fetch(`/api/github/github-contributions?login=${encodeURIComponent(login)}`)
+    const res = await fetch(
+      `/api/github/github-contributions?login=${encodeURIComponent(GITHUB_LOGIN)}`,
+    )
 
     if (!res.ok) {
-      if (res.status === 500) throw new Error('服务端未配置 GITHUB_TOKEN')
+      if (res.status === 500) throw new Error('服务端未配置 GITHUB_TOKEN（请用 npm run dev:netlify）')
       throw new Error(`请求失败 (${res.status})`)
     }
 
@@ -79,6 +84,7 @@ async function fetchContributions() {
     error.value = e instanceof Error ? e.message : '获取数据失败'
   } finally {
     loading.value = false
+    fetched.value = true
   }
 }
 
@@ -115,8 +121,6 @@ const isVisible = ref(false)
 const themeStore = useThemeStore()
 
 onMounted(() => {
-  fetchContributions()
-
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (prefersReducedMotion) {
     isVisible.value = true
@@ -126,10 +130,11 @@ onMounted(() => {
     ([entry]) => {
       if (entry?.isIntersecting) {
         isVisible.value = true
+        if (!fetched.value) fetchContributions()
         observer.disconnect()
       }
     },
-    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
+    { threshold: 0.1, rootMargin: '120px 0px -50px 0px' },
   )
 
   if (sectionRef.value) {
@@ -140,7 +145,7 @@ onMounted(() => {
 
 <template>
   <section ref="sectionRef" class="pb-16 pt-8">
-    <div class="mx-auto max-w-4xl px-4">
+    <div class="mx-auto max-w-6xl px-0">
       <h2
         class="text-xl font-semibold tracking-wide text-text-primary dark:text-text-dark-primary text-center mb-6 transition-all duration-700 ease-out"
         :class="{
@@ -157,8 +162,15 @@ onMounted(() => {
       </div>
 
       <!-- Error -->
-      <div v-else-if="error" class="text-center text-sm text-red-400 py-8">
-        {{ error }}
+      <div v-else-if="error" class="text-center py-8 space-y-3">
+        <p class="text-sm text-red-400">{{ error }}</p>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-full border border-border-default dark:border-border-dark px-3 py-1.5 text-xs text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light hover:border-brand-pink/40 transition-colors"
+          @click="fetchContributions"
+        >
+          重试
+        </button>
       </div>
 
       <!-- Heatmap SVG -->
@@ -252,7 +264,7 @@ onMounted(() => {
         }"
       >
         <a
-          href="https://github.com/JAYTDD"
+          :href="GITHUB_URL"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 text-sm text-text-tertiary hover:text-brand-pink dark:text-text-dark-tertiary dark:hover:text-brand-pink-light transition-colors hover:scale-105 transform duration-200"

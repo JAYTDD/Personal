@@ -1,157 +1,11 @@
 <script setup lang="ts">
 import { nextTick, ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import { EXPERIENCES, EXPERIENCE_TYPE_COLORS } from '@/data/experience'
 
 const activeIndex = ref(0)
-
-interface ExperienceItem {
-  date: string
-  label: string
-  title: string
-  subtitle: string
-  type: string
-  description: string
-  details: string[]
-  metrics?: { label: string; value: string }[]
-  icon: string
-}
-
-const experiences: ExperienceItem[] = [
-  {
-    date: '2025.10',
-    label: '开始',
-    title: '前端三件套',
-    subtitle: 'HTML / CSS / JavaScript',
-    type: '前端',
-    description: '系统学习前端基础知识，完成 MDN 完整教程，独立完成 50+ 练习 Demo，搭建第一个静态个人博客。',
-    details: ['HTML5 语义化标签', 'CSS3 动画与响应式', 'ES6+ 新特性', 'DOM 操作与事件'],
-    metrics: [
-      { label: '学习时长', value: '92天' },
-    ],
-    icon: 'lucide:code',
-  },
-  {
-    date: '2026.01',
-    label: '进阶',
-    title: 'Vue3 框架',
-    subtitle: 'Vue3 + 组合式 API',
-    type: '前端',
-    description: '深入学习 Vue3 组合式 API，掌握响应式原理、组件化开发与状态管理。',
-    details: ['Composition API', 'Pinia 状态管理', 'Vue Router', '组件封装'],
-    metrics: [
-      { label: '学习时长', value: '22天' },
-    ],
-    icon: 'simple-icons:vuedotjs',
-  },
-  {
-    date: '2026.02',
-    label: '后端',
-    title: 'Java 基础',
-    subtitle: 'Java SE 核心语法',
-    type: 'Java',
-    description: '系统学习 Java 基础语法，掌握面向对象编程、集合框架与异常处理。',
-    details: ['面向对象', '集合框架', 'IO 流', '多线程基础'],
-    metrics: [
-      { label: '学习时长', value: '8天' },
-    ],
-    icon: 'devicon-plain:java',
-  },
-  {
-    date: '2026.02',
-    label: '项目',
-    title: 'Vue3 小兔鲜项目',
-    subtitle: '电商实战项目',
-    type: '前端',
-    description: '基于 Vue3 开发电商类型项目，实现商品展示、购物车、订单管理等核心功能。',
-    details: ['商品列表与详情', '购物车逻辑', '支付流程', '接口对接'],
-    metrics: [
-      { label: '项目周期', value: '24天' },
-    ],
-    icon: 'lucide:shopping-cart',
-  },
-  {
-    date: '2026.03',
-    label: '数据库',
-    title: 'MySQL',
-    subtitle: '关系型数据库',
-    type: 'Java',
-    description: '学习 MySQL 数据库，掌握 SQL 语句、索引优化与事务管理。',
-    details: ['CRUD 操作', '索引优化', '事务与锁', '存储过程'],
-    metrics: [
-      { label: '学习时长', value: '11天' },
-    ],
-    icon: 'simple-icons:mysql',
-  },
-  {
-    date: '2026.03',
-    label: 'Web',
-    title: 'Java Web',
-    subtitle: 'Servlet / JSP / JDBC',
-    type: 'Java',
-    description: '学习 Java Web 开发基础，理解 Servlet 生命周期、JSP 页面与 JDBC 数据库连接。',
-    details: ['Servlet 生命周期', 'JSP 内置对象', 'JDBC 连接池', 'MVC 模式'],
-    metrics: [
-      { label: '学习时长', value: '36天' },
-    ],
-    icon: 'lucide:globe',
-  },
-  {
-    date: '2026.03',
-    label: '组件库',
-    title: 'ElementPlus',
-    subtitle: 'UI 组件库实践',
-    type: '前端',
-    description: '学习并实践 ElementPlus 组件库，快速搭建后台管理系统界面。',
-    details: ['表单组件', '表格与分页', '弹窗与消息', '主题定制'],
-    metrics: [
-      { label: '学习时长', value: '4小时' },
-    ],
-    icon: 'lucide:layout-grid',
-  },
-  {
-    date: '2026.04',
-    label: '项目',
-    title: '苍穹外卖',
-    subtitle: '外卖平台项目',
-    type: 'Java',
-    description: '完成苍穹外卖项目，实现用户端、商家端与骑手端的完整外卖平台功能。',
-    details: ['用户注册登录', '商品管理', '订单系统', '支付对接'],
-    metrics: [
-      { label: '项目周期', value: '14天' },
-    ],
-    icon: 'lucide:utensils',
-  },
-  {
-    date: '2026.05',
-    label: '跨端',
-    title: 'uniapp',
-    subtitle: '跨平台应用开发',
-    type: '前端',
-    description: '学习 uniapp 跨平台开发框架，实现一套代码多端运行。',
-    details: ['页面路由', '条件编译', '原生插件', '打包发布'],
-    metrics: [
-      { label: '学习时长', value: '9天' },
-    ],
-    icon: 'lucide:smartphone',
-  },
-  {
-    date: '2026.05',
-    label: '进行中',
-    title: '智能协同云图库',
-    subtitle: '企业级项目实战',
-    type: '前端',
-    description: '正在进行的智能协同云图库项目，实现图片管理、团队协作等核心功能。',
-    details: ['图片上传与管理', '团队协作', '权限控制', '云存储对接'],
-    icon: 'lucide:cloud',
-  },
-]
-
-const typeColors: Record<string, string> = {
-  '前端': 'tag-pink',
-  'Java': 'tag-coral',
-  '学习': 'tag-violet',
-  '项目': 'tag-pink',
-}
+const experiences = EXPERIENCES
+const typeColors = EXPERIENCE_TYPE_COLORS
 
 const scrollTo = (index: number) => {
   activeIndex.value = index
@@ -221,8 +75,10 @@ onMounted(async () => {
         <button
           v-for="(exp, index) in experiences"
           :key="exp.date + exp.title"
+          type="button"
           class="toc-item"
           :class="{ active: activeIndex === index }"
+          :aria-current="activeIndex === index ? 'true' : undefined"
           @click="scrollTo(index)"
         >
           <span class="toc-indicator" />
@@ -239,7 +95,7 @@ onMounted(async () => {
       <!-- Header -->
       <header class="page-header">
         <h1 class="page-title">我的学习之路</h1>
-        <p class="page-subtitle">从前端基础到 Java 全栈的成长轨迹</p>
+        <p class="page-subtitle">从前端基础到工程化实战的成长轨迹</p>
       </header>
 
       <!-- Timeline -->
@@ -312,13 +168,11 @@ onMounted(async () => {
 .experience-page {
   /* ===== Page Layout ===== */
   display: flex;
-  max-width: 1100px;
+  max-width: 72rem; /* max-w-6xl，与首页版心一致 */
   margin: 0 auto;
   padding: 16px 32px 80px;
   min-height: 100vh;
   gap: 48px;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
   background: var(--page-bg);
   position: relative;
 
@@ -540,15 +394,17 @@ onMounted(async () => {
     z-index: 1;
   }
 
-  /* Right: Fixed Size Card with Double-Bezel */
+  /* Right: Card fills remaining width to the page edge */
   .timeline-card-wrapper {
-    flex: 1;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
     padding: 1px;
     border-radius: 16px;
     background: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.01) 100%);
     margin-bottom: 12px;
     transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-    max-width: 520px;
+    max-width: none;
     min-height: 180px;
 
     &:hover {
