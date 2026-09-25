@@ -1,88 +1,72 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { RESUME_PROJECTS } from '@/data/projects'
 import { PROFILE, RESUME_NAV, RESUME_SKILL_BULLETS, RESUME_TECH_TAGS } from '@/data/profile'
+import { useTypewriter } from '@/composables/useTypewriter'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+import ResumeExportModal from '@/components/ResumeExportModal.vue'
+import CopyToast from '@/components/CopyToast.vue'
+import { copyText } from '@/utils/clipboard'
+import { useMagnetic } from '@/composables/useMagnetic'
 
-const typeText = ref('')
-const fullText = PROFILE.jobTitle
 const showContent = ref(false)
-
-let typeTimer: ReturnType<typeof setInterval> | null = null
 let showContentTimer: ReturnType<typeof setTimeout> | null = null
-let revealObserver: IntersectionObserver | null = null
-let revealNowHandler: (() => void) | null = null
+
+const { lines: typeText, start: startTyping } = useTypewriter([PROFILE.jobTitle], {
+  speed: 80,
+  onAllDone: () => {
+    showContentTimer = setTimeout(() => {
+      showContent.value = true
+    }, 200)
+  },
+})
+
+useScrollReveal({
+  selector: '.reveal',
+  classToAdd: 'revealed',
+  threshold: 0.08,
+  rootMargin: '120px 0px -10% 0px',
+  staggerDelay: 100,
+  firstScreenFactor: 0.95,
+  refitOnResize: true,
+})
+
+const printOpen = ref(false)
 
 function handlePrint() {
-  window.print()
+  printOpen.value = true
 }
 
-onMounted(async () => {
-  // Typewriter effect
-  let i = 0
-  typeTimer = setInterval(() => {
-    if (i < fullText.length) {
-      typeText.value += fullText.charAt(i)
-      i++
-    } else {
-      if (typeTimer) {
-        clearInterval(typeTimer)
-        typeTimer = null
-      }
-      showContentTimer = setTimeout(() => {
-        showContent.value = true
-      }, 200)
-    }
-  }, 80)
+// ===== Copy contact =====
+const toastVisible = ref(false)
+const toastMessage = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | null = null
 
-  await nextTick()
+function showToast(message: string) {
+  toastMessage.value = message
+  toastVisible.value = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toastVisible.value = false
+  }, 2000)
+}
 
-  // Scroll reveal — stagger first-screen sections, observe the rest
-  const revealElements = document.querySelectorAll<HTMLElement>('.reveal')
-  const revealNow = () => {
-    let firstScreenIndex = 0
-    revealElements.forEach((el) => {
-      const rect = el.getBoundingClientRect()
-      if (rect.top < window.innerHeight * 0.95) {
-        el.style.setProperty('--reveal-delay', `${firstScreenIndex * 100}ms`)
-        el.classList.add('revealed')
-        firstScreenIndex++
-      }
-    })
-  }
-  revealNowHandler = revealNow
+function copyContact() {
+  copyText(PROFILE.phone).then(() => showToast(`已复制联系电话：${PROFILE.phone}`))
+}
 
-  revealNow()
+// magnetic circular badge
+const contactBadge = ref<HTMLElement | null>(null)
+useMagnetic(contactBadge)
 
-  revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed')
-        }
-      })
-    },
-    { threshold: 0.08, rootMargin: '120px 0px -10% 0px' },
-  )
-
-  revealElements.forEach((el) => {
-    if (!el.classList.contains('revealed')) {
-      revealObserver?.observe(el)
-    }
-  })
-
-  window.addEventListener('resize', revealNow, { passive: true })
+onMounted(() => {
+  startTyping()
 })
 
 onUnmounted(() => {
-  if (typeTimer) clearInterval(typeTimer)
   if (showContentTimer) clearTimeout(showContentTimer)
-  revealObserver?.disconnect()
-  revealObserver = null
-  if (revealNowHandler) {
-    window.removeEventListener('resize', revealNowHandler)
-    revealNowHandler = null
-  }
+  if (toastTimer) clearTimeout(toastTimer)
 })
 
 const navItems = RESUME_NAV
@@ -155,10 +139,28 @@ const projects = RESUME_PROJECTS.map((p) => ({
             <Icon icon="lucide:printer" width="16" height="16" />
             打印简历
           </button>
-          <a :href="`mailto:${PROFILE.email}`" class="btn-secondary">
-            <Icon icon="lucide:send" width="16" height="16" />
-            联系我
-          </a>
+          <button
+            ref="contactBadge"
+            type="button"
+            class="contact-badge"
+            aria-label="点击复制联系电话"
+            @click="copyContact"
+          >
+            <svg class="badge-ring" viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <path
+                  id="contact-badge-circle"
+                  d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                />
+              </defs>
+              <text>
+                <textPath href="#contact-badge-circle">
+                  复制电话 · CONTACT ME · 复制电话 · CONTACT ME ·
+                </textPath>
+              </text>
+            </svg>
+            <Icon icon="lucide:copy" width="22" height="22" />
+          </button>
         </div>
       </div>
     </aside>
@@ -168,7 +170,7 @@ const projects = RESUME_PROJECTS.map((p) => ({
       <!-- Intro -->
       <section id="intro" class="section">
         <div class="typewriter">
-          <span class="type-text">{{ typeText }}</span>
+          <span class="type-text">{{ typeText[0] }}</span>
           <span class="cursor" />
         </div>
         <p class="intro-desc" :class="{ show: showContent }">
@@ -241,6 +243,9 @@ const projects = RESUME_PROJECTS.map((p) => ({
         </div>
       </section>
     </main>
+
+    <ResumeExportModal :open="printOpen" @close="printOpen = false" />
+    <CopyToast :show="toastVisible" :message="toastMessage" />
   </div>
 </template>
 
@@ -432,6 +437,58 @@ html.dark .resume-page {
   color: var(--accent);
 }
 
+/* ===== Magnetic circular contact badge ===== */
+.contact-badge {
+  position: relative;
+  align-self: center;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    box-shadow 0.25s ease;
+
+  &:hover {
+    color: var(--accent);
+    box-shadow:
+      0 8px 24px var(--shadow-hover),
+      0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  .badge-ring {
+    position: absolute;
+    inset: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    animation: badge-rotate 14s linear infinite;
+
+    text {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      fill: var(--text-muted);
+      text-transform: uppercase;
+    }
+  }
+
+  &:hover .badge-ring text {
+    fill: var(--accent);
+  }
+}
+
+@keyframes badge-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== Main Content ===== */
 .main-content {
   display: flex;
@@ -452,6 +509,37 @@ html.dark .resume-page {
   letter-spacing: 0.15em;
   margin-bottom: 14px;
   transition: color 0.3s ease;
+}
+
+/* One-shot shine sweep across section titles when their section reveals
+   (triggered by the `revealed` class from useScrollReveal).
+   The 400%-wide gradient keeps the element fully covered at the 72%→28%
+   keyframe range, so no glyph ever loses its background under
+   background-clip: text; the ~1/3-wide soft gleam sweeps left→right. */
+.revealed .section-title {
+  background-image: linear-gradient(
+    115deg,
+    var(--text-muted) 0%,
+    var(--text-muted) 46%,
+    var(--accent) 50%,
+    var(--text-muted) 54%,
+    var(--text-muted) 100%
+  );
+  background-size: 400% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: resume-title-shine 2s ease-in-out 0.5s both;
+}
+
+@keyframes resume-title-shine {
+  from {
+    background-position: 72% 0;
+  }
+  to {
+    background-position: 28% 0;
+  }
 }
 
 /* Typewriter */
@@ -719,12 +807,26 @@ html.dark .resume-page {
 }
 
 /* ===== Print Styles ===== */
-@media print {
+/* Shared paper look for both the system print dialog and the export modal's
+   html2canvas capture (html.exporting). */
+@mixin paper-styles {
   .resume-page {
     display: block;
     padding: 40px;
     background: #ffffff !important;
     color: #1a1a1a !important;
+
+    /* Force the light palette so a dark-mode site still exports/prints as
+       white paper (!important beats the html.dark variable overrides) */
+    --bg-primary: var(--color-bg-primary) !important;
+    --bg-card: var(--color-text-inverse) !important;
+    --text-primary: var(--color-text-primary) !important;
+    --text-secondary: var(--color-text-secondary) !important;
+    --text-muted: var(--color-text-tertiary) !important;
+    --border-light: var(--color-border-default) !important;
+    --border-medium: var(--color-border-hover) !important;
+    --bg-hover: var(--color-bg-secondary) !important;
+    --accent: var(--color-brand-pink) !important;
   }
 
   .nav-section,
@@ -733,6 +835,7 @@ html.dark .resume-page {
   }
 
   .sidebar {
+    position: static;
     margin-bottom: 32px;
   }
 
@@ -768,14 +871,49 @@ html.dark .resume-page {
     transform: none !important;
   }
 
+  .section-title {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+
   .reveal {
     opacity: 1 !important;
     transform: none !important;
   }
 
+  .intro-desc {
+    opacity: 1;
+    transform: none;
+  }
+
+  .cursor {
+    display: none;
+  }
+
   .tech-tag {
     border: 1px solid #e5e5e5;
     background: #f5f5f5;
+  }
+}
+
+@media print {
+  @include paper-styles;
+}
+
+/* Paper scope for the export modal's html2canvas capture: applied to an
+   off-screen CLONE of the resume (never the live page, which would visibly
+   flash through the modal's blurred backdrop) */
+html.exporting,
+.exporting-scope {
+  @include paper-styles;
+
+  & * {
+    transition: none !important;
+    animation: none !important;
+    /* The off-screen clone would otherwise be skipped by content-visibility
+       and laid out with estimated intrinsic heights → overlapping output */
+    content-visibility: visible !important;
   }
 }
 
@@ -840,6 +978,10 @@ html.dark .resume-page {
   }
 
   .cursor {
+    animation: none;
+  }
+
+  .contact-badge .badge-ring {
     animation: none;
   }
 }

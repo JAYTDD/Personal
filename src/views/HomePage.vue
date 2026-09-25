@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, onMounted } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import HeroSection from '@/components/HeroSection.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import { getLanguageGradient } from '@/composables/useGithubRepos'
+import { getLanguageGradient } from '@/utils/languageGradient'
 import { PROJECTS } from '@/data/projects'
 import { GITHUB_LOGIN } from '@/data/site'
+import { useScrollReveal } from '@/composables/useScrollReveal'
 
 // Below-fold: own chunk; API still viewport-gated inside the component.
 // Section min-height reserves space while the async chunk loads (limits CLS).
@@ -28,7 +29,6 @@ const cardProjects = computed(() =>
         gradient,
         language: p.language,
         topics: p.topics,
-        stars: p.stargazers_count,
         github: p.html_url,
         period: p.period,
         stack: p.stack,
@@ -37,28 +37,16 @@ const cardProjects = computed(() =>
 )
 
 // Scroll reveal for sections
-const projectsSectionRef = ref<HTMLElement | null>(null)
 const projectsVisible = ref(false)
 
-onMounted(() => {
-  const el = projectsSectionRef.value
-  if (el) {
-    const rect = el.getBoundingClientRect()
-    if (rect.top < window.innerHeight) {
-      projectsVisible.value = true
-    } else {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry?.isIntersecting) {
-            projectsVisible.value = true
-            observer.disconnect()
-          }
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -50px 0px' },
-      )
-      observer.observe(el)
-    }
-  }
+useScrollReveal({
+  selector: '.projects-section',
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px',
+  once: true,
+  onReveal: () => {
+    projectsVisible.value = true
+  },
 })
 </script>
 
@@ -76,7 +64,7 @@ onMounted(() => {
       </section>
 
       <!-- Projects Section -->
-      <section ref="projectsSectionRef" class="relative z-10 pb-20 projects-section">
+      <section class="relative z-10 pb-20 projects-section">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
           <div
             class="transition-all duration-700 ease-out"

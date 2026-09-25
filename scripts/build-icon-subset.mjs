@@ -2,28 +2,26 @@
 // Build a custom icon collection JSON containing only the icons we actually use,
 // to avoid bundling the full ~5MB lucide + simple-icons data.
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
 
-// 1. Collect every icon name referenced in the codebase
-const sources = [
-  'src/components/icons/AppIcon.vue',
-  'src/components/Footer.vue',
-  'src/components/ProjectCard.vue',
-  'src/components/HeroSection.vue',
-  'src/components/GitHubContributions.vue',
-  'src/components/ScrollToTop.vue',
-  'src/components/TopNavBar.vue',
-  'src/views/AboutPage.vue',
-  'src/views/ExperiencePage.vue',
-  'src/views/HomePage.vue',
-  'src/views/NotFound.vue',
-  'src/views/ResumePage.vue',
-]
+// 1. Collect every icon name referenced anywhere under src/ (vue templates,
+//    data modules, composables) so new files can never be missed.
+function walk(dir) {
+  const out = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = resolve(dir, entry.name)
+    if (entry.isDirectory()) out.push(...walk(path))
+    else out.push(path)
+  }
+  return out
+}
+
+const sources = walk(resolve(root, 'src')).filter((path) => /\.(vue|ts)$/.test(path))
 
 // Inline names in AppIcon.vue are excluded — they are rendered as inline SVG and
 // never reach @iconify/vue's Icon component. We also exclude 'devicon-plain:java'
@@ -33,8 +31,7 @@ const inlineNames = new Set(['sun', 'moon', 'arrow-up', 'arrow-up-right', 'githu
 const skipPrefixes = ['devicon-plain:']
 
 const referenced = new Set()
-for (const rel of sources) {
-  const path = resolve(root, rel)
+for (const path of sources) {
   const content = readFileSync(path, 'utf8')
   // Match lucide:xxx and simple-icons:xxx
   const matches = content.matchAll(/['"`](lucide|simple-icons):[a-z0-9-]+['"`]/g)
@@ -42,7 +39,7 @@ for (const rel of sources) {
     const full = m[0].replace(/['"`]/g, '')
     if (skipPrefixes.some((p) => full.startsWith(p))) continue
     const localName = full.split(':')[1]
-    if (inlineNames.has(localName) && rel === 'src/components/icons/AppIcon.vue') continue
+    if (inlineNames.has(localName) && path.endsWith('AppIcon.vue')) continue
     referenced.add(full)
   }
 }

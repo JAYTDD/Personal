@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
 import { useThemeStore } from '@/stores/theme'
+import { useNumberTicker } from '@/composables/useNumberTicker'
 import { GITHUB_LOGIN, GITHUB_URL } from '@/data/site'
 
 // Mono only needed here / code UI — keep out of global critical CSS
@@ -166,6 +167,20 @@ const sectionRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
 const themeStore = useThemeStore()
 
+// Contribution total counts up when data lands
+const { display: displayTotal } = useNumberTicker(totalContributions)
+
+// Wave reveal: cells sweep in left-to-right by week column. Once the sweep
+// finishes, per-cell transition delays are cleared so hover stays instant.
+const waveMs = WEEKS * 12 + 400
+const waveDone = ref(false)
+watch(isVisible, (visible) => {
+  if (!visible) return
+  setTimeout(() => {
+    waveDone.value = true
+  }, waveMs)
+})
+
 onMounted(() => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (prefersReducedMotion) {
@@ -266,13 +281,14 @@ onMounted(() => {
               :fill="themeStore.isDark ? COLOR_SCALE_DARK[cell.level] : COLOR_SCALE[cell.level]"
               :stroke="themeStore.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'"
               stroke-width="1"
-              class="transition-all duration-300 ease-out"
+              class="transition-all duration-300 ease-out hover:scale-[1.4] cursor-pointer"
               :class="{
                 'opacity-0 scale-0': !isVisible,
                 'opacity-100 scale-100': isVisible,
               }"
               :style="{
                 transformOrigin: `${cell.weekIndex * 14 + 34}px ${cell.dayIndex * 14 + 19}px`,
+                transitionDelay: waveDone ? '0ms' : `${cell.weekIndex * 12}ms`,
               }"
             >
               <title>{{ cell.date }}: {{ cell.count }} 次贡献</title>
@@ -291,7 +307,7 @@ onMounted(() => {
         }"
         style="font-family: 'Geist Mono', monospace;"
       >
-        <span>过去一年共 {{ totalContributions }} 次贡献</span>
+        <span>过去一年共 {{ displayTotal }} 次贡献</span>
         <div class="flex items-center gap-1.5">
           <span>Less</span>
           <svg width="60" height="12" class="inline-block">

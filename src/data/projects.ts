@@ -16,7 +16,6 @@ export interface ProjectItem {
   html_url: string
   /** 主语言（决定卡片渐变色） */
   language: string | null
-  stargazers_count: number
   /** 标签 */
   topics: string[]
   /** ISO 时间，用于首页排序 */
@@ -42,7 +41,6 @@ export const PROJECTS: ProjectItem[] = [
       '上传 Excel 数据文件，AI 自动生成 ECharts 可视化图表与数据分析结论，支持实时状态推送、图表安全渲染、数据筛选与导出、自由拖拽仪表盘的智能 BI 平台',
     html_url: 'https://github.com/JAYTDD/lunesnow-Intelligent-BI',
     language: 'Java',
-    stargazers_count: 0,
     topics: ['vue3', 'typescript', 'echarts', 'spring-boot', 'bi', 'ai'],
     updated_at: '2026-07-10T15:13:08Z',
     period: '2026.06 - 2026.07',
@@ -65,7 +63,6 @@ export const PROJECTS: ProjectItem[] = [
       '为个人和团队打造的智能协同云图库，支持图片管理、空间权限控制、AI 图像处理、WebSocket 多人实时协作与 ECharts 数据可视化分析',
     html_url: 'https://github.com/JAYTDD/lunesnow-pictrue',
     language: 'Java',
-    stargazers_count: 0,
     topics: ['vue3', 'websocket', 'collaboration', 'cloud-gallery', 'java'],
     updated_at: '2026-07-10T16:34:04Z',
     period: '2026.05 - 2026.06',
@@ -87,7 +84,6 @@ export const PROJECTS: ProjectItem[] = [
       '个人博客站点（Vue 3 + Vite + Tailwind 4），含樱花动效、GitHub 贡献热力图与项目展示',
     html_url: 'https://github.com/JAYTDD/Personal',
     language: 'Vue',
-    stargazers_count: 0,
     topics: ['vue', 'typescript', 'vite', 'tailwindcss', 'portfolio'],
     updated_at: '2026-06-22T06:28:50Z',
     period: '2026.05 - 至今',
@@ -101,7 +97,6 @@ export const PROJECTS: ProjectItem[] = [
     description: '壁纸浏览与收藏应用，基于 Vue 3 实现沉浸式图片展示与分类筛选',
     html_url: 'https://github.com/JAYTDD/wallPaper',
     language: 'Vue',
-    stargazers_count: 0,
     topics: ['vue', 'wallpaper', 'frontend'],
     updated_at: '2026-05-20T01:16:03Z',
     period: '2026.05',
@@ -115,7 +110,6 @@ export const PROJECTS: ProjectItem[] = [
     description: 'Vibe Coding 实践的 TodoList 应用，TypeScript 全栈实现，支持任务管理与状态持久化',
     html_url: 'https://github.com/JAYTDD/vibe-coding-TodoList',
     language: 'TypeScript',
-    stargazers_count: 0,
     topics: ['typescript', 'todolist', 'vibe-coding'],
     updated_at: '2026-05-14T09:11:00Z',
     period: '2026.02 - 2026.05',
@@ -130,7 +124,6 @@ export const PROJECTS: ProjectItem[] = [
       '小兔鲜电商实战 —— 基于 Vue3 的电商项目，实现商品展示、购物车、订单管理等核心功能',
     html_url: 'https://github.com/JAYTDD/Vue3-smallrabbit-project',
     language: 'Vue',
-    stargazers_count: 0,
     topics: ['vue3', 'ecommerce', 'shopping-cart', 'frontend'],
     updated_at: '2026-03-07T07:39:46Z',
     period: '2026.02 - 2026.03',

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { nextTick, ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { EXPERIENCES, EXPERIENCE_TYPE_COLORS } from '@/data/experience'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+import { useScrollVelocity } from '@/composables/useScrollVelocity'
 
 // Metric/date mono — not on home critical path
 void import('@fontsource/geist-mono/400.css')
@@ -10,7 +12,8 @@ const activeIndex = ref(0)
 const experiences = EXPERIENCES
 const typeColors = EXPERIENCE_TYPE_COLORS
 
-let revealObserver: IntersectionObserver | null = null
+// kinetic title: the faster the page scrolls, the more the heading skews
+const titleSkew = useScrollVelocity()
 
 const scrollTo = (index: number) => {
   activeIndex.value = index
@@ -22,57 +25,16 @@ const scrollTo = (index: number) => {
   }
 }
 
-onMounted(async () => {
-  await nextTick()
-
-  // Keep the active item in sync with direct navigation or refresh
-  const current = document.querySelector('.timeline-item.revealed') as HTMLElement | null
-  if (!current) {
-    const firstItem = document.querySelector('.timeline-item') as HTMLElement | null
-    if (firstItem) {
-      firstItem.classList.add('revealed')
-      activeIndex.value = Number(firstItem.dataset.index || 0)
-    }
-  }
-
-  // Stagger-reveal first-screen items, observe the rest
-  const items = document.querySelectorAll('.timeline-item')
-  let firstScreenIndex = 0
-  items.forEach((el) => {
-    const rect = el.getBoundingClientRect()
-    if (rect.top < window.innerHeight) {
-      ;(el as HTMLElement).style.setProperty(
-        '--reveal-delay',
-        `${firstScreenIndex * 120}ms`,
-      )
-      el.classList.add('revealed')
-      firstScreenIndex++
-    }
-  })
-
-  // Observe remaining items for scroll-reveal
-  revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const index = parseInt(entry.target.getAttribute('data-index') || '0')
-          activeIndex.value = index
-          entry.target.classList.add('revealed')
-        }
-      })
-    },
-    { threshold: 0.1, rootMargin: '-80px 0px -40% 0px' },
-  )
-  items.forEach((el) => {
-    if (!el.classList.contains('revealed')) {
-      revealObserver?.observe(el)
-    }
-  })
-})
-
-onUnmounted(() => {
-  revealObserver?.disconnect()
-  revealObserver = null
+useScrollReveal({
+  selector: '.timeline-item',
+  classToAdd: 'revealed',
+  rootMargin: '-80px 0px -40% 0px',
+  staggerDelay: 120,
+  // First-screen stagger reveal leaves activeIndex alone; only scroll
+  // movement of the viewport band drives the TOC highlight.
+  onReveal: (_el, index, source) => {
+    if (source === 'observer') activeIndex.value = index
+  },
 })
 </script>
 
@@ -104,12 +66,17 @@ onUnmounted(() => {
     <div class="main-content">
       <!-- Header -->
       <header class="page-header">
-        <h1 class="page-title">我的学习之路</h1>
+        <h1 class="page-title" :style="{ transform: `skewY(${titleSkew.toFixed(2)}deg)` }">
+          我的学习之路
+        </h1>
         <p class="page-subtitle">从前端基础到工程化实战的成长轨迹</p>
       </header>
 
       <!-- Timeline -->
       <div class="timeline">
+        <!-- Scroll-driven tracing beam: grows down the timeline as you scroll
+             (pure CSS animation-timeline; hidden where unsupported) -->
+        <div class="timeline-beam" aria-hidden="true" />
         <div
           v-for="(exp, index) in experiences"
           :id="`exp-${index}`"
@@ -330,12 +297,53 @@ onUnmounted(() => {
   .timeline {
     display: flex;
     flex-direction: column;
+    position: relative;
+  }
+
+  /* Scroll-driven tracing beam — compositor-only, zero JS.
+     scale 1 0 keeps it invisible where scroll-driven animations unsupported. */
+  .timeline-beam {
+    display: none;
+  }
+
+  @supports (animation-timeline: view()) {
+    .timeline-beam {
+      display: block;
+      position: absolute;
+      top: 24px;
+      bottom: 56px;
+      left: 40px;
+      width: 2px;
+      transform: translateX(-50%);
+      transform-origin: top;
+      background: linear-gradient(
+        to bottom,
+        var(--accent) 0%,
+        var(--accent) 85%,
+        transparent 100%
+      );
+      border-radius: 1px;
+      opacity: 0.55;
+      scale: 1 0;
+      animation: timeline-beam-grow linear both;
+      animation-timeline: view();
+      pointer-events: none;
+    }
   }
 
   .timeline-item {
     display: flex;
     gap: 28px;
     @include anim.reveal(30px);
+  }
+
+  @keyframes timeline-beam-grow {
+    from {
+      scale: 1 0;
+    }
+    to {
+      scale: 1 1;
+    }
   }
 
   /* Left: Date & Node */
@@ -653,6 +661,10 @@ onUnmounted(() => {
       width: 65px;
     }
 
+    .timeline-beam {
+      left: 32.5px;
+    }
+
     .timeline-card-wrapper {
       margin-bottom: 16px;
     }
@@ -676,6 +688,10 @@ onUnmounted(() => {
       opacity: 1;
       transform: none;
       transition: none;
+    }
+
+    .timeline-beam {
+      display: none;
     }
   }
 }

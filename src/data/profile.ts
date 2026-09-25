@@ -103,6 +103,9 @@ export const ABOUT_TECH_STACK: SkillTag[] = [
   { name: 'MyBatis', icon: 'lucide:layers', color: '#E8487A', level: 58 },
   { name: 'UniApp', icon: 'lucide:smartphone', color: '#2B9939', level: 72 },
   { name: 'WebSocket', icon: 'lucide:cable', color: '#6B7280', level: 65 },
+  { name: 'Redis', icon: 'simple-icons:redis', color: '#FF4438', level: 62 },
+  { name: 'RabbitMQ', icon: 'simple-icons:rabbitmq', color: '#FF6600', level: 55 },
+  { name: 'AI 工具', icon: 'lucide:bot', color: '#10B981', level: 88 },
 ]
 
 export const HOBBIES = [

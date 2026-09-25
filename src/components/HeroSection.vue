@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
 import { SITE_NAME } from '@/data/site'
+import { useTypewriter } from '@/composables/useTypewriter'
+import { useWordRotate } from '@/composables/useWordRotate'
+import ParticleText from '@/components/ParticleText.vue'
 
 const tags = [
   { name: '前端开发', color: 'pink' },
@@ -13,71 +16,62 @@ const tags = [
   { name: 'MySQL', color: 'violet' },
 ] as const
 
-const lines = ['欢迎来到我的博客', `你好，我是 ${SITE_NAME}`, '用代码，构建属于自己的宇宙。']
-const displayedLines = ref(['', '', ''])
-const currentLineIndex = ref(0)
-const typingDone = ref(false)
-const cursorVisible = ref(true)
+// The typewriter only types the welcome line; the brand heading is the
+// particle-text canvas and the tagline rotates in after typing finishes.
+const textLines = ['欢迎来到我的博客']
+const particleWords = ['Lunesnow', 'VUE', 'TYPESCRIPT']
+
+// Tagline rotates after the typewriter finishes typing line 3.
+// First entry must equal textLines[2] so the swap is invisible.
+const taglines = ['用代码，构建属于自己的宇宙。', '把每一个想法，都变成看得见的作品。', '在像素与逻辑之间，寻找平衡。'] as const
+
+const isVisible = ref(false)
 const showTags = ref(false)
 const dividerVisible = ref(false)
-const isVisible = ref(false)
+const cursorVisible = ref(true)
 
 let cursorInterval: ReturnType<typeof setInterval> | null = null
-let typingInterval: ReturnType<typeof setInterval> | null = null
 let startTimeout: ReturnType<typeof setTimeout> | null = null
-let lineDelayTimeout: ReturnType<typeof setTimeout> | null = null
 let tagsTimeout: ReturnType<typeof setTimeout> | null = null
 let dividerTimeout: ReturnType<typeof setTimeout> | null = null
-let disposed = false
 
-function clearTypingInterval() {
-  if (typingInterval) {
-    clearInterval(typingInterval)
-    typingInterval = null
-  }
-}
+const {
+  lines: displayedLines,
+  activeLineIndex: currentLineIndex,
+  done: typingDone,
+  start,
+} = useTypewriter(textLines, {
+  speed: 100,
+  lineDelay: 400,
+  startDelay: 500,
+  onAllDone: () => {
+    tagsTimeout = setTimeout(() => {
+      showTags.value = true
+    }, 200)
+    dividerTimeout = setTimeout(() => {
+      dividerVisible.value = true
+    }, 400)
+  },
+})
 
-function typeLine(lineIndex: number) {
-  if (disposed) return
-  const text = lines[lineIndex]
-  if (text === undefined) return
+// Tagline rotation starts only once typing is done (skipped for reduced motion,
+// where the typewriter fills instantly and the tagline stays static)
+const { index: taglineIndex, start: startTaglineRotate } = useWordRotate(taglines, {
+  interval: 4500,
+})
+watch(typingDone, (done) => {
+  if (done && !prefersReducedMotion()) startTaglineRotate()
+})
 
-  let charIndex = 0
-  clearTypingInterval()
-  typingInterval = setInterval(() => {
-    if (disposed) {
-      clearTypingInterval()
-      return
-    }
-    if (charIndex < text.length) {
-      displayedLines.value[lineIndex] += text.charAt(charIndex)
-      charIndex++
-    } else {
-      clearTypingInterval()
-      currentLineIndex.value++
-      if (currentLineIndex.value < lines.length) {
-        lineDelayTimeout = setTimeout(() => typeLine(currentLineIndex.value), 400)
-      } else {
-        typingDone.value = true
-        tagsTimeout = setTimeout(() => {
-          showTags.value = true
-        }, 200)
-        dividerTimeout = setTimeout(() => {
-          dividerVisible.value = true
-        }, 400)
-      }
-    }
-  }, 100)
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 onMounted(() => {
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reducedMotion = prefersReducedMotion()
 
-  if (prefersReducedMotion) {
+  if (reducedMotion) {
     // Skip typewriter, show all text immediately
-    displayedLines.value = [...lines]
-    currentLineIndex.value = lines.length
-    typingDone.value = true
     isVisible.value = true
     showTags.value = true
     dividerVisible.value = true
@@ -85,20 +79,18 @@ onMounted(() => {
     cursorInterval = setInterval(() => {
       cursorVisible.value = !cursorVisible.value
     }, 530)
-
     startTimeout = setTimeout(() => {
       isVisible.value = true
-      lineDelayTimeout = setTimeout(() => typeLine(0), 300)
     }, 200)
   }
+
+  // Reduced motion: fills every line instantly; typed mode: waits startDelay
+  start()
 })
 
 onUnmounted(() => {
-  disposed = true
   if (cursorInterval) clearInterval(cursorInterval)
-  clearTypingInterval()
   if (startTimeout) clearTimeout(startTimeout)
-  if (lineDelayTimeout) clearTimeout(lineDelayTimeout)
   if (tagsTimeout) clearTimeout(tagsTimeout)
   if (dividerTimeout) clearTimeout(dividerTimeout)
 })
@@ -125,40 +117,37 @@ onUnmounted(() => {
         />
       </p>
 
-      <!-- Line 2: Main heading -->
+      <!-- Line 2: Particle-text brand (real heading kept for a11y/SEO) -->
       <div
-        class="text-center transition-all duration-700 ease-out delay-100"
+        class="transition-all duration-700 ease-out delay-100"
         :class="{
           'opacity-0 translate-y-4': !isVisible,
           'opacity-100 translate-y-0': isVisible,
         }"
       >
-        <h1
-          class="select-none text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-text-primary dark:text-text-dark-primary leading-[1.08]"
-        >
-          {{ displayedLines[1]
-          }}<span
-            v-if="currentLineIndex === 1 && !typingDone"
-            class="inline-block w-[3px] sm:w-1 h-[0.85em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
-            :class="{ 'opacity-0': !cursorVisible }"
-          />
-        </h1>
-        <!-- Line 3: Tagline -->
-        <p
-          class="select-none mt-5 sm:mt-6 text-lg sm:text-xl md:text-2xl text-text-secondary dark:text-text-dark-secondary tracking-wide min-h-[2rem] font-light"
-        >
-          {{ displayedLines[2] }}
-          <span
-            v-if="currentLineIndex === 2 && !typingDone"
-            class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
-            :class="{ 'opacity-0': !cursorVisible }"
-          />
-          <span
-            v-else-if="typingDone && cursorVisible"
-            class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
-          />
-        </p>
+        <h1 class="sr-only">{{ SITE_NAME }}</h1>
+        <ParticleText :words="particleWords" />
       </div>
+
+      <!-- Line 3: Tagline (rotates in after typing finishes) -->
+      <p
+        class="select-none mt-5 sm:mt-6 text-lg sm:text-xl md:text-2xl text-text-secondary dark:text-text-dark-secondary tracking-wide min-h-[2rem] font-light"
+      >
+        <Transition
+          enter-active-class="transition-all duration-500 ease-out"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-300 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
+        >
+          <span v-if="typingDone" :key="taglineIndex" class="inline-block">{{ taglines[taglineIndex] }}</span>
+        </Transition>
+        <span
+          v-if="typingDone && cursorVisible"
+          class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
+        />
+      </p>
 
       <!-- Divider -->
       <div

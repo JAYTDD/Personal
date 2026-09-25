@@ -9,12 +9,37 @@ import {
 } from '@/data/profile'
 import { ABOUT_TIMELINE } from '@/data/experience'
 import { SITE_BRAND, SOCIAL_LINKS } from '@/data/site'
+import { useTypewriter } from '@/composables/useTypewriter'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+import CopyToast from '@/components/CopyToast.vue'
+import SkillBallpit from '@/components/SkillBallpit.vue'
+import type { PitItem } from '@/components/SkillBallpit.vue'
+import { copyText } from '@/utils/clipboard'
 
 // ========== Typewriter Signature ==========
 const signatureLines = PROFILE.signatureLines
-const signatureLine1 = ref('')
-const signatureLine2 = ref('')
-const typeTimers: Array<ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>> = []
+const { lines: typedSignature, start: startTyping } = useTypewriter(signatureLines, {
+  speed: 80,
+  lineDelay: 400,
+})
+
+// ========== Scroll Reveal ==========
+useScrollReveal({ selector: '.reveal', classToAdd: 'revealed', staggerDelay: 90 })
+useScrollReveal({ selector: '.text-generate', classToAdd: 'revealed-text', threshold: 0.3 })
+// Lamp: re-check both directions, so the glow follows the section in/out of view
+useScrollReveal({
+  selector: '.section-title',
+  classToAdd: 'lamp-on',
+  removeOnExit: true,
+  threshold: 0.5,
+})
+// Aurora name + icon cloud spin only run while on screen (play-state gating)
+useScrollReveal({
+  selector: '.name-aurora',
+  classToAdd: 'motion-on',
+  removeOnExit: true,
+  threshold: 0.1,
+})
 
 // ========== Pointer helpers (rAF + cached rect) ==========
 type RectCache = { left: number; top: number; width: number; height: number }
@@ -139,29 +164,51 @@ const handleMagneticLeave = (e: MouseEvent) => {
   })
 }
 
-// ========== Particle Burst ==========
+// ========== Confetti burst (copy feedback, WAAPI — compositor friendly) ==========
 const particleContainer = ref<HTMLElement | null>(null)
-const showParticles = (e: MouseEvent) => {
+const CONFETTI_COLORS = ['#EC4899', '#F472B6', '#8B5CF6', '#A78BFA', '#F97316', '#FBBF24', '#22D3EE']
+
+const showConfetti = (e: MouseEvent) => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   const container = particleContainer.value
   if (!container) return
   const rect = container.getBoundingClientRect()
   const x = e.clientX - rect.left
   const y = e.clientY - rect.top
 
-  for (let i = 0; i < 8; i++) {
-    const particle = document.createElement('span')
-    particle.className = 'particle'
-    const angle = (Math.PI * 2 * i) / 8
-    const distance = 30 + Math.random() * 20
-    const tx = Math.cos(angle) * distance
-    const ty = Math.sin(angle) * distance
-    particle.style.left = `${x}px`
-    particle.style.top = `${y}px`
-    particle.style.setProperty('--tx', `${tx}px`)
-    particle.style.setProperty('--ty', `${ty}px`)
-    particle.style.background = `var(--accent)`
-    container.appendChild(particle)
-    setTimeout(() => particle.remove(), 600)
+  for (let i = 0; i < 24; i++) {
+    const piece = document.createElement('span')
+    piece.className = 'confetti-piece'
+    const w = 4 + Math.random() * 4
+    piece.style.left = `${x}px`
+    piece.style.top = `${y}px`
+    piece.style.width = `${w}px`
+    piece.style.height = `${w * (1 + Math.random() * 0.8)}px`
+    piece.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length]!
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px'
+    container.appendChild(piece)
+
+    const angle = Math.random() * Math.PI * 2
+    const distance = 45 + Math.random() * 70
+    const dx = Math.cos(angle) * distance
+    const dy = Math.sin(angle) * distance - 30 // upward bias, then falls
+    const rotation = (Math.random() - 0.5) * 540
+    piece
+      .animate(
+        [
+          { transform: 'translate(-50%, -50%) rotate(0deg)', opacity: 1 },
+          {
+            transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 50}px)) rotate(${rotation}deg)`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration: 650 + Math.random() * 450,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards',
+        },
+      )
+      .addEventListener('finish', () => piece.remove())
   }
 }
 
@@ -259,13 +306,20 @@ const nowPlaying = {
 
 // ========== Copy ==========
 const copied = ref('')
+const toastVisible = ref(false)
+const toastMessage = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const copyToClipboard = (text: string, label: string, e: MouseEvent) => {
-  navigator.clipboard.writeText(text).then(() => {
+  copyText(text).then(() => {
     copied.value = label
-    showParticles(e)
-    setTimeout(() => {
+    showConfetti(e)
+    toastMessage.value = `已复制${label}：${text}`
+    toastVisible.value = true
+    if (toastTimer) clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => {
       copied.value = ''
+      toastVisible.value = false
     }, 2000)
   })
 }
@@ -283,136 +337,230 @@ const socials = SOCIAL_LINKS.map((s) => ({
   color: s.color ?? '#FAFAFA',
 }))
 // public/ asset — must be a runtime string so Vite/Rolldown does not try to bundle it
-const avatarSrc = `${import.meta.env.BASE_URL}lunesnow.ico`
+const avatarSrc = `${import.meta.env.BASE_URL}avatar.jpg`
+
+// ========== 3D Icon Cloud (JS-driven billboard orbit: drag + inertia + hover) ==========
+const HOBBY_COLORS = ['#F472B6', '#A78BFA', '#FB923C', '#FBBF24', '#22D3EE', '#4ADE80', '#60A5FA']
+const CLOUD_ICONS = [
+  ...ABOUT_TECH_STACK.map((t) => ({ name: t.name, icon: t.icon, color: t.color })),
+  ...HOBBIES.map((h, i) => ({ name: h.name, icon: h.icon, color: HOBBY_COLORS[i % HOBBY_COLORS.length] })),
+]
+const GOLDEN_ANGLE = 2.399963229
+
+// Unit-sphere Fibonacci distribution. Pixel radii are derived from the
+// container size every frame, so the ellipse is responsive without
+// breakpoints. The item plane NEVER rotates (billboard): positions are
+// recomputed per frame in the rAF loop, so chips always face the viewer.
+const cloudIcons = CLOUD_ICONS.map((item, i, arr) => {
+  const N = arr.length
+  // Half-step offset keeps ny strictly inside (-1, 1) — the first/last
+  // samples would otherwise land exactly on the rotation poles (r = 0)
+  // and never orbit.
+  const ny = 1 - ((i + 0.5) / N) * 2
+  const r = Math.sqrt(Math.max(0, 1 - ny * ny))
+  const theta = i * GOLDEN_ANGLE
+  return {
+    ...item,
+    nx: Math.cos(theta) * r,
+    ny,
+    nz: Math.sin(theta) * r,
+  }
+})
+
+// Pit items for the hobby playground
+const pitItems: PitItem[] = HOBBIES.map((h, i) => ({
+  name: h.name,
+  icon: h.icon,
+  color: HOBBY_COLORS[i % HOBBY_COLORS.length] ?? '#EC4899',
+}))
+
+const cloudEl = ref<HTMLElement | null>(null)
+const dragging = ref(false)
+const hoveredIndex = ref<number | null>(null)
+const itemEls: Array<HTMLElement | null> = []
+const setItemRef = (i: number, el: unknown) => {
+  itemEls[i] = el instanceof HTMLElement ? el : null
+}
+
+// Orbit state — angle in degrees, velocity in deg/s
+const CRUISE = 10 // auto-spin speed
+const HOVER_FACTOR = 0.12 // rotation slowdown while a chip is hovered
+const DAMP = 2.2 // 1/s approach rate toward the target velocity
+const HOVER_RADIUS = 26 // px around each projected center, occlusion-free
+const HOVER_RADIUS_SQ = HOVER_RADIUS * HOVER_RADIUS
+// Static tilt of the orbit plane around the screen Z axis — a leaning ring
+// reads far more volumetric than a flat horizontal one
+const TILT = (-16 * Math.PI) / 180
+const TILT_C = Math.cos(TILT)
+const TILT_S = Math.sin(TILT)
+let angle = 0
+let velocity = 0
+let dragVelocity = 0
+let lastPointerX = 0
+let lastPointerT = 0
+let pointerX = 0 // client coords, relative to the container box
+let pointerY = 0
+let pointerInside = false
+let inView = false
+let rafId = 0
+let prevT = 0
+let cloudWidth = 0
+let cloudHeight = 0
+let cloudObserver: IntersectionObserver | null = null
+const reducedQuery =
+  typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null
+
+// Per-frame projected positions (reused buffers, no per-frame allocations)
+const posTX: number[] = []
+const posTY: number[] = []
+const posZ: number[] = []
+const posD: number[] = []
+
+function onCloudResize() {
+  if (!cloudEl.value) return
+  cloudWidth = cloudEl.value.clientWidth
+  cloudHeight = cloudEl.value.clientHeight
+}
+
+function onPointerDown(e: PointerEvent) {
+  dragging.value = true
+  hoveredIndex.value = null
+  dragVelocity = 0
+  lastPointerX = e.clientX
+  lastPointerT = performance.now()
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+}
+
+function onPointerMove(e: PointerEvent) {
+  const rect = cloudEl.value?.getBoundingClientRect()
+  if (rect) {
+    pointerX = e.clientX - rect.left
+    pointerY = e.clientY - rect.top
+    pointerInside = true
+  }
+  if (!dragging.value) return
+  const now = performance.now()
+  const dt = Math.max(now - lastPointerT, 1)
+  const dx = e.clientX - lastPointerX
+  lastPointerX = e.clientX
+  lastPointerT = now
+  const dAngle = (dx / Math.max(cloudWidth, 1)) * 360
+  angle += dAngle
+  dragVelocity = dragVelocity * 0.6 + (dAngle / dt) * 1000 * 0.4
+}
+
+function onPointerLeave() {
+  pointerInside = false
+  hoveredIndex.value = null
+}
+
+function onPointerUp() {
+  if (!dragging.value) return
+  dragging.value = false
+  // hand the last drag velocity to the inertia loop (clamped)
+  velocity = Math.max(-900, Math.min(900, dragVelocity))
+}
+
+function tick(now: number) {
+  rafId = requestAnimationFrame(tick)
+  const dt = Math.min((now - prevT) / 1000, 0.05)
+  prevT = now
+  if (!inView || !cloudWidth) return
+
+  if (!dragging.value) {
+    const target = reducedQuery?.matches
+      ? 0
+      : CRUISE * (hoveredIndex.value !== null ? HOVER_FACTOR : 1)
+    velocity += (target - velocity) * (1 - Math.exp(-DAMP * dt))
+    angle += velocity * dt
+  }
+
+  const rx = Math.max(140, Math.min(cloudWidth / 2 - 30, 520))
+  const ry = cloudHeight * 0.28
+  const rz = Math.min(cloudWidth * 0.16, 190)
+  const rad = (angle * Math.PI) / 180
+  const cos = Math.cos(rad)
+  const sin = Math.sin(rad)
+
+  // Pass 1: project every icon onto the tilted orbit plane
+  for (let i = 0; i < cloudIcons.length; i++) {
+    const p = cloudIcons[i]
+    if (!p) continue
+    const x0 = (p.nx * cos + p.nz * sin) * rx
+    const z = (-p.nx * sin + p.nz * cos) * rz
+    const y0 = p.ny * ry
+    posTX[i] = x0 * TILT_C - y0 * TILT_S
+    posTY[i] = x0 * TILT_S + y0 * TILT_C
+    posZ[i] = z
+    posD[i] = (z / rz + 1) / 2 // 0 = far back, 1 = closest
+  }
+
+  // Pass 2: hover by distance to the projected centers — independent of
+  // z-order occlusion and of DOM hit-testing, so back icons respond just
+  // as instantly as front ones
+  let newHovered: number | null = null
+  if (pointerInside && !dragging.value) {
+    const px = pointerX - cloudWidth / 2
+    const py = pointerY - cloudHeight / 2
+    let best = HOVER_RADIUS_SQ
+    for (let i = 0; i < cloudIcons.length; i++) {
+      const dx = posTX[i]! - px
+      const dy = posTY[i]! - py
+      const dist = dx * dx + dy * dy
+      if (dist <= best) {
+        best = dist
+        newHovered = i
+      }
+    }
+  }
+  hoveredIndex.value = newHovered
+
+  // Pass 3: write styles
+  for (let i = 0; i < cloudIcons.length; i++) {
+    const el = itemEls[i]
+    if (!el) continue
+    const d = posD[i]!
+    const hovered = newHovered === i
+    const scale = 0.7 + 0.4 * d
+    const opacity = hovered ? 1 : Math.round((0.3 + 0.7 * d) * 20) / 20
+    const blur = hovered ? 0 : Math.round((1 - d) * 3)
+    el.style.transform = `translate(-50%, -50%) translate3d(${posTX[i]!.toFixed(1)}px, ${posTY[i]!.toFixed(1)}px, ${posZ[i]!.toFixed(1)}px) scale(${scale.toFixed(3)})`
+    el.style.opacity = String(opacity)
+    el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none'
+    el.style.zIndex = hovered ? '3000' : String(Math.round(1000 + posZ[i]!))
+  }
+}
 
 // ========== Lifecycle ==========
-let revealObserver: IntersectionObserver | null = null
-let textObserver: IntersectionObserver | null = null
-let lampObserver: IntersectionObserver | null = null
-let disposed = false
-
 onMounted(() => {
-  // Typewriter
-  const typeLine = (line: string, target: typeof signatureLine1, delay: number) => {
-    return new Promise<void>((resolve) => {
-      const delayTimer = setTimeout(() => {
-        if (disposed) {
-          resolve()
-          return
-        }
-        let i = 0
-        const timer = setInterval(() => {
-          if (disposed) {
-            clearInterval(timer)
-            resolve()
-            return
-          }
-          if (i < line.length) {
-            target.value += line.charAt(i)
-            i++
-          } else {
-            clearInterval(timer)
-            resolve()
-          }
-        }, 80)
-        typeTimers.push(timer)
-      }, delay)
-      typeTimers.push(delayTimer)
-    })
-  }
-  typeLine(signatureLines[0]!, signatureLine1, 0).then(() => {
-    if (!disposed) typeLine(signatureLines[1]!, signatureLine2, 400)
-  })
+  startTyping()
 
   // Weather
   startWeatherRefresh()
 
-  // Scroll reveal — stagger first-screen elements, observe the rest
-  const revealElements = document.querySelectorAll('.reveal')
-  let firstScreenIndex = 0
-  revealElements.forEach((el) => {
-    const rect = el.getBoundingClientRect()
-    if (rect.top < window.innerHeight) {
-      ;(el as HTMLElement).style.setProperty(
-        '--reveal-delay',
-        `${firstScreenIndex * 90}ms`,
-      )
-      ;(el as HTMLElement).classList.add('revealed')
-      firstScreenIndex++
-    }
-  })
-
-  revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed')
-        }
-      })
-    },
-    { threshold: 0.1 },
-  )
-  revealElements.forEach((el) => {
-    if (!(el as HTMLElement).classList.contains('revealed')) {
-      revealObserver?.observe(el)
-    }
-  })
-
-  // Text generate effect
-  const textElements = document.querySelectorAll('.text-generate')
-  textElements.forEach((el) => {
-    const rect = el.getBoundingClientRect()
-    if (rect.top < window.innerHeight) {
-      el.classList.add('revealed-text')
-    }
-  })
-  textObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed-text')
-        }
-      })
-    },
-    { threshold: 0.3 },
-  )
-  textElements.forEach((el) => {
-    if (!(el as HTMLElement).classList.contains('revealed-text')) {
-      textObserver?.observe(el)
-    }
-  })
-
-  // Section title lamp effect
-  const lampElements = document.querySelectorAll('.section-title')
-  lampObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('lamp-on')
-        } else {
-          entry.target.classList.remove('lamp-on')
-        }
-      })
-    },
-    { threshold: 0.5 },
-  )
-  lampElements.forEach((el) => lampObserver?.observe(el))
+  // Icon cloud orbit loop
+  onCloudResize()
+  prevT = performance.now()
+  rafId = requestAnimationFrame(tick)
+  window.addEventListener('resize', onCloudResize, { passive: true })
+  if (cloudEl.value) {
+    cloudObserver = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry?.isIntersecting ?? false
+      },
+      { threshold: 0.05 },
+    )
+    cloudObserver.observe(cloudEl.value)
+  }
 })
 
 onUnmounted(() => {
-  disposed = true
   stopWeatherRefresh()
-  typeTimers.forEach((t) => {
-    clearInterval(t)
-    clearTimeout(t)
-  })
-  typeTimers.length = 0
-  revealObserver?.disconnect()
-  textObserver?.disconnect()
-  lampObserver?.disconnect()
-  revealObserver = null
-  textObserver = null
-  lampObserver = null
+  if (toastTimer) clearTimeout(toastTimer)
+  cancelAnimationFrame(rafId)
+  window.removeEventListener('resize', onCloudResize)
+  cloudObserver?.disconnect()
+  cloudObserver = null
 })
 </script>
 
@@ -437,24 +585,24 @@ onUnmounted(() => {
                 :style="avatarStyle"
               />
             </div>
-            <h1 class="name">{{ PROFILE.displayName }}</h1>
+            <h1 class="name name-aurora">{{ PROFILE.displayName }}</h1>
             <p class="title">{{ PROFILE.jobTitle }}</p>
 
             <!-- Signature -->
             <div class="signature">
               <div class="signature-line">
-                <span class="signature-text">{{ signatureLine1 }}</span>
-                <span v-if="!signatureLine2" class="cursor" />
+                <span class="signature-text">{{ typedSignature[0] }}</span>
+                <span v-if="!typedSignature[1]" class="cursor" />
               </div>
               <div class="signature-line">
-                <span class="signature-text">{{ signatureLine2 }}</span>
+                <span class="signature-text">{{ typedSignature[1] }}</span>
                 <span
-                  v-if="signatureLine2 && signatureLine2.length < (signatureLines[1]?.length ?? 0)"
+                  v-if="typedSignature[1] && typedSignature[1].length < (signatureLines[1]?.length ?? 0)"
                   class="cursor"
                 />
                 <span
                   v-if="
-                    signatureLine2 && signatureLine2.length === (signatureLines[1]?.length ?? 0)
+                    typedSignature[1] && typedSignature[1].length === (signatureLines[1]?.length ?? 0)
                   "
                   class="cursor blink"
                 />
@@ -527,6 +675,47 @@ onUnmounted(() => {
         </div>
       </section>
 
+      <!-- Skill Constellation: 3D icon cloud (skills + hobbies on a sphere) -->
+      <section class="section reveal">
+        <h2 class="section-title">技能全景</h2>        <div class="icon-cloud-wrap">
+          <div
+            ref="cloudEl"
+            class="icon-cloud"
+            :class="{ dragging }"
+            @pointerdown="onPointerDown"
+            @pointermove="onPointerMove"
+            @pointerup="onPointerUp"
+            @pointercancel="onPointerUp"
+            @pointerleave="onPointerLeave"
+          >
+            <div class="icon-cloud-sphere">
+              <span
+                v-for="(item, i) in cloudIcons"
+                :key="item.name"
+                :ref="(el) => setItemRef(i, el)"
+                class="icon-cloud-item"
+                :style="{ transform: 'translate(-50%, -50%)' }"
+              >
+                <span
+                  class="icon-cloud-chip"
+                  :style="{ '--item-color': item.color }"
+                  :class="{ 'is-hover': hoveredIndex === i }"
+                >
+                  <Icon :icon="item.icon" width="16" height="16" :style="{ color: item.color }" />
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hobby Playground: physics ball pit -->
+      <section class="section reveal">
+        <h2 class="section-title">兴趣游乐场</h2>
+        <p class="ballpit-hint">抓起一颗球甩出去试试</p>
+        <SkillBallpit :items="pitItems" />
+      </section>
+
       <!-- Learning Timeline -->
       <section class="section reveal">
         <h2 class="section-title">成长时间线</h2>
@@ -562,8 +751,7 @@ onUnmounted(() => {
             @mouseenter="handleContactEnter"
             @mousemove="handleContactMove"
             @mouseleave="handleMagneticLeave"
-            @click="(e) => copyToClipboard(contact.value, contact.label, e)"
-          >
+            @click="(e) => copyToClipboard(contact.value, contact.label, e)"          >
             <div class="contact-card-icon" :style="{ color: contact.color }">
               <Icon :icon="contact.icon" width="20" height="20" />
             </div>
@@ -601,6 +789,8 @@ onUnmounted(() => {
         <p class="social-footer">{{ currentYear }} &mdash; {{ SITE_BRAND }}</p>
       </section>
     </main>
+
+    <CopyToast :show="toastVisible" :message="toastMessage" />
   </div>
 </template>
 
@@ -645,17 +835,6 @@ onUnmounted(() => {
   }
   100% {
     transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
-@keyframes particle-burst {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
     opacity: 0;
   }
 }
@@ -797,6 +976,28 @@ onUnmounted(() => {
   margin-bottom: 4px;
   letter-spacing: -0.03em;
   line-height: 1.1;
+}
+
+/* Aurora name: brand gradient flowing through the glyphs. The animation
+   runs only while on screen (play-state gated by the `motion-on` class). */
+.name-aurora {
+  background-image: linear-gradient(90deg, #ec4899, #8b5cf6, #f97316, #ec4899);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aurora-shift 9s linear infinite;
+  animation-play-state: paused;
+}
+
+.name-aurora.motion-on {
+  animation-play-state: running;
+}
+
+@keyframes aurora-shift {
+  to {
+    background-position: 300% 0;
+  }
 }
 
 .title {
@@ -1298,14 +1499,10 @@ onUnmounted(() => {
   }
 }
 
-/* Particle Burst */
-.particle {
+/* Confetti Burst (WAAPI drives the per-piece transforms) */
+.confetti-piece {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
   pointer-events: none;
-  animation: particle-burst 0.6s ease-out forwards;
   z-index: 100;
 }
 
@@ -1400,6 +1597,97 @@ onUnmounted(() => {
 .revealed .about-timeline-card {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ===== 3D Icon Cloud (wide ellipsoid) ===== */
+.icon-cloud-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 8px;
+}
+
+/* ===== 3D Icon Cloud — JS-driven billboard orbit (drag + inertia + hover) ===== */
+.icon-cloud-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 8px;
+}
+
+.icon-cloud {
+  position: relative;
+  width: 100%;
+  max-width: 1040px;
+  height: 440px;
+  perspective: 1600px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+
+  &.dragging {
+    cursor: grabbing;
+  }
+}
+
+/* Static wrapper — the orbit angle is applied per-frame from JS */
+.icon-cloud-sphere {
+  position: absolute;
+  inset: 0;
+}
+
+/* Billboard anchor: the rAF loop writes transform (translate3d only — the
+   item plane never rotates, so chips always face the viewer) and z-index.
+   Hover is resolved by distance in the loop, so hit-testing/occlusion
+   plays no role — pointer-events are off entirely. */
+.icon-cloud-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+}
+
+.icon-cloud-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--item-color, var(--accent)) 45%, transparent);
+  background: color-mix(in srgb, var(--item-color, var(--accent)) 8%, transparent);
+  transition:
+    transform 0.25s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+
+  &.is-hover {
+    transform: scale(1.18) translateY(-3px);
+    border-color: var(--item-color, var(--accent));
+    background: color-mix(in srgb, var(--item-color, var(--accent)) 18%, transparent);
+    box-shadow:
+      0 6px 18px color-mix(in srgb, var(--item-color, var(--accent)) 35%, transparent),
+      0 0 14px -2px var(--item-color, var(--accent));
+    animation: chip-float 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes chip-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+/* ===== Hobby Playground ballpit ===== */
+.ballpit-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
 
 /* Social Row */
@@ -1559,6 +1847,15 @@ onUnmounted(() => {
   .social-circle:hover .social-icon-inner {
     animation: none;
   }
+
+  /* Static fallbacks for the perpetual animations */
+  .name-aurora {
+    animation: none;
+  }
+
+  .icon-cloud-chip.is-hover {
+    animation: none;
+  }
 }
 
 /* ===== Responsive ===== */
@@ -1587,6 +1884,10 @@ onUnmounted(() => {
 
   .skills-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .icon-cloud {
+    height: 400px;
   }
 
   .contact-grid {
@@ -1636,6 +1937,15 @@ onUnmounted(() => {
 
   .skills-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .icon-cloud {
+    height: 280px;
+  }
+
+  .icon-cloud-item {
+    width: 32px;
+    height: 32px;
   }
 
   .contact-grid {

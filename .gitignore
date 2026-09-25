@@ -42,3 +42,12 @@ __screenshots__/
 
 # Netlify CLI local state
 .netlify/
+
+# AI tool artifacts (kept locally, not tracked)
+.trae/
+.cursor/
+.agents/
+docs/
+skills-lock.json
+.zcode/
+.zcodeignore

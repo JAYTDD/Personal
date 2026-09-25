@@ -13,6 +13,14 @@
   inherits: false;
 }
 
+/* Theme toggle circular reveal: the WAAPI clip-path on ::view-transition-new(root)
+   drives the wipe, so the default snapshot cross-fade must be disabled. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
