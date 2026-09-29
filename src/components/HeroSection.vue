@@ -133,7 +133,12 @@ onUnmounted(() => {
       <p
         class="select-none mt-5 sm:mt-6 text-lg sm:text-xl md:text-2xl text-text-secondary dark:text-text-dark-secondary tracking-wide min-h-[2rem] font-light"
       >
+        <!-- mode="out-in": the outgoing tagline fully leaves before the next
+             one enters. Without it Vue runs both at once, and since the spans
+             are inline siblings they briefly sit side by side, so the next
+             tagline flashes in beside the current one. -->
         <Transition
+          mode="out-in"
           enter-active-class="transition-all duration-500 ease-out"
           enter-from-class="opacity-0 translate-y-2"
           enter-to-class="opacity-100 translate-y-0"
@@ -143,9 +148,13 @@ onUnmounted(() => {
         >
           <span v-if="typingDone" :key="taglineIndex" class="inline-block">{{ taglines[taglineIndex] }}</span>
         </Transition>
+        <!-- Cursor stays in flow and only fades opacity: toggling it with v-if
+             would mount/unmount a ~7px inline box every blink, re-centering the
+             tagline. Matches the Line 1 cursor's approach. -->
         <span
-          v-if="typingDone && cursorVisible"
+          v-if="typingDone"
           class="inline-block w-[3px] h-[0.9em] align-middle ml-1 bg-brand-pink dark:bg-brand-pink-light transition-opacity duration-100"
+          :class="{ 'opacity-0': !cursorVisible }"
         />
       </p>
 

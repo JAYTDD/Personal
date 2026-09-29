@@ -36,7 +36,18 @@ const QUERY = /* GraphQL */ `
   }
 `
 
-const CACHE_OK = 'public, max-age=300, s-maxage=300'
+/**
+ * Contribution data changes at most once a day, so a 30-minute cache costs
+ * nothing in freshness while cutting GitHub GraphQL calls sharply.
+ *
+ * - `max-age`  : browser / dev-server reuse (no request leaves the page at all)
+ * - `s-maxage` : Netlify's CDN edge cache — the main win, since every visitor
+ *                hits the same edge instead of each triggering a Function run
+ * - `stale-while-revalidate`: serve the stale copy instantly and refresh in the
+ *   background, so a cache expiry is invisible to the visitor
+ */
+const CACHE_TTL = 1800 // 30 minutes
+const CACHE_OK = `public, max-age=${CACHE_TTL}, s-maxage=${CACHE_TTL}, stale-while-revalidate=86400`
 const CACHE_ERR = 'no-store'
 
 const jsonResponse = (body: unknown, init: ResponseInit = {}, cache = CACHE_ERR): Response =>

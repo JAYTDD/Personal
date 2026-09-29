@@ -36,6 +36,29 @@ const loading = ref(true)
 const error = ref('')
 const fetched = ref(false)
 
+/**
+ * Module-level cache shared across mounts. HomePage is a route component, so
+ * navigating away and back remounts this and would otherwise refetch every
+ * visit. Mirrors the Function's 30-minute TTL: within that window we reuse the
+ * already-parsed calendar and skip the request entirely.
+ */
+const CACHE_TTL = 30 * 60 * 1000 // 30 minutes
+interface CalendarSnapshot {
+  at: number
+  cells: Cell[]
+  total: number
+}
+let snapshot: CalendarSnapshot | null = null
+
+/** Apply a cached snapshot without touching the network. */
+function applySnapshot(snap: CalendarSnapshot) {
+  cells.value = snap.cells
+  totalContributions.value = snap.total
+  loading.value = false
+  error.value = ''
+  fetched.value = true
+}
+
 function levelFromCount(count: number): number {
   if (count === 0) return 0
   if (count <= 3) return 1
@@ -44,7 +67,13 @@ function levelFromCount(count: number): number {
   return 4
 }
 
-async function fetchContributions() {
+async function fetchContributions({ force = false } = {}) {
+  // Fresh snapshot: reuse it and skip the request entirely.
+  if (!force && snapshot && Date.now() - snapshot.at < CACHE_TTL) {
+    applySnapshot(snapshot)
+    return
+  }
+
   loading.value = true
   error.value = ''
 
@@ -127,6 +156,7 @@ async function fetchContributions() {
     })
 
     cells.value = result
+    snapshot = { at: Date.now(), cells: result, total: calendar.totalContributions }
   } catch (e) {
     error.value = e instanceof Error ? e.message : '获取数据失败'
   } finally {
@@ -228,7 +258,7 @@ onMounted(() => {
         <button
           type="button"
           class="inline-flex items-center gap-1.5 rounded-full border border-border-default dark:border-border-dark px-3 py-1.5 text-xs text-text-secondary dark:text-text-dark-secondary hover:text-brand-pink dark:hover:text-brand-pink-light hover:border-brand-pink/40 transition-colors"
-          @click="fetchContributions"
+          @click="fetchContributions({ force: true })"
         >
           重试
         </button>

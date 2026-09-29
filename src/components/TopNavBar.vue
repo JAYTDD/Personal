@@ -301,10 +301,16 @@ onUnmounted(() => {
   top: 0;
   bottom: 0;
   border-radius: 9999px;
-  background: var(--color-bg-secondary);
+  /* Brand-tinted fill. The previous neutral greys (bg-secondary / bg-dark-secondary)
+     read as almost no pill at all in dark mode, where #18181B sits right on top of
+     the #0F0F10 page background. A pink wash separates it from the bar while the
+     active label keeps its own contrast. */
+  background: color-mix(in srgb, var(--color-brand-pink) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brand-pink) 18%, transparent);
 
   html.dark & {
-    background: var(--color-bg-dark-secondary);
+    background: color-mix(in srgb, var(--color-brand-pink-light) 16%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brand-pink-light) 22%, transparent);
   }
 }
 

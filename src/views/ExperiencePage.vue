@@ -28,7 +28,14 @@ const scrollTo = (index: number) => {
 useScrollReveal({
   selector: '.timeline-item',
   classToAdd: 'revealed',
-  rootMargin: '-80px 0px -40% 0px',
+  // Reveal just before the card enters, so it animates as it arrives instead of
+  // popping in after it is already on screen. The old `-40%` bottom margin put
+  // the trigger line at 60% of the viewport height, which fired far too late on
+  // these tall cards. A small positive top margin keeps items already on screen
+  // at mount on the observer path (the mount pass only reveals what is above the
+  // fold), so the first items still stagger in via the initial pass.
+  rootMargin: '-40px 0px 12% 0px',
+  threshold: 0,
   staggerDelay: 120,
   // First-screen stagger reveal leaves activeIndex alone; only scroll
   // movement of the viewport band drives the TOC highlight.
