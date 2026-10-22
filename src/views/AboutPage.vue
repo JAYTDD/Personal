@@ -13,6 +13,8 @@ import { useTypewriter } from '@/composables/useTypewriter'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 import CopyToast from '@/components/CopyToast.vue'
 import SkillBallpit from '@/components/SkillBallpit.vue'
+import RibbonTrail from '@/components/RibbonTrail.vue'
+import DecodeText from '@/components/DecodeText.vue'
 import type { PitItem } from '@/components/SkillBallpit.vue'
 import { copyText } from '@/utils/clipboard'
 
@@ -639,9 +641,11 @@ onUnmounted(() => {
       <!-- About Blog -->
       <section class="section reveal">
         <h2 class="section-title">关于</h2>
-        <p class="about-text text-generate">
-          {{ PROFILE.aboutBlurb }}
-        </p>
+        <RibbonTrail>
+          <p class="about-text text-generate">
+            {{ PROFILE.aboutBlurb }}
+          </p>
+        </RibbonTrail>
       </section>
 
       <!-- Skills & Interests -->
@@ -677,7 +681,8 @@ onUnmounted(() => {
 
       <!-- Skill Constellation: 3D icon cloud (skills + hobbies on a sphere) -->
       <section class="section reveal">
-        <h2 class="section-title">技能全景</h2>        <div class="icon-cloud-wrap">
+        <h2 class="section-title"><DecodeText text="技能全景" /></h2>
+        <div class="icon-cloud-wrap">
           <div
             ref="cloudEl"
             class="icon-cloud"
@@ -718,7 +723,7 @@ onUnmounted(() => {
 
       <!-- Learning Timeline -->
       <section class="section reveal">
-        <h2 class="section-title">成长时间线</h2>
+        <h2 class="section-title"><DecodeText text="成长时间线" /></h2>
         <div class="about-timeline">
           <div
             v-for="item in timeline"

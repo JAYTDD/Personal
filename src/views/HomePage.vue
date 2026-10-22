@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref } from 'vue'
 import HeroSection from '@/components/HeroSection.vue'
-import ProjectCard from '@/components/ProjectCard.vue'
+import ProjectShowcase from '@/components/ProjectShowcase.vue'
+import DecodeText from '@/components/DecodeText.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
 import { getLanguageGradient } from '@/utils/languageGradient'
 import { PROJECTS } from '@/data/projects'
@@ -38,6 +39,7 @@ const cardProjects = computed(() =>
 
 // Scroll reveal for sections
 const projectsVisible = ref(false)
+const projectsStacked = ref(false)
 
 useScrollReveal({
   selector: '.projects-section',
@@ -64,7 +66,7 @@ useScrollReveal({
       </section>
 
       <!-- Projects Section -->
-      <section class="relative z-10 pb-20 projects-section">
+      <section class="relative z-10 pb-20 projects-section" :class="{ 'is-stacked': projectsStacked }">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
           <div
             class="transition-all duration-700 ease-out"
@@ -76,27 +78,18 @@ useScrollReveal({
             <h2
               class="text-xl font-semibold tracking-wide text-text-primary dark:text-text-dark-primary text-center mb-2"
             >
-              项目展示
+              <DecodeText text="项目展示" />
             </h2>
             <p class="text-sm text-text-secondary dark:text-text-dark-secondary text-center mb-8">
               一些正在维护的开源项目
             </p>
           </div>
 
-          <!-- Project Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-            <ProjectCard
-              v-for="(project, index) in cardProjects"
-              :key="project.name"
-              :project="project"
-              class="transition-all duration-700 ease-out h-full"
-              :class="{
-                'opacity-0 translate-y-8': !projectsVisible,
-                'opacity-100 translate-y-0': projectsVisible,
-              }"
-              :style="{ transitionDelay: `${index * 60}ms` }"
-            />
-          </div>
+          <ProjectShowcase
+            :projects="cardProjects"
+            :revealed="projectsVisible"
+            @mode-change="projectsStacked = $event"
+          />
 
           <!-- View All CTA -->
           <div
@@ -126,5 +119,9 @@ useScrollReveal({
 .projects-section {
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
+}
+.projects-section.is-stacked {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
 }
 </style>
